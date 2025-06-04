@@ -1,6 +1,6 @@
 package io.github.nguyenyou.airstream.core
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 class ObserverList[Obs](private val observers: JsArray[Obs]) extends AnyVal {
 

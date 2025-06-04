@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.modifiers
 
-import com.raquo.ew.{JsArray, JsVector}
+import io.github.nguyenyou.ew.{JsArray, JsVector}
 import io.github.nguyenyou.laminar
 
 import scala.scalajs.js

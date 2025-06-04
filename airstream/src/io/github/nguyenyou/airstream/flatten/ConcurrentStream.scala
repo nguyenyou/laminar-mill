@@ -2,7 +2,7 @@ package io.github.nguyenyou.airstream.flatten
 
 import io.github.nguyenyou.airstream.common.InternalNextErrorObserver
 import io.github.nguyenyou.airstream.core.{EventStream, InternalObserver, Observable, Protected, Signal, Transaction, WritableStream}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.util.{Failure, Success}
 

@@ -1,6 +1,6 @@
 package io.github.nguyenyou.airstream.split
 
-import com.raquo.ew.{JsArray, JsVector}
+import io.github.nguyenyou.ew.{JsArray, JsVector}
 
 import scala.collection.{immutable, mutable}
 import scala.scalajs.js

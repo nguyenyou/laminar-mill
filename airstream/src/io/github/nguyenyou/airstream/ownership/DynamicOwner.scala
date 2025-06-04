@@ -1,7 +1,7 @@
 package io.github.nguyenyou.airstream.ownership
 
 import io.github.nguyenyou.airstream.core.Transaction
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 // @Warning[Fragile]
 //  - We track a list of subscriptions and when activating / deactivating we run user code on each subscription

@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.tags
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import io.github.nguyenyou.laminar.inputs.InputController
 import io.github.nguyenyou.laminar.inputs.InputController.InputControllerConfig
 import io.github.nguyenyou.laminar.keys.{EventProp, HtmlProp}

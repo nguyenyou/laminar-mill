@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.inserters
 
-import com.raquo.ew.JsMap
+import io.github.nguyenyou.ew.JsMap
 import io.github.nguyenyou.laminar
 import io.github.nguyenyou.laminar.DomApi
 import io.github.nguyenyou.laminar.nodes.{ChildNode, CommentNode, ParentNode, ReactiveElement}

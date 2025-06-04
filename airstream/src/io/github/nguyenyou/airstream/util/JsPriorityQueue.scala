@@ -1,6 +1,6 @@
 package io.github.nguyenyou.airstream.util
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 class JsPriorityQueue[A](getRank: A => Int) {
 

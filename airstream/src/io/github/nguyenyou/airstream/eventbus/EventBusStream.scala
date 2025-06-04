@@ -2,7 +2,7 @@ package io.github.nguyenyou.airstream.eventbus
 
 import io.github.nguyenyou.airstream.common.InternalNextErrorObserver
 import io.github.nguyenyou.airstream.core.{EventStream, Protected, Transaction, WritableStream}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 class EventBusStream[A] private[eventbus] (
   parentDisplayName: => String

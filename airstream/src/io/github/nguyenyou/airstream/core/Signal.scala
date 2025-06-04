@@ -14,7 +14,7 @@ import io.github.nguyenyou.airstream.split.{SplittableOneSignal, SplittableSigna
 import io.github.nguyenyou.airstream.state.{ObservedSignal, OwnedSignal, Val}
 import io.github.nguyenyou.airstream.status.Status
 import io.github.nguyenyou.airstream.timing.JsPromiseSignal
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}

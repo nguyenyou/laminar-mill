@@ -1,6 +1,6 @@
 package io.github.nguyenyou.airstream.ownership
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.annotation.unused
 

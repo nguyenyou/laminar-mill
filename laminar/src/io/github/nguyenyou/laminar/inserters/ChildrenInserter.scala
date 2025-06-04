@@ -1,7 +1,7 @@
 package io.github.nguyenyou.laminar.inserters
 
 import io.github.nguyenyou.airstream.core.Observable
-import com.raquo.ew.JsMap
+import io.github.nguyenyou.ew.JsMap
 import io.github.nguyenyou.laminar
 import io.github.nguyenyou.laminar.modifiers.{RenderableNode, RenderableSeq}
 import io.github.nguyenyou.laminar.nodes.{ChildNode, ParentNode, ReactiveElement}

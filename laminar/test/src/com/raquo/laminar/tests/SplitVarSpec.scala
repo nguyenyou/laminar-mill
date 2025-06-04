@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.tests
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import io.github.nguyenyou.laminar.api.L._
 import io.github.nguyenyou.laminar.api.features.unitArrows
 import io.github.nguyenyou.laminar.utils.UnitSpec

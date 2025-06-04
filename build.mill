@@ -28,55 +28,9 @@ trait WebModule extends ScalaJSModule {
     
     def mvnDeps = Seq(
       mvn"org.scala-js::scalajs-dom::${Versions.sjsdom}",
-      mvn"com.raquo::ew::${Versions.ew}",
       mvn"app.tulz::tuplez-full-light::${Versions.tuplez}"
     )
-}
 
-object www extends WebModule {
-  def moduleDeps = Seq(laminar)
-}
-
-object waypoint extends WebModule {
-  def moduleDeps = Seq(laminar)
-
-  def mvnDeps = Seq(
-    mvn"be.doeraene::url-dsl::${Versions.urldsl}",
-    mvn"com.lihaoyi::upickle::${Versions.upickle}"
-  )
-
-  object test extends ScalaJSTests with TestModule.ScalaTest {
-    def scalaTestVersion = Versions.scalatest
-
-    def scalacOptions = Seq(
-      "-rewrite",
-      "-source", "3.4-migration",
-      "-feature",
-      "-language:implicitConversions"
-    )
-
-    def jsEnvConfig = Task { JsEnvConfig.JsDom() }
-  }
-}
-
-object airstream extends WebModule {
-  object test extends ScalaJSTests with TestModule.ScalaTest {
-    def scalaTestVersion = Versions.scalatest
-
-    def scalacOptions = Seq(
-      "-rewrite",
-      "-source", "3.4-migration",
-      "-feature",
-      "-language:implicitConversions"
-    )
-
-    def jsEnvConfig = Task { JsEnvConfig.JsDom() }
-  }
-}
-
-object laminar extends WebModule {
-    def moduleDeps = Seq(airstream)
-  
     object test extends ScalaJSTests with TestModule.ScalaTest {
         def scalaTestVersion = Versions.scalatest
 
@@ -93,4 +47,29 @@ object laminar extends WebModule {
 
         def jsEnvConfig = Task { JsEnvConfig.JsDom() }
     }
+}
+
+object www extends WebModule {
+  def moduleDeps = Seq(laminar)
+}
+
+object waypoint extends WebModule {
+  def moduleDeps = Seq(laminar)
+
+  def mvnDeps = Seq(
+    mvn"be.doeraene::url-dsl::${Versions.urldsl}",
+    mvn"com.lihaoyi::upickle::${Versions.upickle}"
+  )
+}
+
+object airstream extends WebModule {
+  def moduleDeps = Seq(ew)
+}
+
+object laminar extends WebModule {
+    def moduleDeps = Seq(airstream)
+  
+}
+
+object ew extends WebModule {
 }

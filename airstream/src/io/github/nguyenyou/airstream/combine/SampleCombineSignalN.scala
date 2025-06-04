@@ -2,7 +2,7 @@ package io.github.nguyenyou.airstream.combine
 
 import io.github.nguyenyou.airstream.common.{InternalParentObserver, MultiParentSignal}
 import io.github.nguyenyou.airstream.core.{Protected, Signal}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.util.Try
 

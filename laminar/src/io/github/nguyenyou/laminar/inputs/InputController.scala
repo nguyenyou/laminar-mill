@@ -2,7 +2,7 @@ package io.github.nguyenyou.laminar.inputs
 
 import io.github.nguyenyou.airstream.core.Observer
 import io.github.nguyenyou.airstream.ownership.{DynamicSubscription, Owner, Subscription}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import io.github.nguyenyou.laminar.DomApi
 import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.inputs.InputController.InputControllerConfig

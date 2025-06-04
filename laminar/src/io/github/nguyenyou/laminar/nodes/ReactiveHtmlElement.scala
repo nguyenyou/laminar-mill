@@ -1,7 +1,7 @@
 package io.github.nguyenyou.laminar.nodes
 
 import io.github.nguyenyou.airstream.ownership.DynamicSubscription
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import io.github.nguyenyou.laminar.DomApi
 import io.github.nguyenyou.laminar.inputs.InputController
 import io.github.nguyenyou.laminar.keys.{HtmlProp, Key}

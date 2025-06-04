@@ -28,3 +28,6 @@ jobs:
 
       - name: Run Waypoint tests
         run: ./mill waypoint.test
+
+      - name: Run Ew tests
+        run: ./mill ew.test

@@ -1,7 +1,7 @@
 package io.github.nguyenyou.airstream.common
 
 import io.github.nguyenyou.airstream.core.{Observable, Protected, WritableStream}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 /** A simple stream that has multiple parents. */
 trait MultiParentStream[I, O] extends WritableStream[O] {

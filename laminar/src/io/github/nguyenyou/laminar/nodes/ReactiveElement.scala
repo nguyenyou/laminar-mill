@@ -3,7 +3,7 @@ package io.github.nguyenyou.laminar.nodes
 import io.github.nguyenyou.airstream.core.{EventStream, Observable, Observer, Sink, Transaction}
 import io.github.nguyenyou.airstream.eventbus.{EventBus, WriteBus}
 import io.github.nguyenyou.airstream.ownership.{DynamicOwner, DynamicSubscription, Subscription, TransferableSubscription}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import io.github.nguyenyou.laminar.keys.{CompositeKey, EventProcessor, Key}
 import io.github.nguyenyou.laminar.lifecycle.MountContext
 import io.github.nguyenyou.laminar.modifiers.{EventListener, Modifier}

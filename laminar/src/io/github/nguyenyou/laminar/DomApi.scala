@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar
 
-import com.raquo.ew._
+import io.github.nguyenyou.ew._
 import io.github.nguyenyou.laminar.api.L.svg
 import io.github.nguyenyou.laminar.keys.{AriaAttr, EventProcessor, HtmlAttr, HtmlProp, StyleProp, SvgAttr}
 import io.github.nguyenyou.laminar.modifiers.EventListener

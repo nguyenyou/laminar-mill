@@ -4,7 +4,7 @@ import io.github.nguyenyou.airstream.debug.{DebuggableObservable, DebuggableSign
 import io.github.nguyenyou.airstream.flatten.{AllowFlatMap, FlattenStrategy, MergingStrategy, SwitchingStrategy}
 import io.github.nguyenyou.airstream.ownership.{Owner, Subscription}
 import io.github.nguyenyou.airstream.status.{FlatMapStatusObservable, Status}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.annotation.unused
 import scala.scalajs.js

@@ -3,7 +3,7 @@ package io.github.nguyenyou.airstream.combine
 import io.github.nguyenyou.airstream.common.{InternalParentObserver, MultiParentStream, Observation}
 import io.github.nguyenyou.airstream.core.{EventStream, Observable, Protected, SyncObservable, Transaction, WritableStream}
 import io.github.nguyenyou.airstream.util.JsPriorityQueue
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.scalajs.js
 

@@ -1,7 +1,7 @@
 package io.github.nguyenyou.airstream.common
 
 import io.github.nguyenyou.airstream.core.{Protected, Signal, WritableSignal}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 /** A simple signal that has multiple parents. */
 trait MultiParentSignal[I, O] extends WritableSignal[O] {

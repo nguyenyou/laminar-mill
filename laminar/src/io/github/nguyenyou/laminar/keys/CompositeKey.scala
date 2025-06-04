@@ -1,7 +1,7 @@
 package io.github.nguyenyou.laminar.keys
 
 import io.github.nguyenyou.airstream.core.Source
-import com.raquo.ew.ewArray
+import io.github.nguyenyou.ew.ewArray
 import io.github.nguyenyou.laminar.api.L.{MapValueMapper, StringValueMapper}
 import io.github.nguyenyou.laminar.api.StringSeqValueMapper
 import io.github.nguyenyou.laminar.codecs.Codec

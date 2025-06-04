@@ -4,7 +4,7 @@ import io.github.nguyenyou.airstream.combine.MergeStream
 import io.github.nguyenyou.airstream.core.AirstreamError.TransactionDepthExceeded
 import io.github.nguyenyou.airstream.custom.CustomSource
 import io.github.nguyenyou.airstream.util.JsPriorityQueue
-import com.raquo.ew.{JsArray, JsMap}
+import io.github.nguyenyou.ew.{JsArray, JsMap}
 
 import scala.annotation.tailrec
 import scala.scalajs.js

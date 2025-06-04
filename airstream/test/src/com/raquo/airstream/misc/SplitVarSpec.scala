@@ -7,7 +7,7 @@ import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
 import io.github.nguyenyou.airstream.ownership.{DynamicOwner, DynamicSubscription, ManualOwner, Subscription}
 import io.github.nguyenyou.airstream.split.DuplicateKeysConfig
 import io.github.nguyenyou.airstream.state.Var
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import org.scalatest.{Assertion, BeforeAndAfter}
 
 import scala.collection.mutable

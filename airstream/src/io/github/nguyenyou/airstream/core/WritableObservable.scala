@@ -1,7 +1,7 @@
 package io.github.nguyenyou.airstream.core
 
 import io.github.nguyenyou.airstream.ownership.{Owner, Subscription}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.util.Try
 

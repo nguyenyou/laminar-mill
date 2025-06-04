@@ -1,6 +1,6 @@
 package io.github.nguyenyou.airstream.core
 
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.annotation.{implicitNotFound, unused}
 import scala.util.Try

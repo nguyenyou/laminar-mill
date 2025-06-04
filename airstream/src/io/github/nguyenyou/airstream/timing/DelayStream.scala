@@ -2,7 +2,7 @@ package io.github.nguyenyou.airstream.timing
 
 import io.github.nguyenyou.airstream.common.{InternalNextErrorObserver, SingleParentStream}
 import io.github.nguyenyou.airstream.core.{EventStream, Transaction}
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle

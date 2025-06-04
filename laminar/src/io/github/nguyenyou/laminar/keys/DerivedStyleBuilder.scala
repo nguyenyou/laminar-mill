@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.keys
 
-import com.raquo.ew._
+import io.github.nguyenyou.ew._
 
 import scala.scalajs.js
 

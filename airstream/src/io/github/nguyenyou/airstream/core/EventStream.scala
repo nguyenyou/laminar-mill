@@ -14,7 +14,7 @@ import io.github.nguyenyou.airstream.misc._
 import io.github.nguyenyou.airstream.split.{SplittableOneStream, SplittableStream}
 import io.github.nguyenyou.airstream.status.{AsyncStatusObservable, Status}
 import io.github.nguyenyou.airstream.timing._
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 
 import java.util.concurrent.Flow
 import scala.annotation.unused

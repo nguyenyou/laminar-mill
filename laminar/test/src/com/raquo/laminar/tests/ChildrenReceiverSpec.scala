@@ -1,7 +1,7 @@
 package io.github.nguyenyou.laminar.tests
 
 import com.raquo.domtestutils.matching.Rule
-import com.raquo.ew.JsVector
+import io.github.nguyenyou.ew.JsVector
 import io.github.nguyenyou.laminar.api.L._
 import io.github.nguyenyou.laminar.fixtures.AirstreamFixtures.Effect
 import io.github.nguyenyou.laminar.modifiers.RenderableNode

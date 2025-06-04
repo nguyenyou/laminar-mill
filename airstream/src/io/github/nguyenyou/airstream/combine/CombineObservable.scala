@@ -3,7 +3,7 @@ package io.github.nguyenyou.airstream.combine
 import io.github.nguyenyou.airstream.common.InternalParentObserver
 import io.github.nguyenyou.airstream.core.{SyncObservable, Transaction, WritableObservable}
 import io.github.nguyenyou.airstream.core.AirstreamError.CombinedError
-import com.raquo.ew.JsArray
+import io.github.nguyenyou.ew.JsArray
 import org.scalajs.dom
 
 import scala.util.{Failure, Success, Try}

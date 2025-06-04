@@ -1,6 +1,6 @@
 package io.github.nguyenyou.laminar.tests
 
-import com.raquo.ew
+import io.github.nguyenyou.ew
 import io.github.nguyenyou.laminar.api.L._
 import io.github.nguyenyou.laminar.modifiers.{RenderableNode, RenderableText}
 import io.github.nguyenyou.laminar.nodes.ReactiveElement
