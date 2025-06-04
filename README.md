@@ -17,3 +17,10 @@ yarn install
 yarn install
 yarn dev
 ```
+
+## Metals
+
+```sh
+mill __.compiledClassesAndSemanticDbFiles
+mill __.semanticDbData
+```
