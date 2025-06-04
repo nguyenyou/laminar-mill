@@ -25,3 +25,6 @@ jobs:
 
       - name: Run Laminar tests
         run: ./mill laminar.test
+
+      - name: Run Waypoint tests
+        run: ./mill waypoint.test

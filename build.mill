@@ -11,6 +11,8 @@ object Versions {
     val ew = "0.2.0"
     val tuplez = "0.4.0"
     val scaladomtestutils = "18.0.0"
+    val urldsl = "0.6.2"
+    val upickle = "2.0.0"
 }
 
 trait WebModule extends ScalaJSModule { 
@@ -33,6 +35,28 @@ trait WebModule extends ScalaJSModule {
 
 object www extends WebModule {
   def moduleDeps = Seq(laminar)
+}
+
+object waypoint extends WebModule {
+  def moduleDeps = Seq(laminar)
+
+  def mvnDeps = Seq(
+    mvn"be.doeraene::url-dsl::${Versions.urldsl}",
+    mvn"com.lihaoyi::upickle::${Versions.upickle}"
+  )
+
+  object test extends ScalaJSTests with TestModule.ScalaTest {
+    def scalaTestVersion = Versions.scalatest
+
+    def scalacOptions = Seq(
+      "-rewrite",
+      "-source", "3.4-migration",
+      "-feature",
+      "-language:implicitConversions"
+    )
+
+    def jsEnvConfig = Task { JsEnvConfig.JsDom() }
+  }
 }
 
 object airstream extends WebModule {
