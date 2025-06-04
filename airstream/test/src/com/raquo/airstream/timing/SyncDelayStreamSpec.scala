@@ -1,9 +1,9 @@
-package com.raquo.airstream.timing
+package io.github.nguyenyou.airstream.timing
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 

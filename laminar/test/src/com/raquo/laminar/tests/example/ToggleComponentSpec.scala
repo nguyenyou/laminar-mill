@@ -1,7 +1,7 @@
-package com.raquo.laminar.tests.example
+package io.github.nguyenyou.laminar.tests.example
 
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 import scala.util.Random

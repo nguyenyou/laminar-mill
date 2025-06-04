@@ -1,6 +1,6 @@
-package com.raquo.laminar.fixtures
+package io.github.nguyenyou.laminar.fixtures
 
-import com.raquo.airstream.core.Observer
+import io.github.nguyenyou.airstream.core.Observer
 
 import scala.collection.mutable
 

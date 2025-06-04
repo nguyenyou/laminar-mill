@@ -1,6 +1,6 @@
-package com.raquo.airstream.ownership
+package io.github.nguyenyou.airstream.ownership
 
-import com.raquo.airstream.UnitSpec
+import io.github.nguyenyou.airstream.UnitSpec
 
 class TransferableSubscriptionSpec extends UnitSpec {
 

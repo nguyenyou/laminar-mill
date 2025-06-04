@@ -1,6 +1,6 @@
-package com.raquo.airstream.util
+package io.github.nguyenyou.airstream.util
 
-import com.raquo.airstream.UnitSpec
+import io.github.nguyenyou.airstream.UnitSpec
 
 import scala.util.Try
 

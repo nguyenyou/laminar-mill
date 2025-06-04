@@ -1,10 +1,10 @@
-package com.raquo.airstream.ownership
+package io.github.nguyenyou.airstream.ownership
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.Effect
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.Effect
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 

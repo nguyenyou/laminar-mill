@@ -1,9 +1,9 @@
-package com.raquo.airstream.core
+package io.github.nguyenyou.airstream.core
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.ownership.Owner
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.Owner
 import org.scalactic.anyvals.NonEmptyList
 
 import java.util.concurrent.Flow

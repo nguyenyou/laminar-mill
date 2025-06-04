@@ -1,6 +1,6 @@
-package com.raquo.airstream.fixtures
+package io.github.nguyenyou.airstream.fixtures
 
-import com.raquo.airstream.core.Observer
+import io.github.nguyenyou.airstream.core.Observer
 
 import scala.collection.mutable
 

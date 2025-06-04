@@ -1,10 +1,10 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
 import com.raquo.ew
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.modifiers.{RenderableNode, RenderableText}
-import com.raquo.laminar.nodes.ReactiveElement
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.modifiers.{RenderableNode, RenderableText}
+import io.github.nguyenyou.laminar.nodes.ReactiveElement
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 import scala.collection.mutable
 import scala.scalajs.js

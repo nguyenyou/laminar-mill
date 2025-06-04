@@ -1,11 +1,11 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
 import com.raquo.domtestutils.matching.ExpectedNode
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.modifiers.RenderableNode
-import com.raquo.laminar.nodes.ChildNode
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.modifiers.RenderableNode
+import io.github.nguyenyou.laminar.nodes.ChildNode
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 class ChildReceiverSpec extends UnitSpec {

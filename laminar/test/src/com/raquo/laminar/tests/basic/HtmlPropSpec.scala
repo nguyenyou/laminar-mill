@@ -1,8 +1,8 @@
-package com.raquo.laminar.tests.basic
+package io.github.nguyenyou.laminar.tests.basic
 
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 class HtmlPropSpec extends UnitSpec {
 

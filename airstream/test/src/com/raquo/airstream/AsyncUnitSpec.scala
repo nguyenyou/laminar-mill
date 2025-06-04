@@ -1,4 +1,4 @@
-package com.raquo.airstream
+package io.github.nguyenyou.airstream
 
 import org.scalatest.funspec.AsyncFunSpec
 

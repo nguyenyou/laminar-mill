@@ -1,9 +1,9 @@
-package com.raquo.airstream.combine.generated
+package io.github.nguyenyou.airstream.combine.generated
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{Observer, Signal}
-import com.raquo.airstream.fixtures.TestableOwner
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{Observer, Signal}
+import io.github.nguyenyou.airstream.fixtures.TestableOwner
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 

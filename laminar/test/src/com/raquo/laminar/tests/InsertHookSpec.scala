@@ -1,8 +1,8 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.fixtures.ButtonElement
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.fixtures.ButtonElement
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 class InsertHookSpec extends UnitSpec {
 

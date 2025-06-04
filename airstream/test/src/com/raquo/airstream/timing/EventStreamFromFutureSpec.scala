@@ -1,8 +1,8 @@
-package com.raquo.airstream.timing
+package io.github.nguyenyou.airstream.timing
 
-import com.raquo.airstream.AsyncUnitSpec
-import com.raquo.airstream.core.{EventStream, Observer}
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.AsyncUnitSpec
+import io.github.nguyenyou.airstream.core.{EventStream, Observer}
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
 import org.scalatest.{Assertion, BeforeAndAfter}
 
 import scala.collection.mutable

@@ -1,10 +1,10 @@
-package com.raquo.airstream.errors
+package io.github.nguyenyou.airstream.errors
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{AirstreamError, Observer}
-import com.raquo.airstream.core.AirstreamError.{ObserverError, ObserverErrorHandlingError}
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, ExpectedError, TestableOwner}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{AirstreamError, Observer}
+import io.github.nguyenyou.airstream.core.AirstreamError.{ObserverError, ObserverErrorHandlingError}
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, ExpectedError, TestableOwner}
 import org.scalatest.BeforeAndAfter
 
 import scala.collection.mutable

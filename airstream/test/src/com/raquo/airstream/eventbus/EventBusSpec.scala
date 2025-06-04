@@ -1,9 +1,9 @@
-package com.raquo.airstream.eventbus
+package io.github.nguyenyou.airstream.eventbus
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.ownership.Owner
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.Owner
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}

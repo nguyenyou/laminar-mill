@@ -1,9 +1,9 @@
-package com.raquo.airstream.javaflow
+package io.github.nguyenyou.airstream.javaflow
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.EventStream
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.ownership.Owner
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.EventStream
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.Owner
 
 import java.util.concurrent.Flow
 import scala.collection.mutable

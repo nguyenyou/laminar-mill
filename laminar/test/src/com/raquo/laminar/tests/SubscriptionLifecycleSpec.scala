@@ -1,10 +1,10 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
 import com.raquo.domtestutils.matching.ExpectedNode
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.nodes.ReactiveElement
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.nodes.ReactiveElement
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 import org.scalatest.Assertion
 

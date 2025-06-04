@@ -1,13 +1,13 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
-import com.raquo.airstream.custom.{CustomSource, CustomStreamSource}
-import com.raquo.laminar
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.fixtures.TestableOwner
-import com.raquo.laminar.keys.DerivedStyleProp
-import com.raquo.laminar.modifiers.KeySetter.StyleSetter
-import com.raquo.laminar.nodes.ReactiveElement
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.airstream.custom.{CustomSource, CustomStreamSource}
+import io.github.nguyenyou.laminar
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.fixtures.TestableOwner
+import io.github.nguyenyou.laminar.keys.DerivedStyleProp
+import io.github.nguyenyou.laminar.modifiers.KeySetter.StyleSetter
+import io.github.nguyenyou.laminar.nodes.ReactiveElement
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 import scala.collection.{immutable, mutable}
@@ -561,7 +561,7 @@ class SyntaxSpec extends UnitSpec {
     assertTypeError("div(onClick.flatMapStream(_ => bus.events) --> intVar.update(_ + 5))")
 
     {
-      import com.raquo.laminar.api.features.unitArrows
+      import io.github.nguyenyou.laminar.api.features.unitArrows
 
       el.amend(
         onClick --> effectReturningUnit(),

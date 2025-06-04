@@ -1,4 +1,4 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
 import com.raquo.domtestutils.scalatest.DomEnvSpec
 

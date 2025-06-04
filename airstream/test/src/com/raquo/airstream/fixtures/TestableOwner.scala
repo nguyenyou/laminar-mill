@@ -1,6 +1,6 @@
-package com.raquo.airstream.fixtures
+package io.github.nguyenyou.airstream.fixtures
 
-import com.raquo.airstream.ownership.{Owner, Subscription}
+import io.github.nguyenyou.airstream.ownership.{Owner, Subscription}
 
 class TestableOwner extends Owner {
 

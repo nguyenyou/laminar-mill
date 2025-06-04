@@ -1,10 +1,10 @@
-package com.raquo.airstream.distinct
+package io.github.nguyenyou.airstream.distinct
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 import scala.util.{Failure, Success}

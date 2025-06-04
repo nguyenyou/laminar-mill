@@ -1,10 +1,10 @@
-package com.raquo.airstream.flatten
+package io.github.nguyenyou.airstream.flatten
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{EventStream, Observer, Signal}
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{EventStream, Observer, Signal}
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 

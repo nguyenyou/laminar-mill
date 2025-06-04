@@ -1,4 +1,4 @@
-package com.raquo.airstream.fixtures
+package io.github.nguyenyou.airstream.fixtures
 
 import scala.collection.mutable
 

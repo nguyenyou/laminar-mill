@@ -1,12 +1,12 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
 import com.raquo.domtestutils.matching.Rule
 import com.raquo.ew.JsVector
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.fixtures.AirstreamFixtures.Effect
-import com.raquo.laminar.modifiers.RenderableNode
-import com.raquo.laminar.nodes.ChildNode
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.fixtures.AirstreamFixtures.Effect
+import io.github.nguyenyou.laminar.modifiers.RenderableNode
+import io.github.nguyenyou.laminar.nodes.ChildNode
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalatest.BeforeAndAfter
 
 import scala.collection.{immutable, mutable}

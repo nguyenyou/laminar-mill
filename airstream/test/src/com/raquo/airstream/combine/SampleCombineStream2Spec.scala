@@ -1,9 +1,9 @@
-package com.raquo.airstream.combine
+package io.github.nguyenyou.airstream.combine
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
 
 import scala.collection.mutable
 

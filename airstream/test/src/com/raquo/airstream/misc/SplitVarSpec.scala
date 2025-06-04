@@ -1,12 +1,12 @@
-package com.raquo.airstream.misc
+package io.github.nguyenyou.airstream.misc
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{Observer, Signal, Transaction}
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.ownership.{DynamicOwner, DynamicSubscription, ManualOwner, Subscription}
-import com.raquo.airstream.split.DuplicateKeysConfig
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{Observer, Signal, Transaction}
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.{DynamicOwner, DynamicSubscription, ManualOwner, Subscription}
+import io.github.nguyenyou.airstream.split.DuplicateKeysConfig
+import io.github.nguyenyou.airstream.state.Var
 import com.raquo.ew.JsArray
 import org.scalatest.{Assertion, BeforeAndAfter}
 

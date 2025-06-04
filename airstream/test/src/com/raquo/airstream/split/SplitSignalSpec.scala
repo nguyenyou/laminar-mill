@@ -1,11 +1,11 @@
-package com.raquo.airstream.split
+package io.github.nguyenyou.airstream.split
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{AirstreamError, Observer, Signal, Transaction}
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.ownership.{DynamicOwner, DynamicSubscription, ManualOwner, Subscription}
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{AirstreamError, Observer, Signal, Transaction}
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.{DynamicOwner, DynamicSubscription, ManualOwner, Subscription}
+import io.github.nguyenyou.airstream.state.Var
 import com.raquo.ew.JsArray
 import org.scalatest.{Assertion, BeforeAndAfter}
 
@@ -1644,7 +1644,7 @@ class SplitSignalSpec extends UnitSpec with BeforeAndAfter {
 
   it("split child active while split signal is stopped") {
 
-    import com.raquo.airstream.split.SplitSignalSpec._
+    import io.github.nguyenyou.airstream.split.SplitSignalSpec._
 
     val outerOwner = new TestableOwner
     val innerOwner = new TestableOwner

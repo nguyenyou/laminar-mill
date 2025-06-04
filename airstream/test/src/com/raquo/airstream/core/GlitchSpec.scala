@@ -1,9 +1,9 @@
-package com.raquo.airstream.core
+package io.github.nguyenyou.airstream.core
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.collection.mutable
 
@@ -544,7 +544,7 @@ class GlitchSpec extends UnitSpec {
   it("Nested split + flatMapSwitch") {
     // Test for https://github.com/raquo/Airstream/issues/140
 
-    import com.raquo.airstream.split.SplitSignalSpec._
+    import io.github.nguyenyou.airstream.split.SplitSignalSpec._
 
     val intVar: Var[Int] = Var(10).setDisplayName("intVar")
 

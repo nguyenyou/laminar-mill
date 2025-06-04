@@ -1,8 +1,8 @@
-package com.raquo.airstream.misc
+package io.github.nguyenyou.airstream.misc
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{EventStream, Observer}
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{EventStream, Observer}
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
 
 import scala.collection.mutable
 

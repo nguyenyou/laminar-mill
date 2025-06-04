@@ -1,6 +1,6 @@
-package com.raquo.laminar.fixtures
+package io.github.nguyenyou.laminar.fixtures
 
-import com.raquo.airstream.ownership.{Owner, Subscription}
+import io.github.nguyenyou.airstream.ownership.{Owner, Subscription}
 import com.raquo.ew.JsArray
 
 // @TODO[Elegance] This duplicates a fixture defined in Airstream

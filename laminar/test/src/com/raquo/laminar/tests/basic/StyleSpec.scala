@@ -1,9 +1,9 @@
-package com.raquo.laminar.tests.basic
+package io.github.nguyenyou.laminar.tests.basic
 
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.api.StyleUnitsApi.StyleEncoder
-import com.raquo.laminar.keys.DerivedStyleBuilder
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.api.StyleUnitsApi.StyleEncoder
+import io.github.nguyenyou.laminar.keys.DerivedStyleBuilder
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 import scala.util.Random
 

@@ -1,11 +1,11 @@
-package com.raquo.laminar.tests.basic
+package io.github.nguyenyou.laminar.tests.basic
 
-import com.raquo.laminar.DomApi
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.inserters.InserterHooks
-import com.raquo.laminar.nodes.{ChildNode, ParentNode}
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.DomApi
+import io.github.nguyenyou.laminar.api.L
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.inserters.InserterHooks
+import io.github.nguyenyou.laminar.nodes.{ChildNode, ParentNode}
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 import scala.scalajs.js

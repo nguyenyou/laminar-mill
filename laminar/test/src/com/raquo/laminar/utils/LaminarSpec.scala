@@ -1,14 +1,14 @@
-package com.raquo.laminar.utils
+package io.github.nguyenyou.laminar.utils
 
 import com.raquo.domtestutils.{EventSimulator, MountOps}
 import com.raquo.domtestutils.matching._
-import com.raquo.laminar.api._
-import com.raquo.laminar.api.L.CompositeSvgAttr
-import com.raquo.laminar.codecs.StringAsIsCodec
-import com.raquo.laminar.defs.complex.ComplexHtmlKeys.{CompositeHtmlAttr, CompositeHtmlProp}
-import com.raquo.laminar.keys.{HtmlAttr, HtmlProp, StyleProp, SvgAttr}
-import com.raquo.laminar.nodes.{CommentNode, ReactiveElement, RootNode}
-import com.raquo.laminar.tags.Tag
+import io.github.nguyenyou.laminar.api._
+import io.github.nguyenyou.laminar.api.L.CompositeSvgAttr
+import io.github.nguyenyou.laminar.codecs.StringAsIsCodec
+import io.github.nguyenyou.laminar.defs.complex.ComplexHtmlKeys.{CompositeHtmlAttr, CompositeHtmlProp}
+import io.github.nguyenyou.laminar.keys.{HtmlAttr, HtmlProp, StyleProp, SvgAttr}
+import io.github.nguyenyou.laminar.nodes.{CommentNode, ReactiveElement, RootNode}
+import io.github.nguyenyou.laminar.tags.Tag
 import org.scalactic
 
 trait LaminarSpec

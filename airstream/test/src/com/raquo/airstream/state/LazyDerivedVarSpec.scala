@@ -1,9 +1,9 @@
-package com.raquo.airstream.state
+package io.github.nguyenyou.airstream.state
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.{AirstreamError, Observer}
-import com.raquo.airstream.core.AirstreamError.VarError
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.{AirstreamError, Observer}
+import io.github.nguyenyou.airstream.core.AirstreamError.VarError
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
 import org.scalatest.BeforeAndAfter
 
 import scala.collection.mutable

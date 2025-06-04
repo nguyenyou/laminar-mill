@@ -1,8 +1,8 @@
-package com.raquo.airstream.state
+package io.github.nguyenyou.airstream.state
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, TestableOwner}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, TestableOwner}
 
 import scala.collection.mutable
 import scala.util.Success

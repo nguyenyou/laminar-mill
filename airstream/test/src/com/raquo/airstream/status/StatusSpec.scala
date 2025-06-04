@@ -1,9 +1,9 @@
-package com.raquo.airstream.status
+package io.github.nguyenyou.airstream.status
 
-import com.raquo.airstream.AsyncUnitSpec
-import com.raquo.airstream.core.Observer
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.AsyncUnitSpec
+import io.github.nguyenyou.airstream.core.Observer
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
 import org.scalatest.BeforeAndAfter
 
 import scala.collection.mutable

@@ -1,7 +1,7 @@
-package com.raquo.airstream.ownership
+package io.github.nguyenyou.airstream.ownership
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.fixtures.{TestableOneTimeOwner, TestableOwner, TestableSubscription}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.fixtures.{TestableOneTimeOwner, TestableOwner, TestableSubscription}
 
 import scala.util.Try
 

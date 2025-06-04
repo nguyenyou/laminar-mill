@@ -1,10 +1,10 @@
-package com.raquo.laminar.tests.basic
+package io.github.nguyenyou.laminar.tests.basic
 
 import com.raquo.domtestutils.matching.ExpectedNode
-import com.raquo.laminar.DomApi
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.api.L.{svg => s}
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.DomApi
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.api.L.{svg => s}
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 class ElementSpec extends UnitSpec {

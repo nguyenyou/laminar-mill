@@ -1,11 +1,11 @@
-package com.raquo.airstream.flatten
+package io.github.nguyenyou.airstream.flatten
 
-import com.raquo.airstream.{AsyncUnitSpec, Matchers}
-import com.raquo.airstream.core.{EventStream, Observer}
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Calculation, Effect, TestableOwner}
-import com.raquo.airstream.ownership.Owner
-import com.raquo.airstream.state.Var
+import io.github.nguyenyou.airstream.{AsyncUnitSpec, Matchers}
+import io.github.nguyenyou.airstream.core.{EventStream, Observer}
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Calculation, Effect, TestableOwner}
+import io.github.nguyenyou.airstream.ownership.Owner
+import io.github.nguyenyou.airstream.state.Var
 
 import scala.annotation.nowarn
 import scala.collection.mutable
@@ -507,7 +507,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     @nowarn("cat=deprecation")
     def flatMapCompileCheck() = {
-      import com.raquo.airstream.flatten.FlattenStrategy.allowFlatMap
+      import io.github.nguyenyou.airstream.flatten.FlattenStrategy.allowFlatMap
       bus.events.flatMap(_ => EventStream.fromValue(1))
     }
 
@@ -517,7 +517,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     @nowarn("cat=deprecation")
     def flattenCompileCheck() = {
-      import com.raquo.airstream.flatten.FlattenStrategy.allowFlatten
+      import io.github.nguyenyou.airstream.flatten.FlattenStrategy.allowFlatten
       bus.events.map(_ => EventStream.fromValue(1)).flatten
     }
 

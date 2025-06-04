@@ -1,11 +1,11 @@
-package com.raquo.airstream.extensions
+package io.github.nguyenyou.airstream.extensions
 
-import com.raquo.airstream.UnitSpec
-import com.raquo.airstream.core.EventStream
-import com.raquo.airstream.eventbus.EventBus
-import com.raquo.airstream.fixtures.{Effect, TestableOwner}
-import com.raquo.airstream.state.Var
-import com.raquo.airstream.status.{Pending, Resolved}
+import io.github.nguyenyou.airstream.UnitSpec
+import io.github.nguyenyou.airstream.core.EventStream
+import io.github.nguyenyou.airstream.eventbus.EventBus
+import io.github.nguyenyou.airstream.fixtures.{Effect, TestableOwner}
+import io.github.nguyenyou.airstream.state.Var
+import io.github.nguyenyou.airstream.status.{Pending, Resolved}
 
 import scala.collection.mutable
 

@@ -1,8 +1,8 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.modifiers.RenderableText
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.modifiers.RenderableText
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 class ChildTextReceiverSpec extends UnitSpec {
 

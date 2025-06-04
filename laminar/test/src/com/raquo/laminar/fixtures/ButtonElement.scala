@@ -1,6 +1,6 @@
-package com.raquo.laminar.fixtures
+package io.github.nguyenyou.laminar.fixtures
 
-import com.raquo.laminar.nodes.Slot
+import io.github.nguyenyou.laminar.nodes.Slot
 
 object ButtonElement extends WebComponent("sl-button") {
 

@@ -1,10 +1,10 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
-import com.raquo.laminar.api._
-import com.raquo.laminar.api.A._
-import com.raquo.laminar.api.L.svg._
-import com.raquo.laminar.keys.SvgAttr
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api._
+import io.github.nguyenyou.laminar.api.A._
+import io.github.nguyenyou.laminar.api.L.svg._
+import io.github.nguyenyou.laminar.keys.SvgAttr
+import io.github.nguyenyou.laminar.utils.UnitSpec
 
 class SvgSpec extends UnitSpec {
 

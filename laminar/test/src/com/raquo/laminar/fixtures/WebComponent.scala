@@ -1,9 +1,9 @@
-package com.raquo.laminar.fixtures
+package io.github.nguyenyou.laminar.fixtures
 
-import com.raquo.laminar.keys.EventProcessor
-import com.raquo.laminar.modifiers.Modifier
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import com.raquo.laminar.tags.CustomHtmlTag
+import io.github.nguyenyou.laminar.keys.EventProcessor
+import io.github.nguyenyou.laminar.modifiers.Modifier
+import io.github.nguyenyou.laminar.nodes.ReactiveHtmlElement
+import io.github.nguyenyou.laminar.tags.CustomHtmlTag
 import org.scalajs.dom
 
 abstract class WebComponent(tagName: String) {

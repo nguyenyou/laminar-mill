@@ -1,6 +1,6 @@
-package com.raquo.airstream.fixtures
+package io.github.nguyenyou.airstream.fixtures
 
-import com.raquo.airstream.ownership.{OneTimeOwner, Subscription}
+import io.github.nguyenyou.airstream.ownership.{OneTimeOwner, Subscription}
 
 class TestableOneTimeOwner(onAccessAfterKilled: () => Unit) extends OneTimeOwner(onAccessAfterKilled) {
 

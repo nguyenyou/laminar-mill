@@ -1,4 +1,4 @@
-package com.raquo.laminar.utils
+package io.github.nguyenyou.laminar.utils
 
 import com.raquo.domtestutils.Utils
 import com.raquo.domtestutils.scalatest.AsyncMountSpec

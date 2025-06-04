@@ -1,9 +1,9 @@
-package com.raquo.laminar.tests
+package io.github.nguyenyou.laminar.tests
 
-import com.raquo.laminar.api.L._
-import com.raquo.laminar.inserters.InserterHooks
-import com.raquo.laminar.nodes.{ParentNode, ReactiveElement}
-import com.raquo.laminar.utils.UnitSpec
+import io.github.nguyenyou.laminar.api.L._
+import io.github.nguyenyou.laminar.inserters.InserterHooks
+import io.github.nguyenyou.laminar.nodes.{ParentNode, ReactiveElement}
+import io.github.nguyenyou.laminar.utils.UnitSpec
 import org.scalajs.dom
 
 import scala.collection.mutable
