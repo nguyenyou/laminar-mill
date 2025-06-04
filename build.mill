@@ -31,7 +31,9 @@ trait WebModule extends ScalaJSModule {
     )
 }
 
-object www extends WebModule
+object www extends WebModule {
+  def moduleDeps = Seq(laminar)
+}
 
 object airstream extends WebModule {
   object test extends ScalaJSTests with TestModule.ScalaTest {
