@@ -20,5 +20,8 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Run test
+      - name: Run Airstream tests
         run: ./mill airstream.test
+
+      - name: Run Laminar tests
+        run: ./mill laminar.test

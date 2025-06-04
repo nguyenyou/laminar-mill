@@ -10,6 +10,7 @@ object Versions {
     val scalatest = "3.2.19"
     val ew = "0.2.0"
     val tuplez = "0.4.0"
+    val scaladomtestutils = "18.0.0"
 }
 
 trait WebModule extends ScalaJSModule { 
@@ -33,7 +34,7 @@ trait WebModule extends ScalaJSModule {
 object www extends WebModule
 
 object airstream extends WebModule {
-    object test extends ScalaJSTests with TestModule.ScalaTest {
+  object test extends ScalaJSTests with TestModule.ScalaTest {
     def scalaTestVersion = Versions.scalatest
 
     def scalacOptions = Seq(
@@ -43,6 +44,27 @@ object airstream extends WebModule {
       "-language:implicitConversions"
     )
 
-    override def jsEnvConfig = Task { JsEnvConfig.JsDom() }
+    def jsEnvConfig = Task { JsEnvConfig.JsDom() }
   }
+}
+
+object laminar extends WebModule {
+    def moduleDeps = Seq(airstream)
+  
+    object test extends ScalaJSTests with TestModule.ScalaTest {
+        def scalaTestVersion = Versions.scalatest
+
+        def mvnDeps = super.mvnDeps() ++ Seq(
+            mvn"com.raquo::domtestutils::${Versions.scaladomtestutils}",
+        )
+
+        def scalacOptions = Seq(
+            "-rewrite",
+            "-source", "3.4-migration",
+            "-feature",
+            "-language:implicitConversions"
+        )
+
+        def jsEnvConfig = Task { JsEnvConfig.JsDom() }
+    }
 }
