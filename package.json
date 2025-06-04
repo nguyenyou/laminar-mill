@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "./mill airstream.test"
+    "preview": "vite preview"
   },
   "packageManager": "yarn@4.9.2",
   "devDependencies": {

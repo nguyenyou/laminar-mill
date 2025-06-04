@@ -5,6 +5,7 @@
 ```sh
 yarn install
 ./mill airstream.test
+./mill laminar.test
 ```
 
 ## WWW
