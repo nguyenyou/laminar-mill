@@ -1,0 +1,19 @@
+{
+  "name": "mill-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "./mill airstream.test"
+  },
+  "packageManager": "yarn@4.9.2",
+  "devDependencies": {
+    "vite": "npm:rolldown-vite@latest"
+  },
+  "dependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

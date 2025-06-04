@@ -1,0 +1,48 @@
+package build
+
+import mill._, scalalib._, scalajslib._
+import mill.scalajslib.api._
+
+object Versions {
+    val scala3 = "3.7.0"
+    val sjs = "1.19.0"
+    val sjsdom = "2.8.0"
+    val scalatest = "3.2.19"
+    val ew = "0.2.0"
+    val tuplez = "0.4.0"
+}
+
+trait WebModule extends ScalaJSModule { 
+    def scalaVersion = Versions.scala3
+    def scalaJSVersion = Versions.sjs
+
+    def scalacOptions = Seq(
+      "-rewrite",
+      "-source", "3.4-migration",
+      "-feature",
+      "-language:implicitConversions"
+    )
+    
+    def mvnDeps = Seq(
+      mvn"org.scala-js::scalajs-dom::${Versions.sjsdom}",
+      mvn"com.raquo::ew::${Versions.ew}",
+      mvn"app.tulz::tuplez-full-light::${Versions.tuplez}"
+    )
+}
+
+object www extends WebModule
+
+object airstream extends WebModule {
+    object test extends ScalaJSTests with TestModule.ScalaTest {
+    def scalaTestVersion = Versions.scalatest
+
+    def scalacOptions = Seq(
+      "-rewrite",
+      "-source", "3.4-migration",
+      "-feature",
+      "-language:implicitConversions"
+    )
+
+    override def jsEnvConfig = Task { JsEnvConfig.JsDom() }
+  }
+}
