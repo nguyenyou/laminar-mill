@@ -22,5 +22,4 @@ yarn dev
 
 ```sh
 mill __.compiledClassesAndSemanticDbFiles
-mill __.semanticDbData
 ```
