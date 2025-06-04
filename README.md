@@ -1,4 +1,6 @@
-# Airstream Vite
+# Laminar Mill
+
+This project is intended to help me learn about the internals of the Laminar and Airstream libraries.
 
 ## Unit Tests
 
