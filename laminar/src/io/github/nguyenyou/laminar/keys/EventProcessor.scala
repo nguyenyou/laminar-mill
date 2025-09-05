@@ -304,7 +304,7 @@ class EventProcessor[Ev <: dom.Event, V](
   ): LockedEventKey[Ev, V, Out] = {
     new LockedEventKey[Ev, V, Out](
       this,
-      eventStream => eventStream.flatMapSwitch(operator)(strategy)
+      eventStream => eventStream.flatMapSwitch(operator)(using strategy)
     )
   }
 
@@ -317,7 +317,7 @@ class EventProcessor[Ev <: dom.Event, V](
   )(implicit
     strategy: SwitchingStrategy[EventStream, Obs, Observable]
   ): LockedEventKey[Ev, V, Out] = {
-    flatMap(_ => observable)(strategy)
+    flatMap(_ => observable)(using strategy)
   }
 
   /** Similar to `flatMap`, but restricted to streams only. */
@@ -326,7 +326,7 @@ class EventProcessor[Ev <: dom.Event, V](
   )(implicit
     strategy: SwitchingStrategy[EventStream, EventStream, Observable]
   ): LockedEventKey[Ev, V, Out] = {
-    flatMap(operator)(strategy)
+    flatMap(operator)(using strategy)
   }
 
   /** Similar to `flatMap`, but restricted to signals only. */
@@ -335,7 +335,7 @@ class EventProcessor[Ev <: dom.Event, V](
   )(implicit
     strategy: SwitchingStrategy[EventStream, Signal, Observable]
   ): LockedEventKey[Ev, V, Out] = {
-    flatMap(operator)(strategy)
+    flatMap(operator)(using strategy)
   }
 
   /** Similar to Airstream `flatMapWithStatus` operator.

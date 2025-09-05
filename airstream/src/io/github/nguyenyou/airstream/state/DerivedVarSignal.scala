@@ -18,7 +18,7 @@ class DerivedVarSignal[A, B](
   // Note that even if owner kills subscription, this signal might remain due to other listeners
   override protected[state] def isStarted: Boolean = super.isStarted
 
-  override protected val subscription: Subscription = this.addObserver(Observer.empty)(owner)
+  override protected val subscription: Subscription = this.addObserver(Observer.empty)(using owner)
 
   override protected def defaultDisplayName: String = parentDisplayName + ".signal"
 }

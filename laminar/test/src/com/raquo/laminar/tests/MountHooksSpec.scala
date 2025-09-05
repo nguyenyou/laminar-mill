@@ -215,8 +215,8 @@ class MountHooksSpec extends UnitSpec {
     withClue("unmounted event with other obs:") {
 
       val owner = new TestableOwner
-      signal.foreach(_ => ())(owner)
-      stream.foreach(_ => ())(owner)
+      signal.foreach(_ => ())(using owner)
+      stream.foreach(_ => ())(using owner)
       nameVar.writer.onNext("Igor2") // this value will be resurrected when remounting, and DOM nodes will be fine
       owner.killSubscriptions()
 
@@ -1087,7 +1087,7 @@ class MountHooksSpec extends UnitSpec {
             className := "spanClass",
             onMountCallback(ctx => {
               internalOwner = ctx.owner
-              bus.events.addObserver(observer)(ctx.owner)
+              bus.events.addObserver(observer)(using ctx.owner)
             })
           )
         )
@@ -1119,7 +1119,7 @@ class MountHooksSpec extends UnitSpec {
     // --
 
     val caught = intercept[Exception] {
-      bus.events.addObserver(observer)(internalOwner)
+      bus.events.addObserver(observer)(using internalOwner)
     }
     assert(caught.getMessage == "Attempting to use owner of unmounted element: section#fullSection > main > div.divClass > span#someSpan")
 

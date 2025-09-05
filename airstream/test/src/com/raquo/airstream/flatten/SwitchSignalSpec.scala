@@ -383,7 +383,7 @@ class SwitchSignalSpec extends UnitSpec {
           }
         }
 
-    brokenSignal.foreach(Effect.log("output", effects))(owner)
+    brokenSignal.foreach(Effect.log("output", effects))(using owner)
 
     def setVar(v: Int): Unit = {
       Effect.log("set", effects)(v.toString)
@@ -445,7 +445,7 @@ class SwitchSignalSpec extends UnitSpec {
       }
       .foreach(v => {
         effects += Effect("result", v)
-      })(owner)
+      })(using owner)
 
     assertEquals(
       effects.toList,

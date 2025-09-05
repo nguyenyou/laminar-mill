@@ -31,7 +31,7 @@ class DistinctSpec extends UnitSpec {
       .distinct
       .map(Calculation.log("stream", calculations))
 
-    val sub1 = stream.addObserver(obs)(testOwner)
+    val sub1 = stream.addObserver(obs)(using testOwner)
 
     // --
 
@@ -72,7 +72,7 @@ class DistinctSpec extends UnitSpec {
 
     sub1.kill()
 
-    val sub2 = stream.addObserver(obs)(testOwner)
+    val sub2 = stream.addObserver(obs)(using testOwner)
 
     bus.writer.onNext(2)
 
@@ -138,7 +138,7 @@ class DistinctSpec extends UnitSpec {
       .distinct
       .map(Calculation.log("signal", calculations))
 
-    val sub1 = signal.addObserver(obs)(testOwner)
+    val sub1 = signal.addObserver(obs)(using testOwner)
 
     // --
 
@@ -191,7 +191,7 @@ class DistinctSpec extends UnitSpec {
 
     sub1.kill()
 
-    val sub2 = signal.addObserver(obs)(testOwner)
+    val sub2 = signal.addObserver(obs)(using testOwner)
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer(
@@ -211,7 +211,7 @@ class DistinctSpec extends UnitSpec {
 
     // -- don't emit new value if parent has emitted and its new value is isSame(lastParentValue)
 
-    val sub3 = signal.addObserver(obs)(testOwner)
+    val sub3 = signal.addObserver(obs)(using testOwner)
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer(
@@ -231,7 +231,7 @@ class DistinctSpec extends UnitSpec {
 
     // -- emit new value if parent has emitted and its new value is NOT isSame(lastParentValue)
 
-    val sub4 = signal.addObserver(obs)(testOwner)
+    val sub4 = signal.addObserver(obs)(using testOwner)
 
     calculations `shouldBe` mutable.Buffer(
       Calculation("signal", 3)
@@ -310,7 +310,7 @@ class DistinctSpec extends UnitSpec {
       .distinctErrors((e1, e2) => e1.getMessage == e2.getMessage)
       .map(Calculation.log("stream", calculations))
 
-    stream.addObserver(obs)(testOwner)
+    stream.addObserver(obs)(using testOwner)
 
     // --
 

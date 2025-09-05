@@ -108,14 +108,14 @@ class Router[BasePage](
     EventStream
       .merge(pageFromRoute, forcedPage)
       .startWithTry(initialPage)
-      .observe(owner)
+      .observe(using owner)
   }
 
   // --
 
-  routeEventBus.events.foreach(handleRouteEvent)(owner)
+  routeEventBus.events.foreach(handleRouteEvent)(using owner)
 
-  popStateEvents.foreach(handlePopState)(owner)
+  popStateEvents.foreach(handlePopState)(using owner)
 
   // --
 

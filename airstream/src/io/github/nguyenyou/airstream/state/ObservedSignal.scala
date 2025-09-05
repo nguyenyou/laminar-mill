@@ -18,7 +18,7 @@ class ObservedSignal[A](
   recover = None
 ) with OwnedSignal[A] {
 
-  override protected val subscription: Subscription = addObserver(observer)(owner)
+  override protected val subscription: Subscription = addObserver(observer)(using owner)
 
   override protected def defaultDisplayName: String = parent.displayName + s".observe@${hashCode()}"
 }

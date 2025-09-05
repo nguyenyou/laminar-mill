@@ -328,7 +328,7 @@ class LazyDerivedVarSpec extends UnitSpec with BeforeAndAfter {
 
     val obs = Observer[Int](v => effects += s"obs-$v")
 
-    d.signal.addObserver(obs)(obsOwner)
+    d.signal.addObserver(obs)(using obsOwner)
 
     assert(effects.toList == List("obs-1"))
     effects.clear()
@@ -553,7 +553,7 @@ class LazyDerivedVarSpec extends UnitSpec with BeforeAndAfter {
         effects += s"d2.zoomOut-${newForm}"
         newForm
       }
-    )(d2Owner)
+    )(using d2Owner)
 
     assert(effects.toList == List(
       "d1.zoomIn-Form(10)",
@@ -648,7 +648,7 @@ class LazyDerivedVarSpec extends UnitSpec with BeforeAndAfter {
         effects += s"d1.zoomOut-${newForm}"
         newForm
       }
-    )(d1Owner)
+    )(using d1Owner)
 
     val d2 = d1.zoomLazy(
       in = form => {
@@ -789,9 +789,9 @@ class LazyDerivedVarSpec extends UnitSpec with BeforeAndAfter {
     // --
 
     // #Note observers are added to Var signals directly
-    s.signal.addObserver(sourceObs)(owner)
-    d.signal.addObserver(derivedObs)(owner)
-    combinedSignal.addObserver(combinedObs)(owner)
+    s.signal.addObserver(sourceObs)(using owner)
+    d.signal.addObserver(derivedObs)(using owner)
+    combinedSignal.addObserver(combinedObs)(using owner)
 
     assert(effects.toList == List(
       Effect("source-obs", 2),
@@ -849,7 +849,7 @@ class LazyDerivedVarSpec extends UnitSpec with BeforeAndAfter {
     val s = Var(Form(10))
     val d = s.zoomLazy(_.int)((f, int) => f.copy(int = int))
 
-    val sub = d.signal.addObserver(Observer.empty)(obsOwner)
+    val sub = d.signal.addObserver(Observer.empty)(using obsOwner)
 
     val err1 = new Exception("Error: err1")
     val err2 = new Exception("Error: err2")

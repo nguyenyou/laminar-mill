@@ -46,7 +46,7 @@ with EventSimulator {
     prettifier: scalactic.Prettifier,
     pos: scalactic.source.Position
   ): Unit = {
-    mount(node, clue)(prettifier, pos)
+    mount(node, clue)(using prettifier, pos)
   }
 
   override def unmount(

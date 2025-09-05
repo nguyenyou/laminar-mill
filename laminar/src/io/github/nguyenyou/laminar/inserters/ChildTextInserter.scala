@@ -28,7 +28,7 @@ object ChildTextInserter {
             //  from the DOM takes more CPU time than setting it.
             textNode.ref.textContent = renderable.asString(newValue)
           }
-        }(owner)
+        }(using owner)
       },
       hooks = js.undefined
     )

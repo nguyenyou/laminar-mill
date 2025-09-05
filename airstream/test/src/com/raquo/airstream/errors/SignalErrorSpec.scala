@@ -350,7 +350,7 @@ class SignalErrorSpec extends UnitSpec with BeforeAndAfter {
       onError = {
         case err => effects += Effect("onError", err.getMessage)
       }
-    ))(owner)
+    ))(using owner)
 
     // -- initial value
 
@@ -396,7 +396,7 @@ class SignalErrorSpec extends UnitSpec with BeforeAndAfter {
       onError = {
         case err => effects += Effect("onError", err.getMessage)
       }
-    ))(owner)
+    ))(using owner)
 
     // -- initial value
 

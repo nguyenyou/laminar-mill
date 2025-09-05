@@ -56,16 +56,16 @@ class BooleanObservableSpec extends UnitSpec {
       .splitBoolean(
         trueF = { signal =>
           effects += Effect("true", true)
-          signal.foreach(v => effects += Effect("true-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("true-signal", v))(using innerOwner)
           true
         },
         falseF = { signal =>
           effects += Effect("false", false)
-          signal.foreach(v => effects += Effect("false-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("false-signal", v))(using innerOwner)
           false
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 
@@ -154,16 +154,16 @@ class BooleanObservableSpec extends UnitSpec {
       .splitBoolean(
         whenTrue = { signal =>
           effects += Effect("true", true)
-          signal.foreach(v => effects += Effect("true-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("true-signal", v))(using innerOwner)
           true
         },
         whenFalse = { signal =>
           effects += Effect("false", false)
-          signal.foreach(v => effects += Effect("false-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("false-signal", v))(using innerOwner)
           false
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer(
       Effect("true", true),

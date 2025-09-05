@@ -16,7 +16,7 @@ class ShouldSyntax[A](val actual: A) extends AnyVal {
     pos: source.Position,
     prettifier: Prettifier
   ): Assertion = {
-    ShouldSyntax.shouldBe(actual, expected)(pos, prettifier)
+    ShouldSyntax.shouldBe(actual, expected)(using pos, prettifier)
   }
 
   def shouldBeEmpty(implicit
@@ -24,7 +24,7 @@ class ShouldSyntax[A](val actual: A) extends AnyVal {
     prettifier: Prettifier,
     emptiness: Emptiness[A]
   ): Assertion = {
-    ShouldSyntax.shouldBeEmpty(actual)(pos, prettifier, emptiness)
+    ShouldSyntax.shouldBeEmpty(actual)(using pos, prettifier, emptiness)
   }
 
   def shouldNotBe(
@@ -33,7 +33,7 @@ class ShouldSyntax[A](val actual: A) extends AnyVal {
     pos: source.Position,
     prettifier: Prettifier
   ): Assertion = {
-    ShouldSyntax.shouldNotBe(actual, expected)(pos, prettifier)
+    ShouldSyntax.shouldNotBe(actual, expected)(using pos, prettifier)
   }
 }
 

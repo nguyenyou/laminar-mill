@@ -199,7 +199,7 @@ trait BaseObservable[+Self[+_] <: Observable[?], +A] extends Source[A] with Name
     */
   def foreach(onNext: A => Unit)(implicit owner: Owner): Subscription = {
     val observer = Observer(onNext)
-    addObserver(observer)(owner)
+    addObserver(observer)(using owner)
   }
 
   /** Subscribe an external observer to this observable */

@@ -270,7 +270,7 @@ class SwitchSignalStreamSpec extends UnitSpec {
 
     // --
 
-    val tempSub = source0.addObserver(Observer.empty)(owner)
+    val tempSub = source0.addObserver(Observer.empty)(using owner)
 
     sub2.kill()
 

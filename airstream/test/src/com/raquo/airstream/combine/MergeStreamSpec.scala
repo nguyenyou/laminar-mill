@@ -21,7 +21,7 @@ class MergeStreamSpec extends UnitSpec {
 
     val sub1 = EventStream.merge(tens, hundreds)
       .map(Calculation.log("merged", calculations))
-      .addObserver(Observer.empty)(owner)
+      .addObserver(Observer.empty)(using owner)
 
     // --
 
@@ -53,7 +53,7 @@ class MergeStreamSpec extends UnitSpec {
 
     val sub2 = EventStream.merge(hundreds, tens)
       .map(Calculation.log("merged", calculations))
-      .addObserver(Observer.empty)(owner)
+      .addObserver(Observer.empty)(using owner)
 
     // --
 
@@ -86,7 +86,7 @@ class MergeStreamSpec extends UnitSpec {
     val sub1 = bus.events
       .combineWithFn(EventStream.merge(tens, hundreds))(_ + _)
       .map(Calculation.log("combined", calculations))
-      .addObserver(Observer.empty)(owner)
+      .addObserver(Observer.empty)(using owner)
 
     // --
 

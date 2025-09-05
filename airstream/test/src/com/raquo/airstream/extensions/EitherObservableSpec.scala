@@ -72,16 +72,16 @@ class EitherObservableSpec extends UnitSpec {
       .splitEither(
         left = (_, leftS) => {
           ix += 1
-          leftS.foreach(l => effects += Effect(s"left-${ix}", l))(innerOwner)
+          leftS.foreach(l => effects += Effect(s"left-${ix}", l))(using innerOwner)
           ix
         },
         right = (_, rightS) => {
           ix += 1
-          rightS.foreach(r => effects += Effect(s"right-${ix}", r))(innerOwner)
+          rightS.foreach(r => effects += Effect(s"right-${ix}", r))(using innerOwner)
           ix
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 
@@ -168,16 +168,16 @@ class EitherObservableSpec extends UnitSpec {
       .splitEither(
         left = (_, leftS) => {
           ix += 1
-          leftS.foreach(l => effects += Effect(s"left-${ix}", l))(innerOwner)
+          leftS.foreach(l => effects += Effect(s"left-${ix}", l))(using innerOwner)
           ix
         },
         right = (_, rightS) => {
           ix += 1
-          rightS.foreach(r => effects += Effect(s"right-${ix}", r))(innerOwner)
+          rightS.foreach(r => effects += Effect(s"right-${ix}", r))(using innerOwner)
           ix
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer(
       Effect("left-1", 0),
@@ -262,7 +262,7 @@ class EitherObservableSpec extends UnitSpec {
     bus
       .events
       .collectRight
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 
@@ -307,7 +307,7 @@ class EitherObservableSpec extends UnitSpec {
     bus
       .events
       .collectRight { case "a" => true }
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 

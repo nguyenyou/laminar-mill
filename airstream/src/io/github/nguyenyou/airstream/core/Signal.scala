@@ -207,7 +207,7 @@ object Signal {
     * the signal's value will be updated to the future's resolved value.
     */
   def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): Signal[Option[A]] = {
-    fromJsPromise(future.toJSPromise(ec))
+    fromJsPromise(future.toJSPromise(using ec))
   }
 
   /** The signal will start with the provided `initial` value, even if the future is already resolved.
@@ -215,7 +215,7 @@ object Signal {
     * the signal's value will be updated to the future's resolved value.
     */
   def fromFuture[A](future: Future[A], initial: => A)(implicit ec: ExecutionContext): Signal[A] = {
-    fromJsPromise(future.toJSPromise(ec), initial)
+    fromJsPromise(future.toJSPromise(using ec), initial)
   }
 
   /** The signal will start with `None`, even if the promise is already resolved.

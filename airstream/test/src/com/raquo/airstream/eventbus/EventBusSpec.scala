@@ -86,7 +86,7 @@ class EventBusSpec extends UnitSpec {
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    testBus.events.foreach(newValue => effects += Effect("obs0", newValue))(testOwner)
+    testBus.events.foreach(newValue => effects += Effect("obs0", newValue))(using testOwner)
 
     bus1.writer.onNext(1)
 
@@ -94,7 +94,7 @@ class EventBusSpec extends UnitSpec {
 
     // ---
 
-    val source1 = testBus.writer.addSource(sourceStream1)(owner1)
+    val source1 = testBus.writer.addSource(sourceStream1)(using owner1)
     bus1.writer.onNext(2)
     bus2.writer.onNext(2)
 
@@ -103,7 +103,7 @@ class EventBusSpec extends UnitSpec {
 
     // ---
 
-    testBus.writer.addSource(sourceStream2)(owner2)
+    testBus.writer.addSource(sourceStream2)(using owner2)
     bus1.writer.onNext(3)
     bus2.writer.onNext(3)
 

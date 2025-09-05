@@ -19,6 +19,6 @@ abstract class AsyncUnitSpec extends AsyncFunSpec with Matchers {
     js.timers.setTimeout(millis.toDouble) {
       promise.complete(Try(value))
     }
-    promise.future.map(identity)(executionContext)
+    promise.future.map(identity)(using executionContext)
   }
 }

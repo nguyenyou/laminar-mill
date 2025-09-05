@@ -30,16 +30,16 @@ class StatusObservableSpec extends UnitSpec {
       .splitStatus(
         resolved = (init, signal) => {
           effects += Effect("resolved", init)
-          signal.foreach(v => effects += Effect("resolved-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("resolved-signal", v))(using innerOwner)
           init
         },
         pending = (init, signal) => {
           effects += Effect("pending", init)
-          signal.foreach(v => effects += Effect("pending-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("pending-signal", v))(using innerOwner)
           init
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 
@@ -122,16 +122,16 @@ class StatusObservableSpec extends UnitSpec {
       .splitStatus(
         resolved = (init, signal) => {
           effects += Effect("resolved", init)
-          signal.foreach(v => effects += Effect("resolved-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("resolved-signal", v))(using innerOwner)
           init
         },
         pending = (init, signal) => {
           effects += Effect("pending", init)
-          signal.foreach(v => effects += Effect("pending-signal", v))(innerOwner)
+          signal.foreach(v => effects += Effect("pending-signal", v))(using innerOwner)
           init
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     locally {
       val pending1 = Pending(10)

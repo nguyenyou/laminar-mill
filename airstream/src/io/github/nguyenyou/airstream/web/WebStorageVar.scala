@@ -99,7 +99,7 @@ class WebStorageVar[A] private[web] (
       case _: Throwable if BaseObservable.numAllObservers(signal) > 1 => () // don't report in this case
     },
     handleObserverErrors = false
-  ))(owner)
+  ))(using owner)
 
   /** Local storage is shared between all browser tabs and frames of the same origin.
     * Session storage is shared between frames of the same origin in the current tab.
@@ -122,7 +122,7 @@ class WebStorageVar[A] private[web] (
     // Keep this var's value up-to-date
     externalUpdates.foreach { ev =>
       setFromStoredValue(Option(ev.newValue), distinctOnly = true)
-    }(syncOwner)
+    }(using syncOwner)
   }
 
   /** Manually update this var from the current value in storage. */

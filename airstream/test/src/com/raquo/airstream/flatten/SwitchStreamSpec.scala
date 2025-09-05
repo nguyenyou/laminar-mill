@@ -156,7 +156,7 @@ class SwitchStreamSpec extends UnitSpec {
 
     val metaVar = Var[EventStream[Int]](sourceStreams(0))
 
-    val latestNumberS = metaVar.signal.flattenSwitch(SwitchStreamStrategy)
+    val latestNumberS = metaVar.signal.flattenSwitch(using SwitchStreamStrategy)
 
     val flattenObserver = Observer[Int](effects += Effect("flattened-obs", _))
 
@@ -608,7 +608,7 @@ class SwitchStreamSpec extends UnitSpec {
           }
         }
 
-    brokenSignal.foreach(Effect.log("output", effects))(owner)
+    brokenSignal.foreach(Effect.log("output", effects))(using owner)
 
     def emit(v: Int): Unit = {
       Effect.log("emit", effects)(v.toString)
@@ -668,7 +668,7 @@ class SwitchStreamSpec extends UnitSpec {
       }
       .foreach(v => {
         effects += Effect("result", v)
-      })(owner)
+      })(using owner)
 
     assertEquals(
       effects.toList,

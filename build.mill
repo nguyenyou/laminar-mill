@@ -4,7 +4,7 @@ import mill._, scalalib._, scalajslib._
 import mill.scalajslib.api._
 
 object Versions {
-    val scala3 = "3.7.0"
+    val scala3 = "3.7.2"
     val sjs = "1.19.0"
     val sjsdom = "2.8.0"
     val scalatest = "3.2.19"
@@ -21,7 +21,7 @@ trait WebModule extends ScalaJSModule {
 
     def scalacOptions = Seq(
       "-rewrite",
-      "-source", "3.4-migration",
+      "-source", "3.7-migration",
       "-feature",
       "-language:implicitConversions"
     )
@@ -40,7 +40,7 @@ trait WebModule extends ScalaJSModule {
 
         def scalacOptions = Seq(
             "-rewrite",
-            "-source", "3.4-migration",
+          "-source", "3.7-migration",
             "-feature",
             "-language:implicitConversions"
         )

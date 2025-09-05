@@ -59,7 +59,7 @@ class InputController[Ref <: dom.html.Element, A, B](
     updater.values.foreach { sourceValue =>
       latestSourceValue = Some(sourceValue)
       setValue(sourceValue)
-    }(owner)
+    }(using owner)
 
     val resetObserver = Observer[B] { _ =>
       // This needs to run after the event fired into `observer` has finished propagating

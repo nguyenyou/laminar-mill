@@ -346,7 +346,7 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
     stream.addObserver(Observer.withRecover(
       onNext = ev => effects += Effect("onNext", ev),
       onError = err => effects += Effect("onError", err.getMessage)
-    ))(owner)
+    ))(using owner)
 
     // --
 
@@ -386,7 +386,7 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
     stream.addObserver(Observer.withRecover(
       onNext = ev => effects += Effect("onNext", ev),
       onError = err => effects += Effect("onError", err.getMessage)
-    ))(owner)
+    ))(using owner)
 
     // -- initial failed state should propagate as an error
 

@@ -376,7 +376,7 @@ object SplitMatchSeqMacros {
             .getOrElse(idx, IllegalStateException("Illegal SplitMatchSeq state. This is a bug in Airstream."))
             .asInstanceOf[Function2[Any, Any, O]]
             .apply(b, bSignal)
-        }(splittable),
+        }(using splittable),
         ifSignal = _.split(
           key = customKey(keyFn),
           distinctCompose = customDistinctCompose(distinctCompose),
@@ -387,7 +387,7 @@ object SplitMatchSeqMacros {
             .getOrElse(idx, IllegalStateException("Illegal SplitMatchSeq state. This is a bug in Airstream."))
             .asInstanceOf[Function2[Any, Any, O]]
             .apply(b, bSignal)
-        }(splittable)
+        }(using splittable)
       )
   }
 

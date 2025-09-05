@@ -39,7 +39,7 @@ object ChildrenCommandInserter {
             hooks
           )
           ctx.extraNodeCount += nodeCountDiff
-        }(owner)
+        }(using owner)
       },
       hooks = initialHooks
     )

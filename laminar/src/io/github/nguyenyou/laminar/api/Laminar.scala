@@ -106,7 +106,7 @@ with Implicits {
   ): Unit = {
     documentEvents(_.onDomContentLoaded).foreach { _ =>
       new RootNode(container, rootNode)
-    }(unsafeWindowOwner)
+    }(using unsafeWindowOwner)
   }
 
   /** Wrap a Laminar element in [[DetachedRoot]], which allows you to

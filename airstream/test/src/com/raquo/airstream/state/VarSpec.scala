@@ -93,7 +93,7 @@ class VarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    val sub1 = signal.addObserver(obs)(owner)
+    val sub1 = signal.addObserver(obs)(using owner)
 
     assert(calculations == mutable.Buffer(Calculation("signal", 2)))
     assert(effects == mutable.Buffer(Effect("obs", 2)))
@@ -117,7 +117,7 @@ class VarSpec extends UnitSpec with BeforeAndAfter {
 
     x.writer.onNext(4)
 
-    signal.addObserver(obs)(owner)
+    signal.addObserver(obs)(using owner)
 
     // Re-sync the value and emit it to the new external observer. Standard Signal behaviour.
     assert(calculations == mutable.Buffer(Calculation("signal", 4)))
@@ -166,7 +166,7 @@ class VarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    signal.addObserver(obs)(owner)
+    signal.addObserver(obs)(using owner)
 
     // Error values are propagated to new observers
     assert(errorEffects == mutable.Buffer(Effect("signal-err", err1)))
@@ -315,7 +315,7 @@ class VarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    sumSignal.addObserver(obs)(owner)
+    sumSignal.addObserver(obs)(using owner)
 
     assert(calculations == mutable.Buffer(Calculation("signal", 101)))
     assert(effects == mutable.Buffer(Effect("obs", 101)))
@@ -343,8 +343,8 @@ class VarSpec extends UnitSpec with BeforeAndAfter {
     val var1 = Var(0)
     val var2 = Var(0)
     val var3 = Var(0)
-    val zoomedVar1 = var1.zoom(v => v)((_, v) => v)(owner)
-    val zoomedVar2 = var2.zoom(v => v)((_, v) => v)(owner)
+    val zoomedVar1 = var1.zoom(v => v)((_, v) => v)(using owner)
+    val zoomedVar2 = var2.zoom(v => v)((_, v) => v)(using owner)
 
     val err3 = new Exception("Var 3 is broken")
     val setDuplicatesErr = VarError("Unable to Var.{set,setTry}: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.", None)

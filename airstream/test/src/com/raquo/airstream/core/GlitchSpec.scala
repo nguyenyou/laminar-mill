@@ -352,8 +352,8 @@ class GlitchSpec extends UnitSpec {
     val obs = Observer[Int] { num =>
       log.update(_ :+ num)
     }
-    stream1.addObserver(obs)(owner)
-    stream2.addObserver(obs)(owner)
+    stream1.addObserver(obs)(using owner)
+    stream2.addObserver(obs)(using owner)
 
     bus.writer.onNext(1)
 
@@ -386,7 +386,7 @@ class GlitchSpec extends UnitSpec {
         n = n + 2
         log.update(_ :+ (n - 2))
         log.update(_ :+ (n - 1))
-      }(owner)
+      }(using owner)
 
     clickBus.writer.onNext(())
 
@@ -437,7 +437,7 @@ class GlitchSpec extends UnitSpec {
           case (Append(i), State(seq)) => State(seq :+ i)
         }
 
-    updatedState.addObserver(stateVar.writer)(owner)
+    updatedState.addObserver(stateVar.writer)(using owner)
 
     clickBus.writer.onNext(())
 
@@ -494,10 +494,10 @@ class GlitchSpec extends UnitSpec {
         effects += Effect("inner-init", isEven)
         signal
           .setDisplayName(s"inner-signal-$isEven")
-          .foreach(v => effects += Effect(s"inner-signal-$isEven", v))(innerOwner)
+          .foreach(v => effects += Effect(s"inner-signal-$isEven", v))(using innerOwner)
         isEven
       })
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     assertEquals(
       effects.toList,
@@ -568,7 +568,7 @@ class GlitchSpec extends UnitSpec {
               .setDisplayName(s"outer-child@${outerChildSignal}")
               .foreach { v =>
               effects += Effect("outer-child-update", v)
-            }(owner)
+            }(using owner)
 
             val splitInner = outerChildSignal
               .asIdSignal
@@ -582,7 +582,7 @@ class GlitchSpec extends UnitSpec {
                     .setDisplayName(s"inner-child@${innerChildSignal}")
                     .foreach { v =>
                       effects += Effect("inner-child-update", v)
-                    }(owner)
+                    }(using owner)
                   x += 100
                   x
               }
@@ -600,7 +600,7 @@ class GlitchSpec extends UnitSpec {
 
     resultSignal.foreach(ix =>
       effects += Effect("result", ix)
-    )(owner)
+    )(using owner)
 
     assertEquals(
       effects.toList,

@@ -28,21 +28,21 @@ class WriteBus[A](
 
   def contracomposeWriter[B](operator: EventStream[B] => EventStream[A])(implicit owner: Owner): WriteBus[B] = {
     val mapBus = new WriteBus[B](displayName, ".contracomposeWriter")
-    addSource(mapBus.stream.compose(operator))(owner)
+    addSource(mapBus.stream.compose(operator))(using owner)
     mapBus
   }
 
   /** Behaves similar to `contramap`, but gives you a WriteBus, not just an Observer */
   def contramapWriter[B](project: B => A)(implicit owner: Owner): WriteBus[B] = {
     val mapBus = new WriteBus[B](displayName, ".contramapWriter")
-    addSource(mapBus.stream.map(project))(owner)
+    addSource(mapBus.stream.map(project))(using owner)
     mapBus
   }
 
   /** Behaves similar to `filter`, but gives you a WriteBus, not just an Observer */
   def filterWriter(passes: A => Boolean)(implicit owner: Owner): WriteBus[A] = {
     val filterBus = new WriteBus[A](displayName, ".filterWriter")
-    addSource(filterBus.stream.filter(passes))(owner)
+    addSource(filterBus.stream.filter(passes))(using owner)
     filterBus
   }
 

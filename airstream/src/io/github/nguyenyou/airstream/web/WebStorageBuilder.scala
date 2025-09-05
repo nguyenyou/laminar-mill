@@ -57,7 +57,7 @@ class WebStorageBuilder(
       maybeStorage, key, encode, decode, default,
       syncDistinctByFn
     )
-    syncOwner.foreach(storageVar.syncFromExternalUpdates(_))
+    syncOwner.foreach(storageVar.syncFromExternalUpdates(using _))
     storageVar
   }
 

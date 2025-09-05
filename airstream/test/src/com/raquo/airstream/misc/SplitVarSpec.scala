@@ -69,7 +69,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
               fooVar.signal.foreach { foo =>
                 assert(key == foo.id, "Subsequent value does not match initial key")
                 effects += Effect(s"update-child-$key", foo.id + "-" + foo.version.toString)
-              }(owner)
+              }(using owner)
           )
           Bar(key)
       }
@@ -79,7 +79,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
         owner =>
           signal.foreach { result =>
             effects += Effect("result", result.toString)
-          }(owner)
+          }(using owner)
       )
 
       effects `shouldBe` mutable.Buffer(
@@ -198,7 +198,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
             fooSignal.foreach { foo =>
               assert(key == foo.id, "Subsequent value does not match initial key")
               effects += Effect(s"update-child-$key", foo.id + "-" + foo.version.toString)
-            }(owner)
+            }(using owner)
         )
         // #Note: Test that our dropping logic works does not break events scheduled after transaction boundary
         Transaction { _ =>
@@ -208,7 +208,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
               fooSignal.foreach { foo =>
                 assert(key == foo.id, "Subsequent value does not match initial key [new-trx]")
                 effects += Effect(s"new-trx-update-child-$key", foo.id + "-" + foo.version.toString)
-              }(owner)
+              }(using owner)
           )
         }
         Bar(key)
@@ -219,7 +219,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
         owner =>
           signal.foreach { result =>
             effects += Effect("result", result.toString)
-          }(owner)
+          }(using owner)
       )
 
       effects `shouldBe` mutable.Buffer(
@@ -279,7 +279,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
             fooSignal.foreach { foo =>
               assert(key == foo.id, "Subsequent value does not match initial key")
               effects += Effect(s"update-child-$key", foo.id + "-" + foo.version.toString)
-            }(owner)
+            }(using owner)
         )
         Bar(key)
       })
@@ -289,7 +289,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
         owner =>
           signal.foreach { result =>
             effects += Effect("result", result.toString)
-          }(owner)
+          }(using owner)
       )
 
       effects `shouldBe` mutable.Buffer()
@@ -351,10 +351,10 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
                   element.fooSignal.foreach { foo =>
                     assert(element.id == foo.id, "Subsequent value does not match initial key")
                     effects += Effect(s"update-child-${element.id}", foo.id + "-" + foo.version.toString)
-                  }(owner)
+                  }(using owner)
               )
             }
-          }(owner)
+          }(using owner)
       )
 
       effects `shouldBe` mutable.Buffer()
@@ -413,7 +413,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    val splitSub = splitSignal.addObserver(Observer.empty)(owner)
+    val splitSub = splitSignal.addObserver(Observer.empty)(using owner)
 
     assert(ownersById.isEmpty)
     assert(fooSById.isEmpty)
@@ -427,8 +427,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
     val fooS_A = fooSById("a")
     val mapFooS_A = mapFooSById("a")
 
-    val fooS_A_observed_1 = fooS_A.observe(owner)
-    val mapFooS_A_observed_1 = mapFooS_A.observe(owner)
+    val fooS_A_observed_1 = fooS_A.observe(using owner)
+    val mapFooS_A_observed_1 = mapFooS_A.observe(using owner)
 
     foosVar.set(Foo("a", 2) :: Foo("b", 1) :: Nil)
 
@@ -450,8 +450,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
     val fooS_B = fooSById("b")
     val mapFooS_B = mapFooSById("b")
 
-    val fooS_B_observed_1 = fooS_B.observe(owner_B)
-    val mapFooS_B_observed_1 = mapFooS_B.observe(owner_B)
+    val fooS_B_observed_1 = fooS_B.observe(using owner_B)
+    val mapFooS_B_observed_1 = mapFooS_B.observe(using owner_B)
 
     assert(ownersById("b") eq owner_B)
     assert(fooSById("b") eq fooS_B)
@@ -480,8 +480,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    val fooS_A_observed_2 = fooS_A.observe(owner)
-    val mapFooS_A_observed_2 = mapFooS_A.observe(owner)
+    val fooS_A_observed_2 = fooS_A.observe(using owner)
+    val mapFooS_A_observed_2 = mapFooS_A.observe(using owner)
 
     assert(fooS_A_observed_2.now() == Foo("a", 4))
     assert(mapFooS_A_observed_2.now().contains(Foo("a", 4)))
@@ -523,7 +523,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    val splitSub = splitSignal.addObserver(Observer.empty)(owner)
+    val splitSub = splitSignal.addObserver(Observer.empty)(using owner)
 
     assert(ownersById.isEmpty)
     assert(fooSById.isEmpty)
@@ -537,8 +537,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
     val fooS_A = fooSById("a")
     val mapFooS_A = mapFooSById("a")
 
-    val fooS_A_observed_1 = fooS_A.observe(owner_A)
-    val mapFooS_A_observed_1 = mapFooS_A.observe(owner_A)
+    val fooS_A_observed_1 = fooS_A.observe(using owner_A)
+    val mapFooS_A_observed_1 = mapFooS_A.observe(using owner_A)
 
     foosBus.emit(Foo("a", 2) :: Foo("b", 1) :: Nil)
 
@@ -560,8 +560,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
     val fooS_B = fooSById("b")
     val mapFooS_B = mapFooSById("b")
 
-    val fooS_B_observed_1 = fooS_B.observe(owner_B)
-    val mapFooS_B_observed_1 = mapFooS_B.observe(owner_B)
+    val fooS_B_observed_1 = fooS_B.observe(using owner_B)
+    val mapFooS_B_observed_1 = mapFooS_B.observe(using owner_B)
 
     assert(ownersById("b") eq owner_B)
     assert(fooSById("b") eq fooS_B)
@@ -590,8 +590,8 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
 
     // --
 
-    val fooS_A_observed_2 = fooS_A.observe(owner)
-    val mapFooS_A_observed_2 = mapFooS_A.observe(owner)
+    val fooS_A_observed_2 = fooS_A.observe(using owner)
+    val mapFooS_A_observed_2 = mapFooS_A.observe(using owner)
 
     assert(fooS_A_observed_2.now() == Foo("a", 4))
     assert(mapFooS_A_observed_2.now().contains(Foo("a", 2))) // this is based on stream so it can't actually re-sync
@@ -626,13 +626,13 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
       fooSignal.foreach { foo =>
         assert(key == foo.id, "Subsequent value does not match initial key")
         effects += Effect("update-child", foo.id + "-" + foo.version.toString)
-      }(owner)
+      }(using owner)
       Bar(key)
     })
 
     signal.foreach { result =>
       effects += Effect("result", result.toString)
-    }(owner)
+    }(using owner)
 
     effects `shouldBe` mutable.Buffer(
       Effect("init-child", "initial-1"),
@@ -736,13 +736,13 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
         effects += Effect(s"init-child-$index", initialFoo.id + "-" + initialFoo.version.toString)
         fooVar.signal.foreach { foo =>
           effects += Effect(s"update-child-$index", foo.id + "-" + foo.version.toString)
-        }(owner)
+        }(using owner)
         Bar(index.toString)
       })
 
       signal.foreach { result =>
         effects += Effect("result", result.toString)
-      }(owner)
+      }(using owner)
 
       effects `shouldBe` mutable.Buffer(
         Effect("init-child-0", "initial-1"),
@@ -877,7 +877,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
           maybeLastSub = Some(fooVar.signal.foreach { foo =>
             val updatedKey = s"${foo.id}-${foo.version}"
             effects += Effect(s"update-child-$updatedKey", updatedKey)
-          }(owner))
+          }(using owner))
           Bar(initialKey)
         },
         ifEmpty = {
@@ -890,7 +890,7 @@ class SplitVarSpec extends UnitSpec with BeforeAndAfter {
 
       signal.foreach { result =>
         effects += Effect("result", result.toString)
-      }(owner)
+      }(using owner)
 
       effects `shouldBe` mutable.Buffer(
         Effect("init-child-initial-1", "initial-1"),

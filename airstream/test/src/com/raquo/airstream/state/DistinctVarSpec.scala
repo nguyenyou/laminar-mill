@@ -42,11 +42,11 @@ class DistinctVarSpec extends UnitSpec with BeforeAndAfter {
 
     sourceVar.signal.foreach { v =>
       effects += Effect("source", v)
-    }(owner)
+    }(using owner)
 
     distinctVar.signal.foreach { v =>
       effects += Effect("distinct", v)
-    }(owner)
+    }(using owner)
 
     assertEquals(
       effects.toList,

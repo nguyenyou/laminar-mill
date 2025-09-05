@@ -130,16 +130,16 @@ class TryObservableSpec extends UnitSpec {
       .splitTry(
         success = (_, successS) => {
           ix += 1
-          successS.foreach(r => effects += Effect(s"success-${ix}", r))(innerOwner)
+          successS.foreach(r => effects += Effect(s"success-${ix}", r))(using innerOwner)
           ix
         },
         failure = (_, failureS) => {
           ix += 1
-          failureS.foreach(l => effects += Effect(s"failure-${ix}", l))(innerOwner)
+          failureS.foreach(l => effects += Effect(s"failure-${ix}", l))(using innerOwner)
           ix
         }
       )
-      .foreach(v => effects += Effect("obs", v))(owner)
+      .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
 

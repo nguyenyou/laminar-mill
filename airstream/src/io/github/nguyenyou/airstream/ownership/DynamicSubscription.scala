@@ -103,7 +103,7 @@ object DynamicSubscription {
     observable: Observable[A],
     sink: Sink[A]
   ): DynamicSubscription = {
-    DynamicSubscription.unsafe(dynamicOwner, owner => observable.addObserver(sink.toObserver)(owner))
+    DynamicSubscription.unsafe(dynamicOwner, owner => observable.addObserver(sink.toObserver)(using owner))
   }
 
   def subscribeFn[A](
@@ -111,7 +111,7 @@ object DynamicSubscription {
     observable: Observable[A],
     onNext: A => Unit
   ): DynamicSubscription = {
-    DynamicSubscription.unsafe(dynamicOwner, owner => observable.foreach(onNext)(owner))
+    DynamicSubscription.unsafe(dynamicOwner, owner => observable.foreach(onNext)(using owner))
   }
 
   def subscribeBus[A](
@@ -119,6 +119,6 @@ object DynamicSubscription {
     eventStream: EventStream[A],
     writeBus: WriteBus[A]
   ): DynamicSubscription = {
-    DynamicSubscription.unsafe(dynamicOwner, owner => writeBus.addSource(eventStream)(owner))
+    DynamicSubscription.unsafe(dynamicOwner, owner => writeBus.addSource(eventStream)(using owner))
   }
 }
