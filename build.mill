@@ -71,5 +71,4 @@ object laminar extends WebModule {
   
 }
 
-object ew extends WebModule {
-}
+object ew extends WebModule

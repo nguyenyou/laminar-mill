@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "laminar-mill-metals": {
+      "url": "http://localhost:53219/sse"
+    }
+  }
+}
