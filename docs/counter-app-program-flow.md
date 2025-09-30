@@ -559,38 +559,180 @@ graph LR
 
 ## Complete Flow Diagram
 
+```mermaid
+flowchart TD
+    Start([User clicks + button]) --> Click[Browser fires DOM click event]
+    Click --> Listener[EventListener callback invoked]
+    Listener --> ObsNext[Observer.onNext mouseEvent]
+    ObsNext --> Update[counterVar.update _ + 1]
+
+    Update --> TrxStart{{Transaction created}}
+
+    subgraph Transaction["🔒 Transaction (Atomic)"]
+        TrxStart --> GetVal[Get current value: 0]
+        GetVal --> ApplyMod[Apply modifier: 0 + 1 = 1]
+        ApplyMod --> SetVal[setCurrentValue Success 1, trx]
+        SetVal --> OnTry[VarSignal.onTry Success 1, trx]
+        OnTry --> Fire[Signal.fireTry Success 1, trx]
+        Fire --> Notify[Notify all observers]
+    end
+
+    Notify --> InserterTrig[ChildTextInserter observer triggered]
+    InserterTrig --> UpdateText[textNode.ref.textContent = 1]
+    UpdateText --> Render[Browser re-renders text node]
+    Render --> End([User sees 1 in UI])
+
+    style Transaction fill:#e1f5ff,stroke:#0066cc,stroke-width:3px
+    style Start fill:#90EE90
+    style End fill:#90EE90
+    style TrxStart fill:#FFD700
 ```
-[User clicks "+"]
-       ↓
-[Browser fires DOM click event]
-       ↓
-[EventListener callback invoked]
-       ↓
-[Observer.onNext(mouseEvent) called]
-       ↓
-[counterVar.update(_ + 1) executes]
-       ↓
-[Transaction created] ──────────────┐
-       ↓                            │
-[Get current value: 0]              │
-       ↓                            │ Atomic!
-[Apply modifier: 0 + 1 = 1]        │
-       ↓                            │
-[setCurrentValue(Success(1), trx)] │
-       ↓                            │
-[VarSignal.onTry(Success(1), trx)] │
-       ↓                            │
-[Signal.fireTry(Success(1), trx)]  │
-       ↓                            │
-[Notify all observers] ─────────────┘
-       ↓
-[ChildTextInserter observer triggered]
-       ↓
-[textNode.ref.textContent = "1"]
-       ↓
-[Browser re-renders text node]
-       ↓
-[User sees "1" in UI]
+
+### Detailed Flow with Class Interactions
+
+```mermaid
+graph TD
+    subgraph "1. Initialization"
+        I1[User: Var 0] --> I2[SourceVar created]
+        I2 --> I3[VarSignal created]
+        I3 --> I4[Value: Success 0]
+    end
+
+    subgraph "2. UI Building"
+        U1[div element] --> U2[Modifiers applied]
+        U2 --> U3[onClick --> Observer]
+        U2 --> U4[text <-- signal]
+    end
+
+    subgraph "3. Mounting"
+        M1[RootNode.mount] --> M2[DynamicOwner.activate]
+        M2 --> M3[Event listeners attached]
+        M2 --> M4[Signal subscribed]
+        M4 --> M5[Initial render: 0]
+    end
+
+    subgraph "4. Click Event"
+        C1[User clicks] --> C2[DOM event]
+        C2 --> C3[Observer.onNext]
+        C3 --> C4[Var.update]
+    end
+
+    subgraph "5. Reactive Update"
+        R1[Transaction starts] --> R2[Var value: 0 → 1]
+        R2 --> R3[Signal.fireTry]
+        R3 --> R4[Inserter notified]
+        R4 --> R5[TextNode updated]
+        R5 --> R6[DOM re-rendered]
+    end
+
+    I4 -.-> U4
+    U4 -.-> M4
+    M5 -.-> C1
+    C4 --> R1
+
+    style I4 fill:#e1f5ff
+    style M5 fill:#e1f5ff
+    style R6 fill:#90EE90
+```
+
+---
+
+## Class Architecture Diagram
+
+```mermaid
+classDiagram
+    class Var~A~ {
+        <<trait>>
+        +signal: StrictSignal[A]
+        +writer: Observer[A]
+        +update(mod: A => A)
+        +set(value: A)
+        +now(): A
+    }
+
+    class SourceVar~A~ {
+        -_currentValue: Try[A]
+        +signal: VarSignal[A]
+        #setCurrentValue(value, trx)
+    }
+
+    class VarSignal~A~ {
+        +onTry(value, trx)
+        +fireTry(value, trx)
+    }
+
+    class Observable~A~ {
+        <<trait>>
+        +foreach(onNext: A => Unit)
+        +map(project: A => B)
+        +filter(passes: A => Boolean)
+    }
+
+    class Signal~A~ {
+        <<trait>>
+        +now(): A
+        +tryNow(): Try[A]
+    }
+
+    class Observer~A~ {
+        <<trait>>
+        +onNext(value: A)
+        +onError(err: Throwable)
+        +onTry(value: Try[A])
+    }
+
+    class ReactiveElement~Ref~ {
+        +dynamicOwner: DynamicOwner
+        +ref: Ref
+        +amend(mods: Modifier*)
+    }
+
+    class DynamicOwner {
+        -subscriptions: List[DynamicSubscription]
+        +activate()
+        +deactivate()
+        +isActive: Boolean
+    }
+
+    class DynamicSubscription {
+        -activate: () => Subscription
+        -deactivate: () => Unit
+        +setOwner(owner: DynamicOwner)
+    }
+
+    class Transaction {
+        -code: Transaction => Any
+        -pendingObservables: Queue
+        +resolvePendingObservables()
+    }
+
+    class Binder {
+        +apply(element: ReactiveElement)
+    }
+
+    class ChildTextInserter {
+        +insertFn: InsertContext => Unit
+        -maybeTextNode: TextNode
+    }
+
+    Var <|-- SourceVar
+    SourceVar *-- VarSignal
+    VarSignal --|> Signal
+    Signal --|> Observable
+    Observer --|> Sink
+
+    ReactiveElement *-- DynamicOwner
+    DynamicOwner *-- "many" DynamicSubscription
+
+    Binder ..> ReactiveElement: binds to
+    Binder ..> Observable: subscribes
+    Binder ..> Observer: uses
+
+    ChildTextInserter ..> Observable: subscribes to
+    ChildTextInserter ..> DynamicOwner: owned by
+
+    Transaction ..> VarSignal: coordinates
+    Transaction ..> Observable: coordinates
 ```
 
 ---
