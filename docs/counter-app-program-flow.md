@@ -22,6 +22,39 @@ This document traces the complete execution flow when rendering and clicking the
 
 ---
 
+## Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Phase 1: Initialization"
+        A[Var.apply 0] --> B[SourceVar created]
+        B --> C[VarSignal created]
+        C --> D[Initial value: Success 0]
+    end
+
+    subgraph "Phase 2: UI Tree Building"
+        E[div element] --> F[button - element]
+        E --> G[inner div element]
+        E --> H[button + element]
+        F --> I[onClick --> Observer]
+        G --> J[text <-- signal]
+        H --> K[onClick --> Observer]
+    end
+
+    subgraph "Phase 3: Mounting"
+        L[render call] --> M[RootNode.mount]
+        M --> N[dynamicOwner.activate]
+        N --> O[Attach event listeners]
+        N --> P[Subscribe to signal]
+        P --> Q[Initial render: TextNode 0]
+    end
+
+    D -.-> J
+    J -.-> P
+```
+
+---
+
 ## Phase 1: Initialization
 
 ### 1.1 Creating the Var
@@ -63,6 +96,32 @@ div(
    - `text <-- counterVar.signal` creates a **dynamic inserter** (not yet subscribed)
 
 **Key concept:** At this stage, we're just building a **declarative tree** of elements and modifiers. Nothing is "live" yet - no DOM elements, no subscriptions, no event listeners.
+
+```mermaid
+sequenceDiagram
+    participant User as User Code
+    participant Var as Var/SourceVar
+    participant Signal as VarSignal
+    participant Div as div Element
+    participant Btn as button Element
+    participant Mod as Modifiers
+
+    User->>Var: Var(0)
+    Var->>Signal: create VarSignal
+    Signal->>Signal: setCurrentValue(Success(0))
+
+    User->>Div: div(...)
+    Div->>Btn: create button("-")
+    Div->>Mod: onClick --> Observer
+    Note over Mod: Event listener created<br/>but not attached yet
+
+    Div->>Div: create inner div
+    Div->>Mod: text <-- signal
+    Note over Mod: Dynamic inserter created<br/>but not subscribed yet
+
+    Div->>Btn: create button("+")
+    Div->>Mod: onClick --> Observer
+```
 
 ---
 
@@ -157,6 +216,39 @@ textSource.foreach { newValue =>
 ```
 
 **Result:** The counter displays "0" in the DOM
+
+```mermaid
+sequenceDiagram
+    participant User as User Code
+    participant Root as RootNode
+    participant Owner as DynamicOwner
+    participant Elem as ReactiveElement
+    participant DOM as Browser DOM
+    participant Inserter as ChildTextInserter
+    participant Signal as VarSignal
+
+    User->>Root: render(container, div)
+    Root->>Root: new RootNode
+    Root->>Root: mount()
+    Root->>Owner: dynamicOwner.activate()
+
+    Owner->>Elem: activate child elements
+    Elem->>Elem: pilotSubscription activates
+    Elem->>DOM: appendChild(button "-")
+    Elem->>DOM: addEventListener("click", observer)
+
+    Elem->>DOM: appendChild(inner div)
+    Elem->>Inserter: mount inserter
+    Inserter->>Signal: subscribe to signal
+    Signal->>Inserter: emit current value (0)
+    Inserter->>DOM: create TextNode("0")
+    Inserter->>DOM: replaceChild(sentinel, textNode)
+
+    Elem->>DOM: appendChild(button "+")
+    Elem->>DOM: addEventListener("click", observer)
+
+    Note over DOM: Counter displays "0"
+```
 
 ---
 
@@ -268,6 +360,39 @@ private def run(transaction: Transaction): Unit = {
 2. Transaction is marked as complete
 3. Memory is cleaned up (`transaction.code` is set to throw error if reused)
 
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant DOM as Browser DOM
+    participant Obs as Observer
+    participant Var as SourceVar
+    participant Trx as Transaction
+    participant Signal as VarSignal
+    participant Inserter as ChildTextInserter
+    participant Text as TextNode
+
+    User->>DOM: clicks "+" button
+    DOM->>Obs: fire click event
+    Obs->>Obs: onNext(mouseEvent)
+    Obs->>Var: update(_ + 1)
+
+    rect rgb(200, 220, 250)
+        Note over Trx: Transaction begins
+        Var->>Trx: Transaction { trx => ... }
+        Var->>Var: tryNow() = Success(0)
+        Var->>Var: mod(0) = 1
+        Var->>Var: setCurrentValue(Success(1), trx)
+        Var->>Signal: signal.onTry(Success(1), trx)
+        Signal->>Signal: fireTry(Success(1), trx)
+        Signal->>Inserter: notify observer with value 1
+        Inserter->>Text: textNode.ref.textContent = "1"
+        Note over Trx: Transaction ends
+    end
+
+    Text->>DOM: browser re-renders
+    DOM->>User: displays "1"
+```
+
 ---
 
 ## Key Architectural Concepts
@@ -292,6 +417,26 @@ If `a` updates to `2`:
 - Uses topological ordering via `topoRank` to fire observables in correct order
 - Prevents multiple emissions from same observable in one transaction
 
+```mermaid
+graph LR
+    subgraph "Without Transactions (Glitch)"
+        A1[a=1] --> B1[b=2]
+        A1 --> C1[c=3]
+        A2[a=2] --> B2[b=4]
+        B1 --> C2[c=5 ❌]
+        B2 --> C3[c=6 ✓]
+        style C2 fill:#ffcccc
+    end
+
+    subgraph "With Transactions (Glitch-Free)"
+        A3[a=1] --> B3[b=2]
+        A3 --> C4[c=3]
+        A4[a=2] -.Transaction.-> B4[b=4]
+        A4 -.Transaction.-> C5[c=6 ✓]
+        style C5 fill:#ccffcc
+    end
+```
+
 ### 2. Ownership System
 
 **Purpose:** Automatic subscription lifecycle management
@@ -309,6 +454,33 @@ If `a` updates to `2`:
 4. Element unmounted → owner deactivated → subscriptions stop
 5. No memory leaks! 🎉
 
+```mermaid
+stateDiagram-v2
+    [*] --> ElementCreated: new ReactiveElement
+    ElementCreated --> Mounted: appendChild to DOM
+    Mounted --> Active: dynamicOwner.activate()
+    Active --> Active: subscriptions running
+    Active --> Unmounted: removeChild from DOM
+    Unmounted --> Inactive: dynamicOwner.deactivate()
+    Inactive --> [*]: element garbage collected
+
+    note right of ElementCreated
+        DynamicOwner inactive
+        No subscriptions
+    end note
+
+    note right of Active
+        All DynamicSubscriptions active
+        Event listeners attached
+        Observables subscribed
+    end note
+
+    note right of Inactive
+        All subscriptions stopped
+        Memory cleaned up
+    end note
+```
+
 ### 3. Signals vs EventStreams
 
 **Signal:**
@@ -321,6 +493,33 @@ If `a` updates to `2`:
 - Only emits new events
 - Example: `onClick` events
 
+```mermaid
+graph TB
+    subgraph "Signal Behavior"
+        S1[Signal value=42]
+        S1 -->|immediate emit| O1[Observer 1: receives 42]
+        S1 -->|immediate emit| O2[Observer 2: receives 42]
+        S1 -->|update to 43| S2[Signal value=43]
+        S2 -->|emit| O1
+        S2 -->|emit| O2
+        S2 -->|immediate emit| O3[Observer 3: receives 43]
+    end
+
+    subgraph "EventStream Behavior"
+        E1[EventStream]
+        E1 -.no initial emit.-> O4[Observer 1: nothing]
+        E1 -.no initial emit.-> O5[Observer 2: nothing]
+        E1 -->|new event: 42| O4
+        E1 -->|new event: 42| O5
+        E1 -->|new event: 43| O4
+        E1 -->|new event: 43| O5
+        E1 -->|new event: 43| O6[Observer 3: receives 43]
+    end
+
+    style O3 fill:#ccffcc
+    style O6 fill:#ccffcc
+```
+
 ### 4. Observers vs Binders
 
 **Observer** ([Observer.scala:9](../airstream/src/io/github/nguyenyou/airstream/core/Observer.scala#L9)):
@@ -332,6 +531,29 @@ If `a` updates to `2`:
 - Connects an observable to an observer on an element
 - Created by `-->` operator
 - Manages subscription lifecycle via element's ownership
+
+```mermaid
+graph LR
+    subgraph "Observer: Consumer"
+        Obs[Observer]
+        Obs -->|has method| OnNext[onNext value => Unit]
+        Obs -->|has method| OnError[onError err => Unit]
+        Obs -->|example| Ex1["Observer { _ => counterVar.update _ + 1 }"]
+    end
+
+    subgraph "Binder: Connector"
+        Bind[Binder]
+        Bind -->|connects| Src[Observable]
+        Bind -->|to| Sink[Observer/Sink]
+        Bind -->|manages| Sub[DynamicSubscription]
+        Bind -->|created by| Arrow["onClick --> Observer"]
+        Sub -->|owned by| Elem[ReactiveElement]
+    end
+
+    Src -->|emits values to| Obs
+    Elem -->|activates| Sub
+    Sub -->|starts| Connection["Observable.foreach Observer.onNext"]
+```
 
 ---
 
