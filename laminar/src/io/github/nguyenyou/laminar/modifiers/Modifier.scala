@@ -3,6 +3,16 @@ package io.github.nguyenyou.laminar.modifiers
 import io.github.nguyenyou.airstream.core.Transaction
 import io.github.nguyenyou.laminar.nodes.ReactiveElement
 
+/*
+Extra comments:
+
+[-El <: ReactiveElement.Base]
+ │ │  │  └─────────────────── Upper bound type
+ │ │  └───────────────────── Upper bound operator
+ │ └──────────────────────── Type parameter name
+ └────────────────────────── Variance annotation (contravariance) - You can consume more general things safely.
+ */
+
 /** This type represents an operation that has a side effect on a node of type [[El]].
   *
   * For example: `href := "http://example.com"` is a Modifier that sets the href attribute to an
