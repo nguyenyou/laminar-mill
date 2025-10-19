@@ -6,8 +6,8 @@ import scala.annotation.implicitNotFound
 
 /** `RenderableText[A]` is evidence that you can convert a value of type A to a string for the purpose of rendering it as a TextNode.
   *
-  * If you have an implicit val of RenderableText[A], Laminar can render your `A` type values by converting them to strings (and ultimately
-  * into [[io.github.nguyenyou.laminar.nodes.TextNode]]), and will accept your values as a valid [[Modifier]], and in `child.text <--`.
+  * If you have an given of RenderableText[A], Laminar can render your `A` type values by converting them to strings (and ultimately into
+  * [[io.github.nguyenyou.laminar.nodes.TextNode]]), and will accept your values as a valid [[Modifier]], and in `child.text <--`.
   *
   * See also – [[RenderableNode]]
   */

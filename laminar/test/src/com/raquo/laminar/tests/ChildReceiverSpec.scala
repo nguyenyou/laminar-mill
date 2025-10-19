@@ -33,8 +33,8 @@ class ChildReceiverSpec extends UnitSpec {
     }
 
     def test(
-      makeObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
-      expectedInitialChild: Option[ExpectedNode]
+        makeObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
+        expectedInitialChild: Option[ExpectedNode]
     ): Unit = {
 
       val childBus = new EventBus[ChildNode[dom.Element]]
@@ -82,10 +82,10 @@ class ChildReceiverSpec extends UnitSpec {
     }
 
     def test(
-      makeFooObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
-      makeBarObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
-      initialFooChild: Option[ExpectedNode],
-      initialBarChild: Option[ExpectedNode]
+        makeFooObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
+        makeBarObservable: EventStream[ChildNode[dom.Element]] => Observable[ChildNode[dom.Element]],
+        initialFooChild: Option[ExpectedNode],
+        initialBarChild: Option[ExpectedNode]
     ): Unit = {
       val fooChildBus = new EventBus[ChildNode[dom.Element]]
       val barChildBus = new EventBus[ChildNode[dom.Element]]
@@ -283,7 +283,7 @@ class ChildReceiverSpec extends UnitSpec {
 
     val el = div(
       child <-- bus1,
-      child <-- bus2,
+      child <-- bus2
     )
 
     mount(el)
@@ -309,7 +309,7 @@ class ChildReceiverSpec extends UnitSpec {
         sentinel,
         span of "a",
         sentinel,
-        span of "d",
+        span of "d"
       )
     )
 
@@ -354,7 +354,7 @@ class ChildReceiverSpec extends UnitSpec {
         sentinel,
         span of "a",
         sentinel,
-        span of "b",
+        span of "b"
       )
     )
 
@@ -369,7 +369,7 @@ class ChildReceiverSpec extends UnitSpec {
         sentinel,
         span of "a",
         sentinel,
-        span of "b",
+        span of "b"
       )
     )
 
@@ -475,7 +475,7 @@ class ChildReceiverSpec extends UnitSpec {
       val node: Span = span(text)
     }
 
-    implicit val componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
+    given componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
 
     val v = Var(true)
 

@@ -300,26 +300,28 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
     var ix = 0
 
     // #Note: `identity` instead of the `_.distinct` default
-    val splitSignal = bus.events.split(_.id, distinctCompose = identity)((id, initialFoo, fooSignal) => {
-      ix += 1
-      val thisIx = ix
-      effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
-      div(
-        "ID: " + id,
-        span(
+    val splitSignal = bus.events
+      .split(_.id, distinctCompose = identity)((id, initialFoo, fooSignal) => {
+        ix += 1
+        val thisIx = ix
+        effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
+        div(
+          "ID: " + id,
+          span(
+            child.text <-- (
+              fooSignal
+                .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
+                .map(_.id)
+            )
+          ),
           child.text <-- (
             fooSignal
-              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
-              .map(_.id)
+              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
+              .map(_.version)
           )
-        ),
-        child.text <-- (
-          fooSignal
-            .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
-            .map(_.version)
         )
-      )
-    }).debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
+      })
+      .debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
 
     // --
 
@@ -331,10 +333,12 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     mount("mount-1", el)
 
-    expectNode(div like (
-      "Hello",
-      sentinel
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("splitSignal", "List()")
@@ -346,12 +350,14 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     bus.emit(List(Foo("a", 1), Foo("b", 10)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-a-1", "Foo(a,1)"),
@@ -369,17 +375,22 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     bus.emit(List(Foo("a", 1), Foo("b", 10), Foo("c", 100)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10"),
-      div like ("ID: c", span like "c", "100")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10"),
+        div like ("ID: c", span like "c", "100")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-c-3", "Foo(c,100)"),
-      Effect("splitSignal", "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"),
+      Effect(
+        "splitSignal",
+        "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"
+      ),
       Effect("fooSignal-child1-c-3", "Foo(c,100)"),
       Effect("fooSignal-child2-c-3", "Foo(c,100)"),
       Effect("fooSignal-child1-a-1", "Foo(a,1)"),
@@ -483,27 +494,29 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
     var ix = 0
 
     // #Note: `identity` instead of the `_.distinct` default
-    val splitSignal = modelsVar.signal.split(_.id, distinctCompose = identity)((id, initialFoo, fooSignal) => {
-      ix += 1
-      val thisIx = ix
-      effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
-      div(
-        "ID: " + id,
-        // onMountUnmountCallback(_ => println(s"[] mounted ${id}-${thisI}"), _ => println(s"[] unmounted ${id}-${thisI}")),
-        span(
+    val splitSignal = modelsVar.signal
+      .split(_.id, distinctCompose = identity)((id, initialFoo, fooSignal) => {
+        ix += 1
+        val thisIx = ix
+        effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
+        div(
+          "ID: " + id,
+          // onMountUnmountCallback(_ => println(s"[] mounted ${id}-${thisI}"), _ => println(s"[] unmounted ${id}-${thisI}")),
+          span(
+            child.text <-- (
+              fooSignal
+                .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
+                .map(_.id)
+            )
+          ),
           child.text <-- (
             fooSignal
-              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
-              .map(_.id)
+              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
+              .map(_.version)
           )
-        ),
-        child.text <-- (
-          fooSignal
-            .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
-            .map(_.version)
         )
-      )
-    }).debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
+      })
+      .debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
 
     // --
 
@@ -515,17 +528,19 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     mount("mount-1", el)
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: initial", span like "initial", "1"),
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: initial", span like "initial", "1")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-initial-1", "Foo(initial,1)"),
       Effect("fooSignal-child1-initial-1", "Foo(initial,1)"),
       Effect("fooSignal-child2-initial-1", "Foo(initial,1)"),
-      Effect("splitSignal", "List(<div>ID: initial<span>initial</span>1</div>)"),
+      Effect("splitSignal", "List(<div>ID: initial<span>initial</span>1</div>)")
     )
 
     effects.clear()
@@ -534,12 +549,14 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     modelsVar.set(List(Foo("a", 1), Foo("b", 10)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-a-2", "Foo(a,1)"),
@@ -557,17 +574,22 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     modelsVar.set(List(Foo("a", 1), Foo("b", 10), Foo("c", 100)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10"),
-      div like ("ID: c", span like "c", "100")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10"),
+        div like ("ID: c", span like "c", "100")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-c-4", "Foo(c,100)"),
-      Effect("splitSignal", "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"),
+      Effect(
+        "splitSignal",
+        "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"
+      ),
       Effect("fooSignal-child1-c-4", "Foo(c,100)"),
       Effect("fooSignal-child2-c-4", "Foo(c,100)"),
       Effect("fooSignal-child1-a-2", "Foo(a,1)"),
@@ -671,26 +693,28 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
     var ix = 0
 
     // #Note: Using `distinct` default now
-    val splitSignal = modelsVar.signal.split(_.id)((id, initialFoo, fooSignal) => {
-      ix += 1
-      val thisIx = ix
-      effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
-      div(
-        "ID: " + id,
-        span(
+    val splitSignal = modelsVar.signal
+      .split(_.id)((id, initialFoo, fooSignal) => {
+        ix += 1
+        val thisIx = ix
+        effects += Effect(s"render-$id-$thisIx", initialFoo.toString)
+        div(
+          "ID: " + id,
+          span(
+            child.text <-- (
+              fooSignal
+                .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
+                .map(_.id)
+            )
+          ),
           child.text <-- (
             fooSignal
-              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child1-$id-$thisIx", foo.toString))
-              .map(_.id)
+              .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
+              .map(_.version)
           )
-        ),
-        child.text <-- (
-          fooSignal
-            .debugSpyEvents(foo => effects += Effect(s"fooSignal-child2-$id-$thisIx", foo.toString))
-            .map(_.version)
         )
-      )
-    }).debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
+      })
+      .debugSpyEvents(els => effects += Effect("splitSignal", els.map(_.ref.outerHTML).toString))
 
     // --
 
@@ -701,17 +725,19 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     mount("mount-1", el)
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: initial", span like "initial", "1"),
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: initial", span like "initial", "1")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-initial-1", "Foo(initial,1)"),
       Effect("fooSignal-child1-initial-1", "Foo(initial,1)"),
       Effect("fooSignal-child2-initial-1", "Foo(initial,1)"),
-      Effect("splitSignal", "List(<div>ID: initial<span>initial</span>1</div>)"),
+      Effect("splitSignal", "List(<div>ID: initial<span>initial</span>1</div>)")
     )
 
     effects.clear()
@@ -720,12 +746,14 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     modelsVar.set(List(Foo("a", 1), Foo("b", 10)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-a-2", "Foo(a,1)"),
@@ -743,19 +771,24 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     modelsVar.set(List(Foo("a", 1), Foo("b", 10), Foo("c", 100)))
 
-    expectNode(div like (
-      "Hello",
-      sentinel,
-      div like ("ID: a", span like "a", "1"),
-      div like ("ID: b", span like "b", "10"),
-      div like ("ID: c", span like "c", "100")
-    ))
+    expectNode(
+      div like (
+        "Hello",
+        sentinel,
+        div like ("ID: a", span like "a", "1"),
+        div like ("ID: b", span like "b", "10"),
+        div like ("ID: c", span like "c", "100")
+      )
+    )
 
     effects shouldBe mutable.Buffer(
       Effect("render-c-4", "Foo(c,100)"),
-      Effect("splitSignal", "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"),
+      Effect(
+        "splitSignal",
+        "List(<div>ID: a<span>a</span>1</div>, <div>ID: b<span>b</span>10</div>, <div>ID: c<span><!----></span><!----></div>)"
+      ),
       Effect("fooSignal-child1-c-4", "Foo(c,100)"),
-      Effect("fooSignal-child2-c-4", "Foo(c,100)"),
+      Effect("fooSignal-child2-c-4", "Foo(c,100)")
       // Effect("fooSignal-child1-a-2", "Foo(a,1)"),
       // Effect("fooSignal-child2-a-2", "Foo(a,1)"),
       // Effect("fooSignal-child1-b-3", "Foo(b,10)"),
@@ -863,7 +896,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
     val el = div(
       children <-- bus1,
       span("--"),
-      children <-- bus2,
+      children <-- bus2
     )
 
     mount(el)
@@ -910,7 +943,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         span of "a",
         span of "--",
         sentinel,
-        span of "d",
+        span of "d"
       )
     )
 
@@ -928,7 +961,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         span of "d",
         span of "--",
         sentinel,
-        span of "e",
+        span of "e"
       )
     )
 
@@ -946,7 +979,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         span of "--",
         sentinel,
         span of "e",
-        span of "d",
+        span of "d"
       )
     )
 
@@ -964,7 +997,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         span of "a",
         span of "--",
         sentinel,
-        span of "e",
+        span of "e"
       )
     )
 
@@ -984,7 +1017,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         sentinel,
         span of "e",
         span of "a",
-        span of "d",
+        span of "d"
       )
     )
 
@@ -1004,7 +1037,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
         span of "d",
         span of "--",
         sentinel,
-        span of "e",
+        span of "e"
       )
     )
 
@@ -1105,9 +1138,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel,
         span.of("dyn")
       )
@@ -1119,9 +1154,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel
       )
     )
@@ -1132,9 +1169,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel,
         span.of("dyn")
       )
@@ -1147,7 +1186,7 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
       val node: Span = span(text)
     }
 
-    implicit val componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
+    given componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
 
     val v = Var(true)
 
@@ -1167,9 +1206,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel,
         span.of("dyn")
       )
@@ -1181,9 +1222,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel
       )
     )
@@ -1194,9 +1237,11 @@ class ChildrenReceiverSpec extends UnitSpec with BeforeAndAfter {
 
     expectNode(
       div.of(
-        span.of("yep"), span.of("yas"),
+        span.of("yep"),
+        span.of("yas"),
         span.of("yippers"),
-        span.of("hello"), span.of("world"),
+        span.of("hello"),
+        span.of("world"),
         sentinel,
         span.of("dyn")
       )

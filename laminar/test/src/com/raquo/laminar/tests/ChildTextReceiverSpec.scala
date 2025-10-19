@@ -55,7 +55,7 @@ class ChildTextReceiverSpec extends UnitSpec {
     val el = div(
       "Hello",
       child.text <-- bus1,
-      child.text <-- bus2,
+      child.text <-- bus2
     )
 
     mount(el)
@@ -173,7 +173,7 @@ class ChildTextReceiverSpec extends UnitSpec {
 
     class TextLike(val str: String)
 
-    implicit val renderable: RenderableText[TextLike] = RenderableText(_.str)
+    given renderable: RenderableText[TextLike] = RenderableText(_.str)
 
     val el = div(
       text(new TextLike("nope")) := false,
