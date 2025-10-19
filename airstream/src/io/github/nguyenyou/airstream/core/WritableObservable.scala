@@ -42,27 +42,30 @@ trait WritableObservable[A] extends Observable[A] {
 
   protected def fireTry(nextValue: Try[A], transaction: Transaction): Unit
 
-  /** Note: Observer can be added more than once to an Observable.
-    * If so, it will observe each event as many times as it was added.
+  /** Note: Observer can be added more than once to an Observable. If so, it will observe each event as many times as it was added.
     */
   protected val externalObservers: ObserverList[Observer[A]] = new ObserverList(JsArray())
 
   /** Note: This is enforced to be a Set outside of the type system #performance */
   protected val internalObservers: ObserverList[InternalObserver[A]] = new ObserverList(JsArray())
 
-  /** Set to true after onWillStart finishes, and until onStop finishes. It's set to false all other times.
-    * We need this to prevent onWillStart from running twice in weird cases (we have a test for that). */
+  /** Set to true after onWillStart finishes, and until onStop finishes. It's set to false all other times. We need this to prevent
+    * onWillStart from running twice in weird cases (we have a test for that).
+    */
   protected var willStartDone: Boolean = false
 
-  override def addObserver(observer: Observer[A])(implicit owner: Owner): Subscription = {
+  override def addObserver(observer: Observer[A])(using owner: Owner): Subscription = {
     // println(s"// ${this} addObserver ${observer}")
-    Transaction.onStart.shared({
-      maybeWillStart()
-      val subscription = addExternalObserver(observer, owner)
-      onAddedExternalObserver(observer)
-      maybeStart()
-      subscription
-    }, when = !isStarted)
+    Transaction.onStart.shared(
+      {
+        maybeWillStart()
+        val subscription = addExternalObserver(observer, owner)
+        onAddedExternalObserver(observer)
+        maybeStart()
+        subscription
+      },
+      when = !isStarted
+    )
   }
 
   /** Subscribe an external observer to this observable */
@@ -73,23 +76,26 @@ trait WritableObservable[A] extends Observable[A] {
     subscription
   }
 
-  /** Child observable should call this method on its parents when it is started.
-    * This observable calls [[onStart]] if this action has given it its first observer (internal or external).
+  /** Child observable should call this method on its parents when it is started. This observable calls [[onStart]] if this action has given
+    * it its first observer (internal or external).
     */
   override protected[airstream] def addInternalObserver(observer: InternalObserver[A], shouldCallMaybeWillStart: Boolean): Unit = {
     // println(s"$this > aio   shouldCallMaybeWillStart=$shouldCallMaybeWillStart")
-    Transaction.onStart.shared({
-      if (!isStarted && shouldCallMaybeWillStart) {
-        maybeWillStart()
-      }
-      // println(s"$this < aio")
-      internalObservers.push(observer)
-      maybeStart()
-    }, when = !isStarted)
+    Transaction.onStart.shared(
+      {
+        if (!isStarted && shouldCallMaybeWillStart) {
+          maybeWillStart()
+        }
+        // println(s"$this < aio")
+        internalObservers.push(observer)
+        maybeStart()
+      },
+      when = !isStarted
+    )
   }
 
-  /** Child observable should call parent.removeInternalObserver(childInternalObserver) when it is stopped.
-    * This observable calls [[onStop]] if this action has removed its last observer (internal or external).
+  /** Child observable should call parent.removeInternalObserver(childInternalObserver) when it is stopped. This observable calls [[onStop]]
+    * if this action has removed its last observer (internal or external).
     */
   override protected[airstream] def removeInternalObserverNow(observer: InternalObserver[A]): Unit = {
     val removed = internalObservers.removeObserverNow(observer)

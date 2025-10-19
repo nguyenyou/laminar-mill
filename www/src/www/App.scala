@@ -8,15 +8,21 @@ case class App() {
 
   def apply() = {
     div(
-      button("+", onClick --> Observer { _ =>
-        countVar.update(_ + 1)
-      }),
+      button(
+        "+1",
+        onClick --> Observer { _ =>
+          countVar.update(_ + 1)
+        }
+      ),
       span(
         text <-- countSignal
       ),
-      button("-", onClick --> Observer { _ =>
-        countVar.update(_ - 1)
-      }),
+      button(
+        "-1",
+        onClick --> Observer { _ =>
+          countVar.update(_ - 1)
+        }
+      )
     )
   }
 }

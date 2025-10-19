@@ -12,8 +12,8 @@ import scala.util.{Failure, Success, Try}
 
 /** Var is essentially a Signal that you can write to, so it's a source of state, like EventBus is a source of events.
   *
-  * There are two kinds of Vars: [[SourceVar]] and [[DerivedVar]]. The latter you can obtain by calling [[zoom]] on
-  * any Var, however, unlike SourceVar, DerivedVar requires an [[Owner]] in order to run.
+  * There are two kinds of Vars: [[SourceVar]] and [[DerivedVar]]. The latter you can obtain by calling [[zoom]] on any Var, however, unlike
+  * SourceVar, DerivedVar requires an [[Owner]] in order to run.
   */
 trait Var[A] extends SignalSource[A] with Sink[A] with Named {
 
@@ -40,13 +40,13 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
 
   /** An observer much like writer, but can compose input events with the current value of the var, for example:
     *
-    * val v = Var(List(1, 2, 3))
-    * val appender = v.updater((acc, nextItem) => acc :+ nextItem)
-    * appender.onNext(4) // v now contains List(1, 2, 3, 4)
+    * val v = Var(List(1, 2, 3)) val appender = v.updater((acc, nextItem) => acc :+ nextItem) appender.onNext(4) // v now contains List(1,
+    * 2, 3, 4)
     *
     * Do not use on failed Vars. Use [[tryUpdater]] on those.
     *
-    * @param mod (currValue, nextInput) => nextValue
+    * @param mod
+    *   (currValue, nextInput) => nextValue
     */
   def updater[B](mod: (A, B) => A): Observer[B] = Observer.fromTry { nextInputTry =>
     Transaction { trx =>
@@ -67,8 +67,8 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
     }
   }
 
-  /** @param mod (currValue, nextInput) => nextValue
-    *            Note: Must not throw!
+  /** @param mod
+    *   (currValue, nextInput) => nextValue Note: Must not throw!
     */
   def tryUpdater[B](mod: (Try[A], B) => Try[A]): Observer[B] = Observer.fromTry { nextInputTry =>
     Transaction { trx =>
@@ -83,38 +83,36 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
   }
 
   /** Create a strictly evaluated DerivedVar. See also: [[zoomLazy]]. */
-  def zoom[B](in: A => B)(out: (A, B) => A)(implicit owner: Owner): Var[B] = {
+  def zoom[B](in: A => B)(out: (A, B) => A)(using owner: Owner): Var[B] = {
     new DerivedVar[A, B](this, in, out, owner, displayNameSuffix = ".zoom")
   }
 
-  /** Use this to create a Var that zooms into a field of a class stored
-    * in the parent Var, for example:
+  /** Use this to create a Var that zooms into a field of a class stored in the parent Var, for example:
     *
     * ```scala
-    * val fieldVar = formStateVar.zoomLazy(_.field1) {
-    *   (formState, newFieldValue) => formState.copy(field1 = newFieldValue)
+    * val fieldVar = formStateVar.zoomLazy(_.field1) { (formState, newFieldValue) =>
+    *   formState.copy(field1 = newFieldValue)
     * }
     * fieldVar.set(newFieldValue) // updates both fieldVar and formStateVar
     * ```
     *
-    * The vars become bidirectionally linked, with the underlying state stored
-    * in the parent var, and the derived var providing a read-write lens view
-    * into it.
+    * The vars become bidirectionally linked, with the underlying state stored in the parent var, and the derived var providing a read-write
+    * lens view into it.
     *
-    * The new Var's value will be evaluated only if it has subscribers,
-    * or when you get its value with methods like .now(). Its value
-    * will not be re-evaluated unnecessarily.
+    * The new Var's value will be evaluated only if it has subscribers, or when you get its value with methods like .now(). Its value will
+    * not be re-evaluated unnecessarily.
     *
-    * Note: if you update a lazy derived Var's value, it is
-    * not set directly. Instead, you're updating the parent Var,
-    * and it propagates from there (lazily, in case of zoomLazy).
+    * Note: if you update a lazy derived Var's value, it is not set directly. Instead, you're updating the parent Var, and it propagates
+    * from there (lazily, in case of zoomLazy).
     *
-    * Note: `in` and `out` functions should be free of side effects,
-    * as they may not get called if the Var's value is not observed.
+    * Note: `in` and `out` functions should be free of side effects, as they may not get called if the Var's value is not observed.
     */
   def zoomLazy[B](in: A => B)(out: (A, B) => A): Var[B] = {
     val zoomedSignal = new LazyStrictSignal(
-      signal, in, displayName, displayNameSuffix = ".zoomLazy.signal"
+      signal,
+      in,
+      displayName,
+      displayNameSuffix = ".zoomLazy.signal"
     )
     new LazyDerivedVar[A, B](
       parent = this,
@@ -144,28 +142,27 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
     // )
   }
 
-  /** Create a derived Var with an isomorphic transformation, for example
-    * by transforming the value in the parent var with a codec.
+  /** Create a derived Var with an isomorphic transformation, for example by transforming the value in the parent var with a codec.
     *
     * ```scala
     * val personVar = jsonVar.bimap(decodeJsonIntoPerson)(encodePersonToJson)
     * ```
     *
-    * The two vars become bidirectionally linked, with the underlying state
-    * stored in the parent var, and the derived var providing a transformed
-    * read-write view into it.
+    * The two vars become bidirectionally linked, with the underlying state stored in the parent var, and the derived var providing a
+    * transformed read-write view into it.
     *
-    * Make sure that round-tripping the values through your `getThis` and
-    * `getParent` functions results in an equivalent value, otherwise the
-    * derived Var will give you different values than what you may expect.
+    * Make sure that round-tripping the values through your `getThis` and `getParent` functions results in an equivalent value, otherwise
+    * the derived Var will give you different values than what you may expect.
     *
-    * Ideally, `getThis` and `getParent` should not throw, but if they do,
-    * both the parent and the derived var will be set into error state with
-    * the thrown error.
+    * Ideally, `getThis` and `getParent` should not throw, but if they do, both the parent and the derived var will be set into error state
+    * with the thrown error.
     */
   def bimap[B](getThis: A => B)(getParent: B => A): Var[B] = {
     val zoomedSignal = new LazyStrictSignal(
-      signal, getThis, displayName, displayNameSuffix = ".bimap.signal"
+      signal,
+      getThis,
+      displayName,
+      displayNameSuffix = ".bimap.signal"
     )
     new LazyDerivedVar2[A, B](
       parent = this,
@@ -180,8 +177,7 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
   /** Distinct events (but keep all errors) by == (equals) comparison */
   def distinct: Var[A] = distinctByFn(_ == _)
 
-  /** Distinct events (but keep all errors) by matching key
-    * Note: `key(event)` might be evaluated more than once for each event
+  /** Distinct events (but keep all errors) by matching key Note: `key(event)` might be evaluated more than once for each event
     */
   def distinctBy(key: A => Any): Var[A] = distinctByFn(key(_) == key(_))
 
@@ -191,19 +187,22 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
   /** Distinct events (but keep all errors) using a comparison function */
   def distinctByFn(isSame: (A, A) => Boolean): Var[A] = distinctTry {
     case (Success(prev), Success(next)) => isSame(prev, next)
-    case _ => false
+    case _                              => false
   }
 
   /** Distinct errors only (but keep all events) using a comparison function */
   def distinctErrors(isSame: (Throwable, Throwable) => Boolean): Var[A] = distinctTry {
     case (Failure(prevErr), Failure(nextErr)) => isSame(prevErr, nextErr)
-    case _ => false
+    case _                                    => false
   }
 
   /** Distinct all values (both events and errors) using a comparison function */
   def distinctTry(isSame: (Try[A], Try[A]) => Boolean): Var[A] = {
     val distinctSignal = new LazyStrictSignal[A, A](
-      signal.distinctTry(isSame), identity, displayName, displayNameSuffix = ".distinct*.signal"
+      signal.distinctTry(isSame),
+      identity,
+      displayName,
+      displayNameSuffix = ".distinct*.signal"
     )
     new LazyDerivedVar2[A, A](
       parent = this,
@@ -226,7 +225,8 @@ trait Var[A] extends SignalSource[A] with Sink[A] with Named {
 
   /** Do not use on failed Vars. Use [[tryUpdate]] on those.
     *
-    * @param mod Note: guarded against exceptions
+    * @param mod
+    *   Note: guarded against exceptions
     */
   def update(mod: A => A): Unit = {
     Transaction { trx =>
@@ -285,53 +285,52 @@ object Var {
 
   implicit class VarTryModTuple[A](val tuple: (Var[A], Try[A] => Try[A])) extends AnyVal
 
-  /** Set multiple Var values in the same Transaction
-    * Example usage: Var.set(var1 -> value1, var2 -> value2)
+  /** Set multiple Var values in the same Transaction Example usage: Var.set(var1 -> value1, var2 -> value2)
     *
-    * If input contains duplicate vars, reports an Airstream unhandled error.
-    * Airstream allows a maximum of one event per observable per transaction.
+    * If input contains duplicate vars, reports an Airstream unhandled error. Airstream allows a maximum of one event per observable per
+    * transaction.
     */
   def set(values: VarTuple[?]*): Unit = {
     val tryValues: Seq[VarTryTuple[?]] = values.map(t => toTryTuple(t))
     setTry(tryValues*)
   }
 
-  /** Set multiple Var values in the same Transaction
-    * Example usage: Var.setTry(var1 -> Success(value1), var2 -> Failure(error2))
+  /** Set multiple Var values in the same Transaction Example usage: Var.setTry(var1 -> Success(value1), var2 -> Failure(error2))
     *
-    * If input contains duplicate vars, reports an Airstream unhandled error.
-    * Airstream allows a maximum of one event per observable per transaction.
+    * If input contains duplicate vars, reports an Airstream unhandled error. Airstream allows a maximum of one event per observable per
+    * transaction.
     */
   def setTry(values: VarTryTuple[?]*): Unit = {
     // println(s"> init trx from Var.set/setTry")
     Transaction { trx =>
       if (hasDuplicateVars(values.map(_.tuple))) {
-        throw VarError("Unable to Var.{set,setTry}: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.", cause = None)
+        throw VarError(
+          "Unable to Var.{set,setTry}: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.",
+          cause = None
+        )
       }
       values.foreach(setTryValue(_, trx))
     }
   }
 
-  /** Modify multiple Vars in the same Transaction
-    * Example usage: Var.update(var1 -> value1 => value1 + 1, var2 -> value2 => value2 * 2)
+  /** Modify multiple Vars in the same Transaction Example usage: Var.update(var1 -> value1 => value1 + 1, var2 -> value2 => value2 * 2)
     *
     * Mod functions should be PURE.
-    *  - If a mod throws, the var will be set to a failed state.
-    *  - If you try to update a failed Var, `Var.update` will post an error to unhandled errors,
-    *    and none of the Vars will update.
+    *   - If a mod throws, the var will be set to a failed state.
+    *   - If you try to update a failed Var, `Var.update` will post an error to unhandled errors, and none of the Vars will update.
     *
-    * Reports an Airstream unhandled error:
-    * 1) if currentValue of any of the vars is a Failure.
-    * This is atomic: an exception in any of the vars will prevent any of
-    * the batched updates in this call from going through.
-    * 2) if input contains duplicate vars.
-    * Airstream allows a maximum of one event per observable per transaction.
+    * Reports an Airstream unhandled error: 1) if currentValue of any of the vars is a Failure. This is atomic: an exception in any of the
+    * vars will prevent any of the batched updates in this call from going through. 2) if input contains duplicate vars. Airstream allows a
+    * maximum of one event per observable per transaction.
     */
   def update(mods: VarModTuple[?]*): Unit = {
     // println(s"> init trx from Var.update")
     Transaction { trx =>
       if (hasDuplicateVars(mods.map(_.tuple))) {
-        throw VarError("Unable to Var.update: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.", cause = None)
+        throw VarError(
+          "Unable to Var.update: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.",
+          cause = None
+        )
       }
       val tryMods: Seq[VarTryModTuple[?]] = mods.map(t => modToTryModTuple(t))
       val vars = mods.map(_.tuple._1)
@@ -346,19 +345,21 @@ object Var {
     }
   }
 
-  /** Modify multiple Vars in the same Transaction
-    * Example usage: Var.tryUpdate(var1 -> _.map(_ + 1), var2 -> _.map(_ * 2))
+  /** Modify multiple Vars in the same Transaction Example usage: Var.tryUpdate(var1 -> _.map(_ + 1), var2 -> _.map(_ * 2))
     *
     * Note: provided mods MUST NOT THROW.
     *
-    * If input contains duplicate vars, reports an Airstream unhandled error.
-    * Airstream allows a maximum of one event per observable per transaction.
+    * If input contains duplicate vars, reports an Airstream unhandled error. Airstream allows a maximum of one event per observable per
+    * transaction.
     */
   def tryUpdate(mods: VarTryModTuple[?]*): Unit = {
     // println(s"> init trx from Var.tryUpdate")
     Transaction { trx =>
       if (hasDuplicateVars(mods.map(_.tuple))) {
-        throw VarError("Unable to Var.tryUpdate: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.", cause = None)
+        throw VarError(
+          "Unable to Var.tryUpdate: the provided list of vars has duplicates. You can't make an observable emit more than one event per transaction.",
+          cause = None
+        )
       }
       val tryValues: Seq[VarTryTuple[?]] = mods.map(t => tryModToTryTuple(t))
       tryValues.foreach(setTryValue(_, trx))
