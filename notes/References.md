@@ -39,3 +39,40 @@ LIFECYCLE:
    - Child calls parent.removeInternalObserver(this)
    - Parent removes child reference ✗
    - If child is unreachable, it can be GC'd
+
+
+TIMELINE OF PARENT → CHILD REFERENCE:
+
+Time 0: Child Created
+┌────────┐                    ┌────────┐
+│ Parent │                    │ Child  │
+│        │                    │ parent ├──► Parent
+│ []     │                    └────────┘
+└────────┘
+  ▲ internalObservers is EMPTY
+
+
+Time 1: child.addObserver() called
+┌────────┐                    ┌────────┐
+│ Parent │                    │ Child  │
+│        │                    │ parent ├──► Parent
+│        │                    │        │
+│        │                    │ onStart() called
+│        │                    │   │
+│        │◄───────────────────┤   │ parent.addInternalObserver(this)
+│ [Child]│                    └───┘
+└────────┘
+  ▲ internalObservers NOW HAS CHILD
+
+
+Time 2: subscription.kill() called
+┌────────┐                    ┌────────┐
+│ Parent │                    │ Child  │
+│        │                    │ parent ├──► Parent
+│        │                    │        │
+│        │                    │ onStop() called
+│        │                    │   │
+│        │◄───────────────────┤   │ parent.removeInternalObserver(this)
+│ []     │                    └───┘
+└────────┘
+  ▲ internalObservers EMPTY AGAIN - Child can be GC'd!
