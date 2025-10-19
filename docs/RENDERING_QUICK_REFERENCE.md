@@ -363,3 +363,53 @@ render(container, div("hello world"))
 
 **Last Updated:** 2025-10-19
 
+TEXT NODE CREATION:
+  1. "hello world" → implicit conversion → textToTextNode
+  2. RenderableText[String].asString("hello world")
+  3. new TextNode("hello world")
+  4. DomApi.createTextNode("hello world") → dom.Text
+
+ELEMENT CREATION:
+  5. div tag accessed → HtmlTag[HTMLDivElement]
+  6. div(...) → HtmlTag.apply(modifiers)
+  7. build() → DomApi.createHtmlElement("div")
+  8. new ReactiveHtmlElement(tag, domElement)
+  9. ReactiveElement creates pilotSubscription
+  10. ParentNode creates dynamicOwner (inactive)
+
+MODIFIER APPLICATION:
+  11. TextNode.apply(div) → ParentNode.appendChild(div, textNode)
+  12. DomApi.appendChild(div.ref, textNode.ref)
+  13. DOM: <div>hello world</div>
+
+RENDER FUNCTION:
+  14. render(container, div) → new RootNode(container, div)
+
+ROOTNODE CREATION:
+  15. RootNode validates container
+  16. RootNode.mount() is called
+
+MOUNTING PROCESS:
+  17. root.dynamicOwner.activate()
+  18. Creates OneTimeOwner for root
+
+DOM INSERTION:
+  19. ParentNode.appendChild(root, div)
+  20. div.willSetParent(Some(root))
+  21. DomApi.appendChild(container, div.ref)
+  22. div.setParent(Some(root))
+  23. setPilotSubscriptionOwner(Some(root))
+
+CHILD ACTIVATION:
+  24. pilotSubscription.setOwner(root.dynamicOwner)
+  25. Creates DynamicSubscription
+  26. DynamicSubscription registered with root.dynamicOwner
+  27. DynamicSubscription.onActivate(root.oneTimeOwner)
+  28. activate() calls div.dynamicOwner.activate()
+  29. Creates OneTimeOwner for div
+
+FINAL STATE:
+  30. DOM: <div id="app"><div>hello world</div></div>
+  31. Root's DynamicOwner active
+  32. Div's DynamicOwner active
+  33. Complete ownership chain established
