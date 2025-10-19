@@ -12,7 +12,7 @@ class SampleCombineStream2Spec extends UnitSpec {
 
   it("gets current value of Signal") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[Int]
     val bus2 = new EventBus[Int]

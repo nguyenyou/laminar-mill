@@ -11,13 +11,12 @@ class EitherObservableSpec extends UnitSpec {
 
   it("EitherObservable: mapLeft, mapRight, mapEither") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val bus = new EventBus[Either[Int, String]]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .events
+    bus.events
       .mapLeft(_ * 10)
       .mapRight(_ + "x")
       .foldEither(
@@ -67,8 +66,7 @@ class EitherObservableSpec extends UnitSpec {
     val effects = mutable.Buffer[Effect[?]]()
 
     var ix = 0
-    bus
-      .events
+    bus.events
       .splitEither(
         left = (_, leftS) => {
           ix += 1
@@ -113,7 +111,7 @@ class EitherObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("right-2", "a"),
-      Effect("obs", 2),
+      Effect("obs", 2)
     )
     effects.clear()
 
@@ -135,7 +133,7 @@ class EitherObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("left-3", 3),
-      Effect("obs", 3),
+      Effect("obs", 3)
     )
     effects.clear()
 
@@ -163,8 +161,7 @@ class EitherObservableSpec extends UnitSpec {
     val effects = mutable.Buffer[Effect[?]]()
 
     var ix = 0
-    _var
-      .signal
+    _var.signal
       .splitEither(
         left = (_, leftS) => {
           ix += 1
@@ -213,7 +210,7 @@ class EitherObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("right-2", "a"),
-      Effect("obs", 2),
+      Effect("obs", 2)
     )
     effects.clear()
 
@@ -235,7 +232,7 @@ class EitherObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("left-3", 3),
-      Effect("obs", 3),
+      Effect("obs", 3)
     )
     effects.clear()
 
@@ -259,9 +256,7 @@ class EitherObservableSpec extends UnitSpec {
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    bus
-      .events
-      .collectRight
+    bus.events.collectRight
       .foreach(v => effects += Effect("obs", v))(using owner)
 
     effects `shouldBe` mutable.Buffer()
@@ -304,8 +299,7 @@ class EitherObservableSpec extends UnitSpec {
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    bus
-      .events
+    bus.events
       .collectRight { case "a" => true }
       .foreach(v => effects += Effect("obs", v))(using owner)
 

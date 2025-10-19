@@ -16,16 +16,19 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
   it("sync map-flatten") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range = 0 to 3
     val stream = EventStream.fromSeq(range, emitOnce = true)
     val flatStream =
-      stream.setDisplayName("SRC-FS")
+      stream
+        .setDisplayName("SRC-FS")
         .map { v =>
           EventStream.fromSeq(Seq(v * 3), emitOnce = true).setDisplayName(s"INT-FS-$v")
-        }.setDisplayName("META")
-        .flattenSwitch.setDisplayName("FLAT")
+        }
+        .setDisplayName("META")
+        .flattenSwitch
+        .setDisplayName("FLAT")
 
     val effects = mutable.Buffer[Effect[?]]()
     val obs0 = Observer[Int](newValue => effects += Effect("obs0", newValue)).setDisplayName("obs0")
@@ -37,7 +40,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
   it("sync map-flatten without fromSeq") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val bus = new EventBus[Int]
     val stream = bus.events
@@ -47,7 +50,8 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
           EventStream.fromValue(v * 3, emitOnce = true).setDisplayName(s"S-${v}")
         }
         .setDisplayName("MO")
-        .flattenSwitch.setDisplayName("FS")
+        .flattenSwitch
+        .setDisplayName("FS")
 
     val effects = mutable.Buffer[Effect[?]]()
     val obs = Observer[Int](v => effects += Effect("obs0", v)).setDisplayName("obs")
@@ -62,24 +66,25 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
     effects.toList `shouldBe` List(
       Effect("obs0", 0 * 3),
       Effect("obs0", 1 * 3),
-      Effect("obs0", 2 * 3),
+      Effect("obs0", 2 * 3)
     )
   }
 
   it("sync three-level map-flatten") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range = 0 to 3
     val stream = EventStream.fromSeq(range, emitOnce = true)
     val flatStream =
-      stream
-        .map { v =>
-          EventStream.fromSeq(Seq(v * 3), emitOnce = true).map { vv =>
+      stream.map { v =>
+        EventStream
+          .fromSeq(Seq(v * 3), emitOnce = true)
+          .map { vv =>
             EventStream.fromSeq(Seq(vv * 7), emitOnce = true)
-          }.flattenSwitch
-        }
-        .flattenSwitch
+          }
+          .flattenSwitch
+      }.flattenSwitch
 
     val effects = mutable.Buffer[Effect[?]]()
     val subscription0 = flatStream.foreach(newValue => effects += Effect("obs0", newValue))
@@ -98,71 +103,59 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
     bus.events
   }
 
-  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events
-    * emitted by the inner delayedStream are processed. Just because the interval is set to 6ms
-    * does not mean that this is what it will be. It's merely the lower bound.
+  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events emitted by the inner delayedStream are
+    * processed. Just because the interval is set to 6ms does not mean that this is what it will be. It's merely the lower bound.
     */
   it("from-future map-flatten") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range1 = 1 to 3
     val range2 = 1 to 2
     val stream = delayedStream(range1, interval = 30)
 
     val flatStream =
-      stream
-        .map { v =>
-          delayedStream(range2, interval = 6, _ * v)
-        }
-        .flattenSwitch
+      stream.map { v =>
+        delayedStream(range2, interval = 6, _ * v)
+      }.flattenSwitch
 
     val effects = mutable.Buffer[Effect[?]]()
     val subscription0 = flatStream.foreach(newValue => effects += Effect("obs0", newValue))
 
     delay(150) {
       subscription0.kill()
-      effects.toList `shouldBe` range1.flatMap(i =>
-        range2.map(j =>
-          Effect("obs0", i * j)
-        )
-      )
+      effects.toList `shouldBe` range1.flatMap(i => range2.map(j => Effect("obs0", i * j)))
     }
   }
 
-  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events
-    * emitted by the inner delayedStream are processed. Just because the interval is set to 6ms
-    * does not mean that this is what it will be. It's merely the lower bound.
+  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events emitted by the inner delayedStream are
+    * processed. Just because the interval is set to 6ms does not mean that this is what it will be. It's merely the lower bound.
     */
   it("three-level from-future map-flatten") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range1 = 1 to 3
     val range2 = 1 to 2
     val stream = delayedStream(range1, interval = 40)
 
     val flatStream =
-      stream
-        .map { v =>
-          delayedStream(range2, interval = 6, _ * v).map { vv =>
-            EventStream.fromFuture(delay(1)(vv * 7))
-          }.flattenSwitch
-        }
-        .flattenSwitch
+      stream.map { v =>
+        delayedStream(range2, interval = 6, _ * v).map { vv =>
+          EventStream.fromFuture(delay(1)(vv * 7))
+        }.flattenSwitch
+      }.flattenSwitch
 
     val effects = mutable.Buffer[Effect[?]]()
     val subscription0 = flatStream.foreach(newValue => effects += Effect("obs0", newValue))
 
     delay(200) {
       subscription0.kill()
-      effects.toList `shouldBe` range1.flatMap(i =>
-        range2.map(j => Effect("obs0", i * j * 7))
-      )
+      effects.toList `shouldBe` range1.flatMap(i => range2.map(j => Effect("obs0", i * j * 7)))
     }
   }
 
   it("sync flatMapSwitch") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range = 0 to 3
     val stream = EventStream.fromSeq(range, emitOnce = true)
@@ -181,7 +174,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
   it("sync three-level flatMapSwitch") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range = 0 to 3
     val stream = EventStream.fromSeq(range, emitOnce = true)
@@ -200,12 +193,11 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
     effects.toList `shouldBe` range.map(i => Effect("obs0", i * 3 * 7))
   }
 
-  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events
-    * emitted by the inner delayedStream are processed. Just because the interval is set to 6ms
-    * does not mean that this is what it will be. It's merely the lower bound.
+  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events emitted by the inner delayedStream are
+    * processed. Just because the interval is set to 6ms does not mean that this is what it will be. It's merely the lower bound.
     */
   it("from-future flatMapSwitch") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range1 = 1 to 3
     val range2 = 1 to 2
@@ -222,20 +214,15 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     delay(200) {
       subscription0.kill()
-      effects.toList `shouldBe` range1.flatMap(i =>
-        range2.map(j =>
-          Effect("obs0", i * j)
-        )
-      )
+      effects.toList `shouldBe` range1.flatMap(i => range2.map(j => Effect("obs0", i * j)))
     }
   }
 
-  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events
-    * emitted by the inner delayedStream are processed. Just because the interval is set to 6ms
-    * does not mean that this is what it will be. It's merely the lower bound.
+  /** Stability: make sure the outer delayedStream interval is large enough to ensure all events emitted by the inner delayedStream are
+    * processed. Just because the interval is set to 6ms does not mean that this is what it will be. It's merely the lower bound.
     */
   it("three-level from-future flatMapSwitch") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range1 = 1 to 3
     val range2 = 1 to 2
@@ -254,14 +241,12 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     delay(200) {
       subscription0.kill()
-      effects.toList `shouldBe` range1.flatMap(i =>
-        range2.map(j => Effect("obs0", i * j * 7))
-      )
+      effects.toList `shouldBe` range1.flatMap(i => range2.map(j => Effect("obs0", i * j * 7)))
     }
   }
 
   it("ConcurrentEventStream (input=stream)") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
 
@@ -377,7 +362,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
   }
 
   it("ConcurrentStream (input=signal)") {
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
 
@@ -391,10 +376,7 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     val streamVar = Var[EventStream[Int]](stream1)
 
-    val mergeSignal = streamVar
-      .signal
-      .distinct
-      .flattenMerge
+    val mergeSignal = streamVar.signal.distinct.flattenMerge
       .map(Calculation.log("merge", calculations))
 
     val sub1 = mergeSignal.addObserver(Observer.empty)
@@ -486,7 +468,9 @@ class EventStreamFlattenSpec extends AsyncUnitSpec with Matchers {
 
     // --
 
-    streamVar.writer.onNext(stream1) // Adding this stream a second time – there is no deduplication, that's why we see duplicate output events
+    streamVar.writer.onNext(
+      stream1
+    ) // Adding this stream a second time – there is no deduplication, that's why we see duplicate output events
     bus1.writer.onNext(6)
     bus1.writer.onNext(7)
     calculations `shouldBe` mutable.Buffer(

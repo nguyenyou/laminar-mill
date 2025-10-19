@@ -12,15 +12,15 @@ class SwitchSignalStreamSpec extends UnitSpec {
 
   it("mirrors last emitted signal, but only if subscribed") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
 
     // Create 4 test vars and add logging to their streams
     val sourceVars = (1 to 4).map(_ => Var(-1))
-    val sourceSignals = sourceVars.zipWithIndex.map {
-      case (vr, index) => vr.signal.map(Calculation.log(s"signal-$index", calculations))
+    val sourceSignals = sourceVars.zipWithIndex.map { case (vr, index) =>
+      vr.signal.map(Calculation.log(s"signal-$index", calculations))
     }
 
     val metaBus = new EventBus[Signal[Int]]
@@ -196,7 +196,7 @@ class SwitchSignalStreamSpec extends UnitSpec {
 
   it("start & restart event order") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
@@ -205,8 +205,8 @@ class SwitchSignalStreamSpec extends UnitSpec {
 
     // Create 4 test vars and add logging to their streams
     val sourceStreams = (1 to 4).map(n => EventStream.merge(manualBus.events, EventStream.fromSeq(List(1, 2).map(n * 10 + _))))
-    val sourceSignals = sourceStreams.zipWithIndex.map {
-      case (stream, index) => stream.startWith(0).map(Calculation.log(s"signal-$index", calculations))
+    val sourceSignals = sourceStreams.zipWithIndex.map { case (stream, index) =>
+      stream.startWith(0).map(Calculation.log(s"signal-$index", calculations))
     }
 
     val metaBus = new EventBus[Signal[Int]]
@@ -331,7 +331,7 @@ class SwitchSignalStreamSpec extends UnitSpec {
 
     calculations `shouldBe` mutable.Buffer(
       Calculation("signal-1", 20),
-      Calculation("flattened", 20),
+      Calculation("flattened", 20)
     )
     effects `shouldBe` mutable.Buffer(
       Effect("flattened-obs", 20)

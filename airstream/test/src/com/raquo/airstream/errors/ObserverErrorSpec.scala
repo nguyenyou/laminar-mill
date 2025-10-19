@@ -12,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 
 class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   private val errorEffects = mutable.Buffer[Effect[Throwable]]()
 
@@ -49,37 +49,49 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val knownErrors = List(err0, err1, err2, err3)
 
-    signal.addObserver(Observer.withRecover(
-      effects += Effect("sub1", _),
-      err => errorEffects += Effect("sub1-err", err)
-    ))
+    signal.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub1", _),
+        err => errorEffects += Effect("sub1-err", err)
+      )
+    )
 
-    signal.addObserver(Observer.withRecover(
-      num => if (num >= 0) throw err1 else throw err2,
-      { case err if knownErrors.contains(err) => errorEffects += Effect("sub2-err", err) }
-    ))
+    signal.addObserver(
+      Observer.withRecover(
+        num => if (num >= 0) throw err1 else throw err2,
+        { case err if knownErrors.contains(err) => errorEffects += Effect("sub2-err", err) }
+      )
+    )
 
-    signal.addObserver(Observer.withRecover(
-      num => if (num % 2 == 0) effects += Effect("sub3", num) else throw err3,
-      { case err if knownErrors.contains(err) => throw err31 }
-    ))
+    signal.addObserver(
+      Observer.withRecover(
+        num => if (num % 2 == 0) effects += Effect("sub3", num) else throw err3,
+        { case err if knownErrors.contains(err) => throw err31 }
+      )
+    )
 
-    signal.addObserver(Observer.withRecover(
-      effects += Effect("sub4", _),
-      err => errorEffects += Effect("sub4-err", err)
-    ))
+    signal.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub4", _),
+        err => errorEffects += Effect("sub4-err", err)
+      )
+    )
 
     // Initial value triggers observer error
 
     assert(calculations.toList == Nil)
-    assert(effects.toList == List(
-      Effect("sub1", 0),
-      Effect("sub3", 0),
-      Effect("sub4", 0),
-    ))
-    assert(errorEffects.toList == List(
-      Effect("unhandled", ObserverError(err1))
-    ))
+    assert(
+      effects.toList == List(
+        Effect("sub1", 0),
+        Effect("sub3", 0),
+        Effect("sub4", 0)
+      )
+    )
+    assert(
+      errorEffects.toList == List(
+        Effect("unhandled", ObserverError(err1))
+      )
+    )
 
     effects.clear()
     errorEffects.clear()
@@ -89,14 +101,18 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
     bus.writer.onNext(-1)
 
     assert(calculations.toList == Nil)
-    assert(effects.toList == List(
-      Effect("sub1", -1),
-      Effect("sub4", -1),
-    ))
-    assert(errorEffects.toList == List(
-      Effect("unhandled", ObserverError(err2)),
-      Effect("unhandled", ObserverError(err3))
-    ))
+    assert(
+      effects.toList == List(
+        Effect("sub1", -1),
+        Effect("sub4", -1)
+      )
+    )
+    assert(
+      errorEffects.toList == List(
+        Effect("unhandled", ObserverError(err2)),
+        Effect("unhandled", ObserverError(err3))
+      )
+    )
 
     effects.clear()
     errorEffects.clear()
@@ -107,12 +123,14 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
 
     assert(calculations.toList == Nil)
     assert(effects.toList == Nil)
-    assert(errorEffects.toList == List(
-      Effect("sub1-err", err0),
-      Effect("sub2-err", err0),
-      Effect("unhandled", ObserverErrorHandlingError(error = err31, cause = err0)),
-      Effect("sub4-err", err0),
-    ))
+    assert(
+      errorEffects.toList == List(
+        Effect("sub1-err", err0),
+        Effect("sub2-err", err0),
+        Effect("unhandled", ObserverErrorHandlingError(error = err31, cause = err0)),
+        Effect("sub4-err", err0)
+      )
+    )
 
     errorEffects.clear()
   }
@@ -150,9 +168,9 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
     val effects = mutable.Buffer[Try[Int]]()
 
     val topObs = Observer.fromTry[Int] {
-      case Success(0) => throw err0
+      case Success(0)                     => throw err0
       case Failure(ObserverError(`err0`)) => effects += Failure(divisionByZeroError)
-      case tryValue => effects += tryValue
+      case tryValue                       => effects += tryValue
     }
 
     val lowObs = topObs.contramap[Int](_ + 100)
@@ -246,9 +264,9 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val topObs = Observer.fromTry[Int](
       {
-        case Success(0) => throw err0
+        case Success(0)                     => throw err0
         case Failure(ObserverError(`err0`)) => effects += Failure(divisionByZeroError)
-        case tryValue => effects += tryValue
+        case tryValue                       => effects += tryValue
       },
       handleObserverErrors = false
     )
@@ -365,13 +383,15 @@ class ObserverErrorSpec extends UnitSpec with BeforeAndAfter {
     lowObs.onError(propagatedError)
     lowObs.onNext(5)
 
-    assert(effects.toList == List(
-      Success(1),
-      Failure(ObserverError(ExpectedError("it's 2"))),
-      Success(3),
-      Failure(ExpectedError("propagated")),
-      Success(5),
-    ))
+    assert(
+      effects.toList == List(
+        Success(1),
+        Failure(ObserverError(ExpectedError("it's 2"))),
+        Success(3),
+        Failure(ExpectedError("propagated")),
+        Success(5)
+      )
+    )
   }
 
 }

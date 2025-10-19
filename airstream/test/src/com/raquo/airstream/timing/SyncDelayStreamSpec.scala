@@ -11,7 +11,7 @@ class SyncDelayStreamSpec extends UnitSpec {
 
   it("emits after designated stream") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val calculations = mutable.Buffer[Calculation[Int]]()
@@ -104,7 +104,7 @@ class SyncDelayStreamSpec extends UnitSpec {
 
     // See https://gitter.im/Laminar_/Lobby?at=6007655b36db01248a8bf5a9 and below
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val v = Var(0)
 
@@ -117,22 +117,25 @@ class SyncDelayStreamSpec extends UnitSpec {
       .map(ev => ev)
       .map(Calculation.log("signal2", calculations))
 
-    val signal3 = signal2.changes(
-      _.delaySync(signal1.changes)
-        .map(Calculation.log("signal3-changes-source", calculations))
-    )
+    val signal3 = signal2
+      .changes(
+        _.delaySync(signal1.changes)
+          .map(Calculation.log("signal3-changes-source", calculations))
+      )
       .map(Calculation.log("signal3", calculations))
 
-    val signal4 = signal1.changes(
-      _.delaySync(signal3.changes)
-        .map(Calculation.log("signal4-changes-source", calculations))
-    )
+    val signal4 = signal1
+      .changes(
+        _.delaySync(signal3.changes)
+          .map(Calculation.log("signal4-changes-source", calculations))
+      )
       .map(Calculation.log("signal4", calculations))
 
-    val signal5 = signal2.changes(
-      _.delaySync(signal3.changes)
-        .map(Calculation.log("signal5-changes-source", calculations))
-    )
+    val signal5 = signal2
+      .changes(
+        _.delaySync(signal3.changes)
+          .map(Calculation.log("signal5-changes-source", calculations))
+      )
       .map(Calculation.log("signal5", calculations))
 
     // --
@@ -144,13 +147,15 @@ class SyncDelayStreamSpec extends UnitSpec {
 
     // signal4's and signal5's initial value does not depend on signal3's initial value,
     // only on its changes, so it's ok that signal3's initial value is evaluated later.
-    assert(calculations.toList == List(
-      Calculation("signal1", 0),
-      Calculation("signal2", 0),
-      Calculation("signal5", 0),
-      Calculation("signal4", 0),
-      Calculation("signal3", 0)
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("signal1", 0),
+        Calculation("signal2", 0),
+        Calculation("signal5", 0),
+        Calculation("signal4", 0),
+        Calculation("signal3", 0)
+      )
+    )
 
     calculations.clear()
 
@@ -158,16 +163,18 @@ class SyncDelayStreamSpec extends UnitSpec {
 
     v.set(1)
 
-    assert(calculations.toList == List(
-      Calculation("signal1", 1),
-      Calculation("signal2", 1),
-      Calculation("signal3-changes-source", 1),
-      Calculation("signal3", 1),
-      Calculation("signal5-changes-source", 1),
-      Calculation("signal5", 1),
-      Calculation("signal4-changes-source", 1),
-      Calculation("signal4", 1)
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("signal1", 1),
+        Calculation("signal2", 1),
+        Calculation("signal3-changes-source", 1),
+        Calculation("signal3", 1),
+        Calculation("signal5-changes-source", 1),
+        Calculation("signal5", 1),
+        Calculation("signal4-changes-source", 1),
+        Calculation("signal4", 1)
+      )
+    )
 
     calculations.clear()
 
@@ -175,16 +182,18 @@ class SyncDelayStreamSpec extends UnitSpec {
 
     v.set(2)
 
-    assert(calculations.toList == List(
-      Calculation("signal1", 2),
-      Calculation("signal2", 2),
-      Calculation("signal3-changes-source", 2),
-      Calculation("signal3", 2),
-      Calculation("signal5-changes-source", 2),
-      Calculation("signal5", 2),
-      Calculation("signal4-changes-source", 2),
-      Calculation("signal4", 2)
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("signal1", 2),
+        Calculation("signal2", 2),
+        Calculation("signal3-changes-source", 2),
+        Calculation("signal3", 2),
+        Calculation("signal5-changes-source", 2),
+        Calculation("signal5", 2),
+        Calculation("signal4-changes-source", 2),
+        Calculation("signal4", 2)
+      )
+    )
 
     calculations.clear()
 

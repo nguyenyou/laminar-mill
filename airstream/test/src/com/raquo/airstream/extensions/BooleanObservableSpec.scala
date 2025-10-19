@@ -11,14 +11,12 @@ class BooleanObservableSpec extends UnitSpec {
 
   it("BooleanObservable: invert") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val bus = new EventBus[Boolean]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .stream
-      .invert
+    bus.stream.invert
       .foreach(v => effects += Effect("obs", v))
 
     effects `shouldBe` mutable.Buffer()
@@ -51,8 +49,7 @@ class BooleanObservableSpec extends UnitSpec {
     val bus = new EventBus[Boolean]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .stream
+    bus.stream
       .splitBoolean(
         trueF = { signal =>
           effects += Effect("true", true)
@@ -149,8 +146,7 @@ class BooleanObservableSpec extends UnitSpec {
     val _var = Var(true)
 
     val effects = mutable.Buffer[Effect[?]]()
-    _var
-      .signal
+    _var.signal
       .splitBoolean(
         whenTrue = { signal =>
           effects += Effect("true", true)

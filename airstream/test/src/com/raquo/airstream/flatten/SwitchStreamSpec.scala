@@ -14,7 +14,7 @@ class SwitchStreamSpec extends UnitSpec {
 
   it("EventStream: mirrors last emitted stream, but only if subscribed") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
@@ -23,8 +23,8 @@ class SwitchStreamSpec extends UnitSpec {
 
     // Create 4 test buses and add logging to their streams
     val sourceBuses = (1 to 4).map(_ => new EventBus[Int])
-    val sourceStreams = sourceBuses.zipWithIndex.map {
-      case (bus, index) => bus.events.map(Calculation.log(s"source-$index", calculations))
+    val sourceStreams = sourceBuses.zipWithIndex.map { case (bus, index) =>
+      bus.events.map(Calculation.log(s"source-$index", calculations))
     }
 
     val latestNumberS = metaBus.events.flattenSwitch // SwitchStreamStrategy is the default (provided implicitly)
@@ -143,15 +143,15 @@ class SwitchStreamSpec extends UnitSpec {
 
   it("Signal: mirrors last emitted stream, but only if subscribed") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
 
     // Create 4 test buses and add logging to their streams
     val sourceBuses = (1 to 4).map(_ => new EventBus[Int])
-    val sourceStreams = sourceBuses.zipWithIndex.map {
-      case (bus, index) => bus.events.map(Calculation.log(s"source-$index", calculations))
+    val sourceStreams = sourceBuses.zipWithIndex.map { case (bus, index) =>
+      bus.events.map(Calculation.log(s"source-$index", calculations))
     }
 
     val metaVar = Var[EventStream[Int]](sourceStreams(0))
@@ -289,7 +289,7 @@ class SwitchStreamSpec extends UnitSpec {
 
   it("EventStream: emitting the same inner stream does not cause it to stop and re-start") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val outerBus = new EventBus[Int]
 
@@ -313,10 +313,12 @@ class SwitchStreamSpec extends UnitSpec {
       EventStream.fromSeq("big-1" :: "big-2" :: Nil, emitOnce = true)
     )
 
-    val flatStream = outerBus.events.flatMapSwitch {
-      case i if i >= 10 => bigStream
-      case _ => smallStream
-    }.map(Calculation.log("flat", calculations))
+    val flatStream = outerBus.events
+      .flatMapSwitch {
+        case i if i >= 10 => bigStream
+        case _            => smallStream
+      }
+      .map(Calculation.log("flat", calculations))
 
     // --
 
@@ -328,10 +330,12 @@ class SwitchStreamSpec extends UnitSpec {
 
     outerBus.writer.onNext(1)
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-1"),
-      Calculation("flat", "small-2"),
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-1"),
+        Calculation("flat", "small-2")
+      )
+    )
 
     calculations.clear()
 
@@ -339,9 +343,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-1")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-1")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-1")
+      )
+    )
 
     calculations.clear()
 
@@ -355,9 +361,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-2")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-2")
+      )
+    )
 
     calculations.clear()
 
@@ -365,10 +373,12 @@ class SwitchStreamSpec extends UnitSpec {
 
     outerBus.writer.onNext(10) // #Note switch to big
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-1"),
-      Calculation("flat", "big-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-1"),
+        Calculation("flat", "big-2")
+      )
+    )
 
     calculations.clear()
 
@@ -382,9 +392,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     bigBus.writer.onNext("big-bus-1")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-bus-1")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-bus-1")
+      )
+    )
 
     calculations.clear()
 
@@ -398,9 +410,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     bigBus.writer.onNext("big-bus-2")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-bus-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-bus-2")
+      )
+    )
 
     calculations.clear()
 
@@ -414,9 +428,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-3")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-3")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-3")
+      )
+    )
 
     calculations.clear()
 
@@ -429,7 +445,7 @@ class SwitchStreamSpec extends UnitSpec {
 
   it("Signal: emitting the same inner stream does not cause it to stop and re-start") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val outerBus = new EventBus[Int].setDisplayName("outer-bus")
 
@@ -441,24 +457,35 @@ class SwitchStreamSpec extends UnitSpec {
 
     val smallBus = new EventBus[String].setDisplayName("small-bus")
 
-    val smallStream = EventStream.merge(
-      smallBus.events.setDisplayName("small-bus-events"),
-      EventStream.fromSeq("small-1" :: "small-2" :: Nil, emitOnce = true).setDisplayName("small-fromSeq")
-    ).setDisplayName("small-M")
+    val smallStream = EventStream
+      .merge(
+        smallBus.events.setDisplayName("small-bus-events"),
+        EventStream.fromSeq("small-1" :: "small-2" :: Nil, emitOnce = true).setDisplayName("small-fromSeq")
+      )
+      .setDisplayName("small-M")
 
     val bigBus = new EventBus[String].setDisplayName("big-bus")
 
-    val bigStream = EventStream.merge(
-      bigBus.events.setDisplayName("big-bus-events"),
-      EventStream.fromSeq("big-1" :: "big-2" :: Nil, emitOnce = true).setDisplayName("big-fromSeq")
-    ).setDisplayName("big-M")
+    val bigStream = EventStream
+      .merge(
+        bigBus.events.setDisplayName("big-bus-events"),
+        EventStream.fromSeq("big-1" :: "big-2" :: Nil, emitOnce = true).setDisplayName("big-fromSeq")
+      )
+      .setDisplayName("big-M")
 
-    val flatStream = outerBus.events.setDisplayName("outer-bus-events").startWith(0).setDisplayName("outer-signal").map {
-      case i if i >= 10 => bigStream
-      case _ => smallStream
-    }.setDisplayName("outer-meta")
-      .flattenSwitch.setDisplayName("outer-flat")
-      .map(Calculation.log("flat", calculations)).setDisplayName("outer-flat-map")
+    val flatStream = outerBus.events
+      .setDisplayName("outer-bus-events")
+      .startWith(0)
+      .setDisplayName("outer-signal")
+      .map {
+        case i if i >= 10 => bigStream
+        case _            => smallStream
+      }
+      .setDisplayName("outer-meta")
+      .flattenSwitch
+      .setDisplayName("outer-flat")
+      .map(Calculation.log("flat", calculations))
+      .setDisplayName("outer-flat-map")
 
     // --
 
@@ -466,10 +493,12 @@ class SwitchStreamSpec extends UnitSpec {
 
     flatStream.addObserver(emptyObserver)
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-1"),
-      Calculation("flat", "small-2"),
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-1"),
+        Calculation("flat", "small-2")
+      )
+    )
 
     calculations.clear()
 
@@ -477,9 +506,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-0")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-0")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-0")
+      )
+    )
 
     calculations.clear()
 
@@ -493,9 +524,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-1")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-1")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-1")
+      )
+    )
 
     calculations.clear()
 
@@ -509,9 +542,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-2")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-2")
+      )
+    )
 
     calculations.clear()
 
@@ -519,10 +554,12 @@ class SwitchStreamSpec extends UnitSpec {
 
     outerBus.writer.onNext(10) // #Note switch to big
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-1"),
-      Calculation("flat", "big-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-1"),
+        Calculation("flat", "big-2")
+      )
+    )
 
     calculations.clear()
 
@@ -536,9 +573,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     bigBus.writer.onNext("big-bus-1")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-bus-1")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-bus-1")
+      )
+    )
 
     calculations.clear()
 
@@ -552,9 +591,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     bigBus.writer.onNext("big-bus-2")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "big-bus-2")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "big-bus-2")
+      )
+    )
 
     calculations.clear()
 
@@ -568,9 +609,11 @@ class SwitchStreamSpec extends UnitSpec {
 
     smallBus.writer.onNext("small-bus-3")
 
-    assert(calculations.toList == List(
-      Calculation("flat", "small-bus-3")
-    ))
+    assert(
+      calculations.toList == List(
+        Calculation("flat", "small-bus-3")
+      )
+    )
 
     calculations.clear()
 
@@ -660,8 +703,7 @@ class SwitchStreamSpec extends UnitSpec {
 
     val switch = new EventBus[Int]
 
-    switch
-      .events
+    switch.events
       .flatMapSwitch { v =>
         effects += Effect("switch", v)
         if (v % 2 == 0) stream1 else stream2

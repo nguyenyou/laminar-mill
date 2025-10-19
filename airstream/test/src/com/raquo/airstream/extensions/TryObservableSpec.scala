@@ -15,16 +15,15 @@ class TryObservableSpec extends UnitSpec {
 
   it("TryObservable: mapSuccess, mapFailure, mapTry") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val bus = new EventBus[Try[Int]]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .events
+    bus.events
       .mapFailure({
         case err @ TryError(msg) => err.copy(msg = msg + "-x")
-        case other => other
+        case other               => other
       })
       .mapSuccess(_ * 10)
       .foldTry(
@@ -65,19 +64,17 @@ class TryObservableSpec extends UnitSpec {
 
   it("TryStream: collectSuccess, collectFailure") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val bus = new EventBus[Try[Int]]
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    bus
-      .events
+    bus.events
       .collectSuccess { case x if x >= 10 => x.toString }
       .foreach(v => effects += Effect("obs-success", v))
 
-    bus
-      .events
+    bus.events
       .collectFailure { case TryError(msg) => msg }
       .foreach(v => effects += Effect("obs-failure", v))
 
@@ -125,8 +122,7 @@ class TryObservableSpec extends UnitSpec {
     val effects = mutable.Buffer[Effect[?]]()
 
     var ix = 0
-    bus
-      .events
+    bus.events
       .splitTry(
         success = (_, successS) => {
           ix += 1
@@ -171,7 +167,7 @@ class TryObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("success-2", 100),
-      Effect("obs", 2),
+      Effect("obs", 2)
     )
     effects.clear()
 
@@ -193,7 +189,7 @@ class TryObservableSpec extends UnitSpec {
 
     effects `shouldBe` mutable.Buffer(
       Effect("failure-3", TryError("err3")),
-      Effect("obs", 3),
+      Effect("obs", 3)
     )
     effects.clear()
 

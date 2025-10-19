@@ -11,13 +11,12 @@ class OptionObservableSpec extends UnitSpec {
 
   it("OptionObservable: mapSome") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val bus = new EventBus[Option[Int]]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .events
+    bus.events
       .mapSome(_ * 10)
       .foreach(v => effects += Effect("obs", v))
 
@@ -54,14 +53,12 @@ class OptionObservableSpec extends UnitSpec {
 
   it("OptionStream: collectSome") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val bus = new EventBus[Option[Int]]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .events
-      .collectSome
+    bus.events.collectSome
       .foreach(v => effects += Effect("obs", v))
 
     effects `shouldBe` mutable.Buffer()
@@ -103,13 +100,12 @@ class OptionObservableSpec extends UnitSpec {
 
   it("OptionStream: collectSome { ... }") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val bus = new EventBus[Option[Int]]
 
     val effects = mutable.Buffer[Effect[?]]()
-    bus
-      .events
+    bus.events
       .collectSome { case x if x % 2 == 0 => x }
       .foreach(v => effects += Effect("obs", v))
 

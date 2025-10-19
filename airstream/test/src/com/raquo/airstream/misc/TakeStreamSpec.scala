@@ -10,7 +10,7 @@ class TakeStreamSpec extends UnitSpec {
 
   it("Take first N events") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -33,7 +33,7 @@ class TakeStreamSpec extends UnitSpec {
       Effect("noreset", 1),
       Effect("noreset", 2),
       Effect("reset", 1),
-      Effect("reset", 2),
+      Effect("reset", 2)
     )
     effects.clear()
 
@@ -51,7 +51,7 @@ class TakeStreamSpec extends UnitSpec {
 
     effects.toList `shouldBe` List(
       Effect("reset", 1),
-      Effect("reset", 2),
+      Effect("reset", 2)
     )
     effects.clear()
 
@@ -59,7 +59,7 @@ class TakeStreamSpec extends UnitSpec {
 
   it("Take first ZERO events") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -99,7 +99,7 @@ class TakeStreamSpec extends UnitSpec {
 
   it("Take while") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -124,7 +124,7 @@ class TakeStreamSpec extends UnitSpec {
       Effect("noreset", 3),
       Effect("reset", 1),
       Effect("reset", 2),
-      Effect("reset", 3),
+      Effect("reset", 3)
     )
     effects.clear()
 
@@ -143,7 +143,7 @@ class TakeStreamSpec extends UnitSpec {
     effects.toList `shouldBe` List(
       Effect("reset", 1),
       Effect("reset", 2),
-      Effect("reset", 3),
+      Effect("reset", 3)
     )
     effects.clear()
 
@@ -151,7 +151,7 @@ class TakeStreamSpec extends UnitSpec {
 
   it("Take until") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -176,7 +176,7 @@ class TakeStreamSpec extends UnitSpec {
       Effect("noreset", 3),
       Effect("reset", 1),
       Effect("reset", 2),
-      Effect("reset", 3),
+      Effect("reset", 3)
     )
     effects.clear()
 
@@ -195,7 +195,7 @@ class TakeStreamSpec extends UnitSpec {
     effects.toList `shouldBe` List(
       Effect("reset", 1),
       Effect("reset", 2),
-      Effect("reset", 3),
+      Effect("reset", 3)
     )
     effects.clear()
 

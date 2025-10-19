@@ -12,7 +12,7 @@ class SampleCombineSignal2Spec extends UnitSpec {
 
   it("gets current value of Signal") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val samplingVar = Var(100)
     val sampledVar = Var(10)
@@ -43,10 +43,10 @@ class SampleCombineSignal2Spec extends UnitSpec {
     calculations `shouldBe` mutable.Buffer(
       Calculation("sampling", 100),
       Calculation("sampled", 10),
-      Calculation("combined", 110),
+      Calculation("combined", 110)
     )
     effects `shouldBe` mutable.Buffer(
-      Effect("combined", 110),
+      Effect("combined", 110)
     )
 
     calculations.clear()

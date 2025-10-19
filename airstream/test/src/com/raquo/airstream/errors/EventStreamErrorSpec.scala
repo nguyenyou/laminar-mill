@@ -13,7 +13,7 @@ import scala.util.Failure
 
 class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   private val calculations = mutable.Buffer[Calculation[Int]]()
   private val effects = mutable.Buffer[Effect[Int]]()
@@ -44,14 +44,19 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
   it("map function is guarded against exceptions") {
 
-    val stream = EventStream.fromSeq(List(-1, 2), emitOnce = true).map { num =>
-      if (num < 0) throw err1 else num
-    }.map(Calculation.log("stream", calculations))
+    val stream = EventStream
+      .fromSeq(List(-1, 2), emitOnce = true)
+      .map { num =>
+        if (num < 0) throw err1 else num
+      }
+      .map(Calculation.log("stream", calculations))
 
-    stream.addObserver(Observer.withRecover(
-      effects += Effect("sub", _),
-      err => errorEffects += Effect("sub-err", err)
-    ))
+    stream.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub", _),
+        err => errorEffects += Effect("sub-err", err)
+      )
+    )
 
     calculations `shouldBe` mutable.Buffer(
       Calculation("stream", 2)
@@ -85,7 +90,7 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer()
     errorEffects `shouldBe` mutable.Buffer(
-      Effect("unhandled", CombinedError(List(Some(err1), None))),
+      Effect("unhandled", CombinedError(List(Some(err1), None)))
     )
 
     errorEffects.clear()
@@ -123,10 +128,12 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     // sub2 does handle errors, but sub1 is independent, so it still sends errors to unhandled
 
-    stream1.addObserver(Observer.withRecover(
-      effects += Effect("sub2", _),
-      err => errorEffects += Effect("sub2-err", err)
-    ))
+    stream1.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub2", _),
+        err => errorEffects += Effect("sub2-err", err)
+      )
+    )
 
     bus.writer.onError(err2)
 
@@ -185,14 +192,18 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     // These signals do handle errors, but the initial ones are independent, so they still send errors to unhandled
 
-    signal1.addObserver(Observer.withRecover(
-      effects += Effect("sub2Signal1", _),
-      err => errorEffects += Effect("sub2Signal1-err", err)
-    ))
-    signal2.addObserver(Observer.withRecover(
-      effects += Effect("sub2Signal2", _),
-      err => errorEffects += Effect("sub2Signal2-err", err)
-    ))
+    signal1.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub2Signal1", _),
+        err => errorEffects += Effect("sub2Signal1-err", err)
+      )
+    )
+    signal2.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub2Signal2", _),
+        err => errorEffects += Effect("sub2Signal2-err", err)
+      )
+    )
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer()
@@ -241,16 +252,20 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
     val errH = new Exception("errH")
 
     val upStream = bus.events.map(Calculation.log("upStream", calculations))
-    val downStream = upStream.recover {
-      case err if err == err1 => Some(1)
-      case err if err == err2 => None
-      case err if err == err3 => throw errH
-    }.map(Calculation.log("downStream", calculations))
+    val downStream = upStream
+      .recover {
+        case err if err == err1 => Some(1)
+        case err if err == err2 => None
+        case err if err == err3 => throw errH
+      }
+      .map(Calculation.log("downStream", calculations))
 
-    downStream.addObserver(Observer.withRecover(
-      effects += Effect("sub", _),
-      err => errorEffects += Effect("sub-err", err)
-    ))
+    downStream.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub", _),
+        err => errorEffects += Effect("sub-err", err)
+      )
+    )
 
     // Should recover from err1 into a value
 
@@ -288,10 +303,12 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val stream = EventStream.fromTry(Failure(err1), emitOnce = false).map(Calculation.log("stream", calculations))
 
-    val sub = stream.addObserver(Observer.withRecover(
-      effects += Effect("sub", _),
-      err => errorEffects += Effect("sub-err", err)
-    ))
+    val sub = stream.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub", _),
+        err => errorEffects += Effect("sub-err", err)
+      )
+    )
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer()
@@ -302,10 +319,12 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
     errorEffects.clear()
     sub.kill() // such a stream (emitOnce = false) re-emits only when it's started again, and for that it needs to become stopped first
 
-    stream.addObserver(Observer.withRecover(
-      effects += Effect("sub2", _),
-      err => errorEffects += Effect("sub2-err", err)
-    ))
+    stream.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub2", _),
+        err => errorEffects += Effect("sub2-err", err)
+      )
+    )
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer()
@@ -318,11 +337,13 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val stream = EventStream.fromTry(Failure(err1), emitOnce = true).map(Calculation.log("stream", calculations))
 
-    stream.addObserver(Observer.withRecover(
-      effects += Effect("sub", _),
-      // This only recovers from `err2, not `err1`
-      { case err if err.getMessage == err2.getMessage => errorEffects += Effect("sub-err", err) }
-    ))
+    stream.addObserver(
+      Observer.withRecover(
+        effects += Effect("sub", _),
+        // This only recovers from `err2, not `err1`
+        { case err if err.getMessage == err2.getMessage => errorEffects += Effect("sub-err", err) }
+      )
+    )
 
     calculations `shouldBe` mutable.Buffer()
     effects `shouldBe` mutable.Buffer()
@@ -343,10 +364,12 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    stream.addObserver(Observer.withRecover(
-      onNext = ev => effects += Effect("onNext", ev),
-      onError = err => effects += Effect("onError", err.getMessage)
-    ))(using owner)
+    stream.addObserver(
+      Observer.withRecover(
+        onNext = ev => effects += Effect("onNext", ev),
+        onError = err => effects += Effect("onError", err.getMessage)
+      )
+    )(using owner)
 
     // --
 
@@ -383,10 +406,12 @@ class EventStreamErrorSpec extends UnitSpec with BeforeAndAfter {
 
     val effects = mutable.Buffer[Effect[?]]()
 
-    stream.addObserver(Observer.withRecover(
-      onNext = ev => effects += Effect("onNext", ev),
-      onError = err => effects += Effect("onError", err.getMessage)
-    ))(using owner)
+    stream.addObserver(
+      Observer.withRecover(
+        onNext = ev => effects += Effect("onNext", ev),
+        onError = err => effects += Effect("onError", err.getMessage)
+      )
+    )(using owner)
 
     // -- initial failed state should propagate as an error
 

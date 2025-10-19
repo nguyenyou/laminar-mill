@@ -15,7 +15,7 @@ class DistinctSpec extends UnitSpec {
 
     lazy val err1 = new Exception("err1")
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val errorEffects = mutable.Buffer[Effect[String]]()
@@ -23,12 +23,11 @@ class DistinctSpec extends UnitSpec {
 
     val obs = Observer.fromTry[Int] {
       case Success(value) => effects += Effect("obs", value)
-      case Failure(err) => errorEffects += Effect("obs-err", err.getMessage)
+      case Failure(err)   => errorEffects += Effect("obs-err", err.getMessage)
     }
 
     val bus = new EventBus[Int]
-    val stream = bus.events
-      .distinct
+    val stream = bus.events.distinct
       .map(Calculation.log("stream", calculations))
 
     val sub1 = stream.addObserver(obs)(using testOwner)
@@ -122,7 +121,7 @@ class DistinctSpec extends UnitSpec {
 
     lazy val err1 = new Exception("err1")
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val errorEffects = mutable.Buffer[Effect[String]]()
@@ -130,12 +129,11 @@ class DistinctSpec extends UnitSpec {
 
     val obs = Observer.fromTry[Int] {
       case Success(value) => effects += Effect("obs", value)
-      case Failure(err) => errorEffects += Effect("obs-err", err.getMessage)
+      case Failure(err)   => errorEffects += Effect("obs-err", err.getMessage)
     }
 
     val _var = Var(0)
-    val signal = _var.signal
-      .distinct
+    val signal = _var.signal.distinct
       .map(Calculation.log("signal", calculations))
 
     val sub1 = signal.addObserver(obs)(using testOwner)
@@ -294,7 +292,7 @@ class DistinctSpec extends UnitSpec {
     lazy val err2 = new Exception("err2")
     lazy val err3 = new Exception("err3")
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val errorEffects = mutable.Buffer[Effect[String]]()
@@ -302,7 +300,7 @@ class DistinctSpec extends UnitSpec {
 
     val obs = Observer.fromTry[Int] {
       case Success(value) => effects += Effect("obs", value)
-      case Failure(err) => errorEffects += Effect("obs-err", err.getMessage)
+      case Failure(err)   => errorEffects += Effect("obs-err", err.getMessage)
     }
 
     val bus = new EventBus[Int]

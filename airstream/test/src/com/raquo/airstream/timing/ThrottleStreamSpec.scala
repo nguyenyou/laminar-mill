@@ -9,7 +9,7 @@ import scala.collection.mutable
 
 class ThrottleStreamSpec extends AsyncUnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   private val effects = mutable.Buffer[Effect[Int]]()
 

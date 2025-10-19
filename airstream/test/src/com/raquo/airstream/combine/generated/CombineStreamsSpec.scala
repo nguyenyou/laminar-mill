@@ -23,7 +23,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream2 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -68,7 +68,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream3 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -119,7 +119,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream4 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -176,7 +176,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream5 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -239,7 +239,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream6 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -308,7 +308,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream7 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -383,7 +383,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream8 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -448,11 +448,56 @@ class CombineStreamsSpec extends UnitSpec {
       bus7.emit(T7(iteration))
       bus8.emit(T8(iteration))
       effects.toList `shouldBe` List(
-        (T1(iteration), T2(iteration - 1), T3(iteration - 1), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration - 1), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1)),
+        (
+          T1(iteration),
+          T2(iteration - 1),
+          T3(iteration - 1),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration - 1),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1)
+        ),
         (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration - 1), T8(iteration - 1)),
         (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration), T8(iteration - 1)),
         (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration), T8(iteration))
@@ -464,7 +509,7 @@ class CombineStreamsSpec extends UnitSpec {
 
   it("CombineStream9 works") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val bus1 = new EventBus[T1]()
     val bus2 = new EventBus[T2]()
@@ -534,20 +579,109 @@ class CombineStreamsSpec extends UnitSpec {
       bus8.emit(T8(iteration))
       bus9.emit(T9(iteration))
       effects.toList `shouldBe` List(
-        (T1(iteration), T2(iteration - 1), T3(iteration - 1), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration - 1), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration - 1), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration - 1), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration - 1), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration - 1), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration), T8(iteration - 1), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration), T8(iteration), T9(iteration - 1)),
-        (T1(iteration), T2(iteration), T3(iteration), T4(iteration), T5(iteration), T6(iteration), T7(iteration), T8(iteration), T9(iteration))
+        (
+          T1(iteration),
+          T2(iteration - 1),
+          T3(iteration - 1),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration - 1),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration - 1),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration - 1),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration - 1),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration),
+          T7(iteration - 1),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration),
+          T7(iteration),
+          T8(iteration - 1),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration),
+          T7(iteration),
+          T8(iteration),
+          T9(iteration - 1)
+        ),
+        (
+          T1(iteration),
+          T2(iteration),
+          T3(iteration),
+          T4(iteration),
+          T5(iteration),
+          T6(iteration),
+          T7(iteration),
+          T8(iteration),
+          T9(iteration)
+        )
       )
     }
 
     subscription.kill()
   }
-
 
 }

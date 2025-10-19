@@ -22,7 +22,7 @@ class FlowPublisherStreamSpec extends UnitSpec {
 
   it("EventStream.fromPublisher") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val range = 1 to 3
     val stream = EventStream.fromPublisher(new RangePublisher(range))

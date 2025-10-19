@@ -10,7 +10,7 @@ import scala.concurrent.Promise
 
 class SignalFromFutureSpec extends AsyncUnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   private val calculations = mutable.Buffer[Calculation[Option[Int]]]()
   private val effects = mutable.Buffer[Effect[Option[Int]]]()

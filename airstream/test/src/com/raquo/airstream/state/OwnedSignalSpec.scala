@@ -11,7 +11,7 @@ class OwnedSignalSpec extends UnitSpec {
 
   it("OwnedSignal") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
 

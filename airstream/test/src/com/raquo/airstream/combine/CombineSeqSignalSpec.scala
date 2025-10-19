@@ -11,7 +11,7 @@ class CombineSeqSignalSpec extends UnitSpec {
 
   it("should work as expected") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val vars = (1 to 10).map(Var(_))
     val seqSignal = Signal.combineSeq(vars.map(_.signal))
@@ -31,7 +31,7 @@ class CombineSeqSignalSpec extends UnitSpec {
     // --
 
     effects.toList `shouldBe` List(
-      Effect("combined", (1 to 10)),
+      Effect("combined", (1 to 10))
     )
 
     // --
@@ -41,7 +41,8 @@ class CombineSeqSignalSpec extends UnitSpec {
         effects.clear()
         vars(signalToUpdate).update(_ + 1)
         effects.toList `shouldBe` (List(
-          Effect("combined",
+          Effect(
+            "combined",
             vars.indices.map { index =>
               if (index > signalToUpdate) {
                 index + 1 + // initial

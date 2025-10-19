@@ -13,7 +13,7 @@ class SignalSpec extends UnitSpec {
 
     // @TODO add another mapped dependency on signal and verify that one's evaluations as well (maybe in a separate test?)
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val calculations = mutable.Buffer[Calculation[Int]]()
@@ -42,12 +42,16 @@ class SignalSpec extends UnitSpec {
     // Note: Because signal had no observer when bus fired value `1`, that event was NOT used to compute new value.
     val sub1 = signal.addObserver(signalObserver1)
 
-    calculations.shouldBe(mutable.Buffer(
-      Calculation("map-signal", -1) // First time current value of this signal was needed, so it is now calculated
-    ))
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-1", -1)
-    ))
+    calculations.shouldBe(
+      mutable.Buffer(
+        Calculation("map-signal", -1) // First time current value of this signal was needed, so it is now calculated
+      )
+    )
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-1", -1)
+      )
+    )
 
     calculations.clear()
     effects.clear()
@@ -56,13 +60,17 @@ class SignalSpec extends UnitSpec {
 
     bus.writer.onNext(2)
 
-    calculations.shouldBe(mutable.Buffer(
-      Calculation("bus", 2),
-      Calculation("map-signal", 20)
-    ))
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-1", 20)
-    ))
+    calculations.shouldBe(
+      mutable.Buffer(
+        Calculation("bus", 2),
+        Calculation("map-signal", 20)
+      )
+    )
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-1", 20)
+      )
+    )
 
     calculations.clear()
     effects.clear()
@@ -71,13 +79,17 @@ class SignalSpec extends UnitSpec {
 
     bus.writer.onNext(2)
 
-    calculations.shouldBe(mutable.Buffer(
-      Calculation("bus", 2),
-      Calculation("map-signal", 20)
-    ))
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-1", 20)
-    ))
+    calculations.shouldBe(
+      mutable.Buffer(
+        Calculation("bus", 2),
+        Calculation("map-signal", 20)
+      )
+    )
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-1", 20)
+      )
+    )
 
     calculations.clear()
     effects.clear()
@@ -89,9 +101,11 @@ class SignalSpec extends UnitSpec {
     val sub2 = signal.addObserver(signalObserver2)
 
     calculations.shouldBe(mutable.Buffer()) // Using cached calculation
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-2", 20)
-    ))
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-2", 20)
+      )
+    )
 
     effects.clear()
 
@@ -99,14 +113,18 @@ class SignalSpec extends UnitSpec {
 
     bus.writer.onNext(3)
 
-    calculations.shouldBe(mutable.Buffer(
-      Calculation("bus", 3),
-      Calculation("map-signal", 30)
-    ))
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-1", 30),
-      Effect("signal-obs-2", 30)
-    ))
+    calculations.shouldBe(
+      mutable.Buffer(
+        Calculation("bus", 3),
+        Calculation("map-signal", 30)
+      )
+    )
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-1", 30),
+        Effect("signal-obs-2", 30)
+      )
+    )
 
     calculations.clear()
     effects.clear()
@@ -117,13 +135,17 @@ class SignalSpec extends UnitSpec {
 
     bus.writer.onNext(4)
 
-    calculations.shouldBe(mutable.Buffer(
-      Calculation("bus", 4),
-      Calculation("map-signal", 40)
-    ))
-    effects.shouldBe(mutable.Buffer(
-      Effect("signal-obs-2", 40)
-    ))
+    calculations.shouldBe(
+      mutable.Buffer(
+        Calculation("bus", 4),
+        Calculation("map-signal", 40)
+      )
+    )
+    effects.shouldBe(
+      mutable.Buffer(
+        Effect("signal-obs-2", 40)
+      )
+    )
 
     calculations.clear()
     effects.clear()
@@ -167,7 +189,7 @@ class SignalSpec extends UnitSpec {
 
   it("Signal.changes lazily reflects the changes of underlying signal") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val calculations = mutable.Buffer[Calculation[Int]]()
@@ -361,7 +383,7 @@ class SignalSpec extends UnitSpec {
 
   it("MapSignal.now/onNext re-evaluates project/initialValue when restarting") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
     val calculations = mutable.Buffer[Calculation[Int]]()

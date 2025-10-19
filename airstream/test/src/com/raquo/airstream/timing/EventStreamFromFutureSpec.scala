@@ -10,7 +10,7 @@ import scala.concurrent.Promise
 
 class EventStreamFromFutureSpec extends AsyncUnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   private val calculations = mutable.Buffer[Calculation[Int]]()
   private val effects = mutable.Buffer[Effect[Int]]()

@@ -17,7 +17,7 @@ class EventStreamFlattenFutureSpec extends AsyncUnitSpec {
     // We should better demonstrate the difference between this strategy and OverflowFutureFlattenStrategy
     // Basically, this strategy would fail the `promise5` part of overflow strategy's spec (see below)
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 

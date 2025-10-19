@@ -10,7 +10,7 @@ import scala.collection.mutable
 
 class DelayStreamSpec extends AsyncUnitSpec with BeforeAndAfter {
 
-  implicit val owner: TestableOwner = new TestableOwner
+  given owner: TestableOwner = new TestableOwner
 
   val effects = mutable.Buffer[Effect[Int]]()
 

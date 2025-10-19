@@ -12,7 +12,7 @@ class ScanLeftSignalSpec extends UnitSpec {
 
   it("ScanLeftSignal made with EventStream.scanLeft") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[String]]()
     val calculations = mutable.Buffer[Calculation[String]]()
@@ -91,7 +91,7 @@ class ScanLeftSignalSpec extends UnitSpec {
 
   it("ScanLeftSignal made with Signal.scanLeft") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[String]]()
     val calculations = mutable.Buffer[Calculation[String]]()

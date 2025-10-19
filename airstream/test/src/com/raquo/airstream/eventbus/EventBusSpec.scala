@@ -12,7 +12,7 @@ class EventBusSpec extends UnitSpec {
 
   it("writer.onNext fires observers") {
 
-    implicit val owner: Owner = new TestableOwner
+    given owner: Owner = new TestableOwner
 
     val bus = new EventBus[Int]
     val effects = mutable.Buffer[Effect[?]]()
@@ -153,19 +153,23 @@ class EventBusSpec extends UnitSpec {
 
     // --
 
-    Try(EventBus.emit(
-      bus1 -> 2,
-      bus2 -> 2,
-      bus1 -> 2
-    )).isFailure `shouldBe` true
+    Try(
+      EventBus.emit(
+        bus1 -> 2,
+        bus2 -> 2,
+        bus1 -> 2
+      )
+    ).isFailure `shouldBe` true
 
     // --
 
-    Try(EventBus.emitTry(
-      bus1 -> Success(3),
-      bus2 -> Success(4),
-      bus2 -> Success(5)
-    )).isFailure `shouldBe` true
+    Try(
+      EventBus.emitTry(
+        bus1 -> Success(3),
+        bus2 -> Success(4),
+        bus2 -> Success(5)
+      )
+    ).isFailure `shouldBe` true
   }
 
   it("disallow duplicate event buses in WriteBus.emit and WriteBus.emitTry") {
@@ -191,18 +195,22 @@ class EventBusSpec extends UnitSpec {
 
     // --
 
-    Try(WriteBus.emit(
-      bus1.writer -> "2",
-      bus2.writer -> 2,
-      bus1.writer -> "2"
-    )).isFailure `shouldBe` true
+    Try(
+      WriteBus.emit(
+        bus1.writer -> "2",
+        bus2.writer -> 2,
+        bus1.writer -> "2"
+      )
+    ).isFailure `shouldBe` true
 
     // --
 
-    Try(WriteBus.emitTry(
-      bus1.writer -> Success("3"),
-      bus2.writer -> Success(4),
-      bus2.writer -> Success(5)
-    )).isFailure `shouldBe` true
+    Try(
+      WriteBus.emitTry(
+        bus1.writer -> Success("3"),
+        bus2.writer -> Success(4),
+        bus2.writer -> Success(5)
+      )
+    ).isFailure `shouldBe` true
   }
 }

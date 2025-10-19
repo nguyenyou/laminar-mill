@@ -11,7 +11,7 @@ class CombineSeqStreamSpec extends UnitSpec {
 
   it("should work as expected") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val numStreams = 10
 
@@ -44,16 +44,15 @@ class CombineSeqStreamSpec extends UnitSpec {
         if (iteration == 1) {
           if (streamToEmitFrom == numStreams - 1) {
             effects.toList `shouldBe` List(
-              Effect("combined",
-                buses.indices.map(_ => iteration)
-              )
+              Effect("combined", buses.indices.map(_ => iteration))
             )
           } else {
             effects.shouldBeEmpty
           }
         } else {
           effects.toList `shouldBe` (List(
-            Effect("combined",
+            Effect(
+              "combined",
               buses.indices.map { index =>
                 if (index > streamToEmitFrom) {
                   iteration - 1

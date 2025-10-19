@@ -13,7 +13,7 @@ class PeriodicStreamSpec extends AsyncUnitSpec {
 
   it("resetOnStop=true") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -71,7 +71,7 @@ class PeriodicStreamSpec extends AsyncUnitSpec {
 
   it("resetOnStop=true + drop(1)") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -126,7 +126,7 @@ class PeriodicStreamSpec extends AsyncUnitSpec {
 
   it("resetOnStop=false") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -182,7 +182,7 @@ class PeriodicStreamSpec extends AsyncUnitSpec {
 
   it("resetOnStop=false + drop(1)") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -238,7 +238,7 @@ class PeriodicStreamSpec extends AsyncUnitSpec {
 
   it("dynamic interval") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 

@@ -15,7 +15,7 @@ class SignalFlattenFutureSpec extends AsyncUnitSpec {
 
     it("initial unresolved future results in emitted default value and an async event") {
 
-      implicit val owner: TestableOwner = new TestableOwner
+      given owner: TestableOwner = new TestableOwner
 
       val effects = mutable.Buffer[Effect[Int]]()
 
@@ -73,7 +73,7 @@ class SignalFlattenFutureSpec extends AsyncUnitSpec {
 
     it("initial future that is resolved sync-before the observer is added results in initial value of None") {
 
-      implicit val owner: TestableOwner = new TestableOwner
+      given owner: TestableOwner = new TestableOwner
 
       val effects = mutable.Buffer[Effect[Int]]()
 
@@ -125,7 +125,7 @@ class SignalFlattenFutureSpec extends AsyncUnitSpec {
 
     it("initial already-resolved future results in an async event if resolved async-before stream creation") {
 
-      implicit val owner: TestableOwner = new TestableOwner
+      given owner: TestableOwner = new TestableOwner
 
       val effects = mutable.Buffer[Effect[Int]]()
 

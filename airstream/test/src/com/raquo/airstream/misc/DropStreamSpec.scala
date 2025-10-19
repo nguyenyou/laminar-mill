@@ -10,7 +10,7 @@ class DropStreamSpec extends UnitSpec {
 
   it("Drop first N events") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -33,7 +33,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 3),
       Effect("noreset", 4),
       Effect("reset", 3),
-      Effect("reset", 4),
+      Effect("reset", 4)
     )
     effects.clear()
 
@@ -55,7 +55,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 3),
       Effect("noreset", 4),
       Effect("reset", 3),
-      Effect("reset", 4),
+      Effect("reset", 4)
     )
     effects.clear()
 
@@ -63,7 +63,7 @@ class DropStreamSpec extends UnitSpec {
 
   it("Drop first ZERO events") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -90,7 +90,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("reset", 1),
       Effect("reset", 2),
       Effect("reset", 3),
-      Effect("reset", 4),
+      Effect("reset", 4)
     )
     effects.clear()
 
@@ -114,7 +114,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("reset", 1),
       Effect("reset", 2),
       Effect("reset", 3),
-      Effect("reset", 4),
+      Effect("reset", 4)
     )
     effects.clear()
 
@@ -122,7 +122,7 @@ class DropStreamSpec extends UnitSpec {
 
   it("Drop while") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -147,7 +147,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 5),
       Effect("reset", 4),
       Effect("reset", 0),
-      Effect("reset", 5),
+      Effect("reset", 5)
     )
     effects.clear()
 
@@ -172,7 +172,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 5),
       Effect("reset", 4),
       Effect("reset", 0),
-      Effect("reset", 5),
+      Effect("reset", 5)
     )
     effects.clear()
 
@@ -180,7 +180,7 @@ class DropStreamSpec extends UnitSpec {
 
   it("Drop until") {
 
-    implicit val owner: TestableOwner = new TestableOwner
+    given owner: TestableOwner = new TestableOwner
 
     val effects = mutable.Buffer[Effect[Int]]()
 
@@ -205,7 +205,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 5),
       Effect("reset", 4),
       Effect("reset", 0),
-      Effect("reset", 5),
+      Effect("reset", 5)
     )
     effects.clear()
 
@@ -230,7 +230,7 @@ class DropStreamSpec extends UnitSpec {
       Effect("noreset", 5),
       Effect("reset", 4),
       Effect("reset", 0),
-      Effect("reset", 5),
+      Effect("reset", 5)
     )
     effects.clear()
 

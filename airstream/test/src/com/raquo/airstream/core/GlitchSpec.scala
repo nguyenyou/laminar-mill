@@ -12,7 +12,7 @@ class GlitchSpec extends UnitSpec {
 
   it("diamond case has no glitch (combineWith)") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[(Int, Int)]]()
     val effects = mutable.Buffer[Effect[(Int, Int)]]()
@@ -22,7 +22,8 @@ class GlitchSpec extends UnitSpec {
     val tens = bus.events.map(_ * 10)
     val hundreds = tens.map(_ * 10)
 
-    val tuples = hundreds.combineWith(tens)
+    val tuples = hundreds
+      .combineWith(tens)
       .map(Calculation.log("tuples", calculations))
 
     tuples.foreach(effects += Effect("tuples", _))
@@ -71,7 +72,7 @@ class GlitchSpec extends UnitSpec {
   }
 
   it("diamond case has no glitch (withCurrentValueOf)") {
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[(Int, Int)]]()
     val effects = mutable.Buffer[Effect[(Int, Int)]]()
@@ -81,7 +82,8 @@ class GlitchSpec extends UnitSpec {
     val tens = bus.events.map(_ * 10)
     val hundreds = tens.map(_ * 10).toSignal(initial = 0)
 
-    val tuples = tens.withCurrentValueOf(hundreds)
+    val tuples = tens
+      .withCurrentValueOf(hundreds)
       .map(Calculation.log("tuples", calculations))
 
     tuples.foreach(effects += Effect("tuples", _))
@@ -138,7 +140,7 @@ class GlitchSpec extends UnitSpec {
   // @TODO[API] see if there is a use case for a merge-like operator that only returns the last event
   it("diamond case with a merge produces events in correct order") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
@@ -211,7 +213,7 @@ class GlitchSpec extends UnitSpec {
 
   it("Multi-level pending observables resolve in correct order") {
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
@@ -230,7 +232,9 @@ class GlitchSpec extends UnitSpec {
     val streamD = busB.events.combineWith(streamC).mapN(_ + _).map(Calculation.log("D", calculations))
     val streamE = busA.events.combineWith(streamC).mapN(_ + _).map(Calculation.log("E", calculations))
 
-    val streamX = streamD.combineWith(streamE).mapN(_ + _)
+    val streamX = streamD
+      .combineWith(streamE)
+      .mapN(_ + _)
       .map(Calculation.log("X", calculations))
 
     streamX.foreach(effects += Effect("X", _))
@@ -285,7 +289,7 @@ class GlitchSpec extends UnitSpec {
 
     // @TODO Unsynced version produces unexpected results. Figure that out first before proceeding. Something probably wrong in EventBus
 
-    implicit val testOwner: TestableOwner = new TestableOwner
+    given testOwner: TestableOwner = new TestableOwner
 
     val calculations = mutable.Buffer[Calculation[Int]]()
     val effects = mutable.Buffer[Effect[Int]]()
@@ -310,7 +314,8 @@ class GlitchSpec extends UnitSpec {
     busA.writer.addSource(streamB.map(_ * 10).map(Calculation.log("B x 10", calculations)))
     busB.writer.addSource(streamA.filter(_ <= 100).map(_ + 1))
 
-    val streamD = streamA.combineWith(streamB)
+    val streamD = streamA
+      .combineWith(streamB)
       .mapN(_ + _)
       .map(Calculation.log("D", calculations))
 
@@ -380,8 +385,7 @@ class GlitchSpec extends UnitSpec {
     var n = 0
     val clickBus = new EventBus[Unit]
     val log = Var[List[Int]](Nil)
-    clickBus
-      .events
+    clickBus.events
       .foreach { _ =>
         n = n + 2
         log.update(_ :+ (n - 2))
@@ -414,7 +418,7 @@ class GlitchSpec extends UnitSpec {
     case class Append(i: Int) extends Action
 
     case class State(
-      seq: Seq[Int]
+        seq: Seq[Int]
     )
 
     val clickBus = new EventBus[Unit]
@@ -424,17 +428,19 @@ class GlitchSpec extends UnitSpec {
     var n = 0
     val actions: EventStream[Action] = clickBus.events.flatMapSwitch { _ =>
       n += 2
-      EventStream.merge(
-        EventStream.fromValue(n - 2, emitOnce = true),
-        EventStream.fromValue(n - 1, emitOnce = true)
-      ).map(Append.apply)
+      EventStream
+        .merge(
+          EventStream.fromValue(n - 2, emitOnce = true),
+          EventStream.fromValue(n - 1, emitOnce = true)
+        )
+        .map(Append.apply)
     }
 
     val updatedState =
       actions
         .withCurrentValueOf(stateVar.signal)
-        .map {
-          case (Append(i), State(seq)) => State(seq :+ i)
+        .map { case (Append(i), State(seq)) =>
+          State(seq :+ i)
         }
 
     updatedState.addObserver(stateVar.writer)(using owner)
@@ -480,8 +486,7 @@ class GlitchSpec extends UnitSpec {
 
     val initial = 0
 
-    bus
-      .stream
+    bus.stream
       .startWith({
         effects += Effect("eval-init", initial)
         initial
@@ -555,39 +560,34 @@ class GlitchSpec extends UnitSpec {
     var x = 0
 
     val resultSignal =
-      intVar
-        .signal
-        .asIdSignal
+      intVar.signal.asIdSignal
         .split(
           key = _ => "outer",
           distinctCompose = identity
-        ) {
-          (_, outerInit, outerChildSignal) =>
-            effects += Effect("outer-cb", outerInit)
-            outerChildSignal
-              .setDisplayName(s"outer-child@${outerChildSignal}")
-              .foreach { v =>
+        ) { (_, outerInit, outerChildSignal) =>
+          effects += Effect("outer-cb", outerInit)
+          outerChildSignal
+            .setDisplayName(s"outer-child@${outerChildSignal}")
+            .foreach { v =>
               effects += Effect("outer-child-update", v)
             }(using owner)
 
-            val splitInner = outerChildSignal
-              .asIdSignal
-              .split(
-                key = _ => "inner",
-                distinctCompose = identity
-              ) {
-                (_, innerInit, innerChildSignal) =>
-                  effects += Effect("inner-cb", innerInit)
-                  innerChildSignal
-                    .setDisplayName(s"inner-child@${innerChildSignal}")
-                    .foreach { v =>
-                      effects += Effect("inner-child-update", v)
-                    }(using owner)
-                  x += 100
-                  x
-              }
-            splitInner
-              .setDisplayName(s"split-inner@${splitInner}")
+          val splitInner = outerChildSignal.asIdSignal
+            .split(
+              key = _ => "inner",
+              distinctCompose = identity
+            ) { (_, innerInit, innerChildSignal) =>
+              effects += Effect("inner-cb", innerInit)
+              innerChildSignal
+                .setDisplayName(s"inner-child@${innerChildSignal}")
+                .foreach { v =>
+                  effects += Effect("inner-child-update", v)
+                }(using owner)
+              x += 100
+              x
+            }
+          splitInner
+            .setDisplayName(s"split-inner@${splitInner}")
         }
         .setDisplayName("split-outer")
         .asSignal
@@ -598,9 +598,7 @@ class GlitchSpec extends UnitSpec {
         .flattenSwitch
         .setDisplayName("result")
 
-    resultSignal.foreach(ix =>
-      effects += Effect("result", ix)
-    )(using owner)
+    resultSignal.foreach(ix => effects += Effect("result", ix))(using owner)
 
     assertEquals(
       effects.toList,
@@ -609,7 +607,7 @@ class GlitchSpec extends UnitSpec {
         Effect("outer-child-update", 10),
         Effect("inner-cb", 10),
         Effect("inner-child-update", 10),
-        Effect("result", 100),
+        Effect("result", 100)
       )
     )
     effects.clear()
