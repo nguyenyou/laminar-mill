@@ -23,3 +23,9 @@ yarn dev
 ```sh
 mill __.compiledClassesAndSemanticDbFiles
 ```
+
+## Run Examples
+
+```sh
+scala-cli examples/UsingClauseExample.scala -M example5
+```
