@@ -215,7 +215,7 @@ object ReactiveElement {
 
   type Base = ReactiveElement[dom.Element]
 
-  @inline def bindFn[V](
+  inline def bindFn[V](
     element: ReactiveElement.Base,
     observable: Observable[V]
   )(
@@ -224,7 +224,7 @@ object ReactiveElement {
     DynamicSubscription.subscribeFn(element.dynamicOwner, observable, onNext)
   }
 
-  @inline def bindObserver[V](
+  inline def bindObserver[V](
     element: ReactiveElement.Base,
     observable: Observable[V]
   )(
@@ -233,7 +233,7 @@ object ReactiveElement {
     DynamicSubscription.subscribeObserver(element.dynamicOwner, observable, observer)
   }
 
-  @inline def bindSink[V](
+  inline def bindSink[V](
     element: ReactiveElement.Base,
     observable: Observable[V]
   )(
@@ -242,7 +242,7 @@ object ReactiveElement {
     DynamicSubscription.subscribeSink(element.dynamicOwner, observable, sink)
   }
 
-  @inline def bindBus[V](
+  inline def bindBus[V](
     element: ReactiveElement.Base,
     eventStream: EventStream[V]
   )(
@@ -254,7 +254,7 @@ object ReactiveElement {
   /** #Note: Unsafe because you must make sure that the Subscription created by the `subscribe` callback is not killed externally.
     * Otherwise, when the DynamicSubscription decides to kill it, the already-killed Subscription will throw an exception.
     */
-  @inline def bindSubscriptionUnsafe[El <: ReactiveElement.Base](
+  inline def bindSubscriptionUnsafe[El <: ReactiveElement.Base](
     element: El
   )(
     subscribe: MountContext[El] => Subscription
@@ -265,7 +265,7 @@ object ReactiveElement {
     )
   }
 
-  @inline def bindCallback[El <: ReactiveElement.Base](
+  inline def bindCallback[El <: ReactiveElement.Base](
     element: El
   )(
     activate: MountContext[El] => Unit
@@ -292,7 +292,7 @@ object ReactiveElement {
   }
 
   // @TODO Maybe later. Wanted to make a seqToBinder.
-  // @inline def bindCombinedSubscription[El <: ReactiveElement.Base](
+  // inline def bindCombinedSubscription[El <: ReactiveElement.Base](
   //   element: El
   // )(
   //   subscriptions: DynamicOwner => collection.Seq[DynamicSubscription]
