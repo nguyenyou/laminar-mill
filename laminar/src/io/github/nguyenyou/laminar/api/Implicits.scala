@@ -64,9 +64,7 @@ trait Implicits extends Implicits.LowPriorityImplicits with CompositeValueMapper
   /** Combine a js.Array of [[Setter]]-s into a single [[Setter]] that applies them all. */
   implicit def seqToSetter[Collection[_], El <: ReactiveElement.Base](
     setters: Collection[Setter[El]]
-  )(implicit
-    renderableSeq: RenderableSeq[Collection]
-  ): Setter[El] = {
+  )(using renderableSeq: RenderableSeq[Collection]): Setter[El] = {
     Setter { element =>
       val settersSeq = renderableSeq.toSeq(setters)
       settersSeq.foreach(_.apply(element))
@@ -84,19 +82,14 @@ trait Implicits extends Implicits.LowPriorityImplicits with CompositeValueMapper
   /** Create a modifier that applies an optional modifier, or does nothing if option is empty */
   implicit def optionToModifier[A, El <: ReactiveElement.Base](
     maybeModifier: Option[A]
-  )(implicit
-    asModifier: A => Modifier[El]
-  ): Modifier[El] = {
+  )(using asModifier: A => Modifier[El]): Modifier[El] = {
     Modifier(element => maybeModifier.foreach(asModifier(_).apply(element)))
   }
 
   /** Create a modifier that applies each of the modifiers in a seq */
   implicit def seqToModifier[A, Collection[_], El <: ReactiveElement.Base](
     modifiers: Collection[A]
-  )(implicit
-    asModifier: A => Modifier[El],
-    renderableSeq: RenderableSeq[Collection]
-  ): Modifier[El] = {
+  )(using asModifier: A => Modifier[El], renderableSeq: RenderableSeq[Collection]): Modifier[El] = {
     Modifier(element => renderableSeq.toSeq(modifiers).foreach(asModifier(_).apply(element)))
   }
 
@@ -121,9 +114,7 @@ trait Implicits extends Implicits.LowPriorityImplicits with CompositeValueMapper
   // #Note: the case of Collection[Component] is covered by `seqToModifier` above
   implicit def nodeSeqToModifier[Collection[_]](
     nodes: Collection[ChildNode.Base]
-  )(implicit
-    renderableSeq: RenderableSeq[Collection]
-  ): Modifier.Base = {
+  )(using renderableSeq: RenderableSeq[Collection]): Modifier.Base = {
     Modifier { element =>
       val nodesSeq = renderableSeq.toSeq(nodes)
       nodesSeq.foreach(_.apply(element))
@@ -145,7 +136,7 @@ object Implicits {
       Binder(ReactiveElement.bindFn(_, source.toObservable)(onNext))
     }
 
-    def -->(onNext: => Unit)(implicit evidence: UnitArrowsFeature): Binder.Base = {
+    def -->(onNext: => Unit)(using evidence: UnitArrowsFeature): Binder.Base = {
       Binder(ReactiveElement.bindFn(_, source.toObservable)(_ => onNext))
     }
 
@@ -162,7 +153,7 @@ object Implicits {
 
     // -- Methods to convert individual values / nodes / components to inserters --
 
-    implicit def textToInserter[TextLike](value: TextLike)(implicit r: RenderableText[TextLike]): StaticInserter = {
+    implicit def textToInserter[TextLike](value: TextLike)(using r: RenderableText[TextLike]): StaticInserter = {
       if (r == RenderableText.textNodeRenderable) {
         StaticChildInserter.noHooks(value.asInstanceOf[TextNode])
       } else {
@@ -178,18 +169,13 @@ object Implicits {
 
     implicit def componentOptionToInserter[Component](
       maybeComponent: Option[Component]
-    )(implicit
-      renderableNode: RenderableNode[Component]
-    ): StaticChildrenInserter = {
+    )(using renderableNode: RenderableNode[Component]): StaticChildrenInserter = {
       componentSeqToInserter(maybeComponent.toList)
     }
 
     implicit def componentSeqToInserter[Collection[_], Component](
       components: Collection[Component]
-    )(implicit
-      renderableSeq: RenderableSeq[Collection],
-      renderableNode: RenderableNode[Component]
-    ): StaticChildrenInserter = {
+    )(using renderableSeq: RenderableSeq[Collection], renderableNode: RenderableNode[Component]): StaticChildrenInserter = {
       StaticChildrenInserter.noHooks(components, renderableSeq, renderableNode)
     }
   }
