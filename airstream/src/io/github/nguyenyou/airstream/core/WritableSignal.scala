@@ -3,7 +3,7 @@ package io.github.nguyenyou.airstream.core
 import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
-trait WritableSignal[A] extends Signal[A] with WritableObservable[A] {
+trait WritableSignal[A] extends Signal[A], WritableObservable[A] {
 
   protected var maybeLastSeenCurrentValue: js.UndefOr[Try[A]] = js.undefined
 

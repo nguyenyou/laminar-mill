@@ -4,7 +4,7 @@ import io.github.nguyenyou.airstream.core.AirstreamError.ObserverError
 
 import scala.util.Try
 
-trait WritableStream[A] extends EventStream[A] with WritableObservable[A] {
+trait WritableStream[A] extends EventStream[A], WritableObservable[A] {
 
   override protected def fireValue(nextValue: A, transaction: Transaction): Unit = {
     // println(s"$this > FIRE > $nextValue")

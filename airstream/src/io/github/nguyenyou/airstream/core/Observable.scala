@@ -15,7 +15,7 @@ import scala.util.Try
   */
 trait Observable[+A] extends BaseObservable[Observable, A] {}
 
-object Observable extends ObservableMacroImplicits with ObservableLowPriorityImplicits {
+object Observable extends ObservableMacroImplicits, ObservableLowPriorityImplicits {
 
   /** Provides debug* methods on Observable: debugSpy, debugLogEvents, debugBreakErrors, etc. */
   implicit def toDebuggableObservable[A](observable: Observable[A]): DebuggableObservable[Observable, A] =
@@ -31,7 +31,7 @@ object Observable extends ObservableMacroImplicits with ObservableLowPriorityImp
 
   /** Provides methods on observable: mapRight, mapLeft, foldEither, mapToOption, mapLeftToOption */
   implicit def toEitherObservable[A, B, Self[+_] <: Observable[?]](
-      observable: BaseObservable[Self, Either[A, B]]
+    observable: BaseObservable[Self, Either[A, B]]
   ): EitherObservable[A, B, Self] = new EitherObservable(observable)
 
   /** Provides methods on observable: mapSuccess, mapFailure, foldTry, mapToEither, recoverFailure, throwFailure */
@@ -40,7 +40,7 @@ object Observable extends ObservableMacroImplicits with ObservableLowPriorityImp
 
   /** Provides methods on observable: mapOutput, mapInput, mapResolved, mapPending, foldStatus */
   implicit def toStatusObservable[In, Out, Self[+_] <: Observable[?]](
-      observable: BaseObservable[Self, Status[In, Out]]
+    observable: BaseObservable[Self, Status[In, Out]]
   ): StatusObservable[In, Out, Self] = new StatusObservable(observable)
 
   /** Provides methods on observable: flattenSwitch, flattenMerge, flattenCustom, flatten (deprecated) */

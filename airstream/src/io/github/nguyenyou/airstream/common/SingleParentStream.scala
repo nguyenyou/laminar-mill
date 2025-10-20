@@ -3,7 +3,7 @@ package io.github.nguyenyou.airstream.common
 import io.github.nguyenyou.airstream.core.{InternalObserver, Observable, Protected, WritableStream}
 
 /** A simple stream that only has one parent. */
-trait SingleParentStream[I, O] extends WritableStream[O] with InternalObserver[I] {
+trait SingleParentStream[I, O] extends WritableStream[O], InternalObserver[I] {
 
   protected val parent: Observable[I]
 

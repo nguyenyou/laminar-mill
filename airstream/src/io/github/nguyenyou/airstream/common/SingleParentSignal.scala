@@ -5,7 +5,7 @@ import io.github.nguyenyou.airstream.core.{Observable, Protected, Signal, Transa
 import scala.util.Try
 
 /** A simple stream that only has one parent. */
-trait SingleParentSignal[I, O] extends WritableSignal[O] with InternalTryObserver[I] {
+trait SingleParentSignal[I, O] extends WritableSignal[O], InternalTryObserver[I] {
 
   protected val parent: Observable[I]
 
@@ -20,8 +20,8 @@ trait SingleParentSignal[I, O] extends WritableSignal[O] with InternalTryObserve
   protected var _parentLastUpdateId: Int = -1
 
   /** Note: this is overriden in:
-    *  - [[io.github.nguyenyou.airstream.misc.SignalFromStream]] because parent can be stream, and it has cacheInitialValue logic
-    *  - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] because its parent is a special timing stream, not the real parent
+    *   - [[io.github.nguyenyou.airstream.misc.SignalFromStream]] because parent can be stream, and it has cacheInitialValue logic
+    *   - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] because its parent is a special timing stream, not the real parent
     */
   override protected def onWillStart(): Unit = {
     // dom.console.log(s"${this} > onWillStart (SPS)")
@@ -38,9 +38,9 @@ trait SingleParentSignal[I, O] extends WritableSignal[O] with InternalTryObserve
   }
 
   /** Note: this is overridden in:
-   *  - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] to clear cached initial value (if any)
-   *  - [[io.github.nguyenyou.airstream.distinct.DistinctSignal]] to filter out isSame events
-   */
+    *   - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] to clear cached initial value (if any)
+    *   - [[io.github.nguyenyou.airstream.distinct.DistinctSignal]] to filter out isSame events
+    */
   protected def updateCurrentValueFromParent(
     nextValue: Try[O],
     nextParentLastUpdateId: Int
@@ -51,7 +51,7 @@ trait SingleParentSignal[I, O] extends WritableSignal[O] with InternalTryObserve
   }
 
   /** Note: this is overridden in:
-    *  - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] because its parent is a special timing stream, not the real parent
+    *   - [[io.github.nguyenyou.airstream.split.SplitChildSignal]] because its parent is a special timing stream, not the real parent
     */
   override protected def onTry(nextParentValue: Try[I], transaction: Transaction): Unit = {
     if (parentIsSignal) {

@@ -6,7 +6,7 @@ import io.github.nguyenyou.airstream.debug.DebuggableObserver
 import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
-trait Observer[-A] extends Sink[A] with Named {
+trait Observer[-A] extends Sink[A], Named {
 
   lazy val toJsFn1: js.Function1[A, Unit] = (value: A) => onNext(value)
 
@@ -19,14 +19,14 @@ trait Observer[-A] extends Sink[A] with Named {
   /** Note: must not throw! */
   def onTry(nextValue: Try[A]): Unit
 
-  /** Creates another Observer such that calling its onNext will call this observer's onNext
-    * with the value processed by the `project` function.
+  /** Creates another Observer such that calling its onNext will call this observer's onNext with the value processed by the `project`
+    * function.
     *
-    * This is useful when you need to pass down an Observer[A] to a child component
-    * which should not know anything about the type A, but both child and parent know
-    * about type `B`, and the parent knows how to translate B into A.
+    * This is useful when you need to pass down an Observer[A] to a child component which should not know anything about the type A, but
+    * both child and parent know about type `B`, and the parent knows how to translate B into A.
     *
-    * @param project Note: guarded against exceptions
+    * @param project
+    *   Note: guarded against exceptions
     */
   def contramap[B](project: B => A): Observer[B] = {
     Observer.withRecover(
@@ -47,7 +47,8 @@ trait Observer[-A] extends Sink[A] with Named {
 
   /** Like [[contramap]] but with `collect` semantics: not calling the original observer when `pf` is not defined
     *
-    * @param pf Note: guarded against exceptions
+    * @param pf
+    *   Note: guarded against exceptions
     */
   def contracollect[B](pf: PartialFunction[B, A]): Observer[B] = {
     Observer.withRecover(
@@ -65,7 +66,8 @@ trait Observer[-A] extends Sink[A] with Named {
     *
     * So, similar to [[contracollect]] but optimized for APIs like `NonEmptyList.fromList` that return an Option.
     *
-    * @param project Note: guarded against exceptions
+    * @param project
+    *   Note: guarded against exceptions
     */
   def contracollectOpt[B](project: B => Option[A]): Observer[B] = {
     Observer.withRecover(
@@ -74,10 +76,11 @@ trait Observer[-A] extends Sink[A] with Named {
     )
   }
 
-  /** Creates another Observer such that calling its onNext will call this observer's onNext
-    * with the same value, but only if it passes the test.
+  /** Creates another Observer such that calling its onNext will call this observer's onNext with the same value, but only if it passes the
+    * test.
     *
-    * @param passes Note: guarded against exceptions
+    * @param passes
+    *   Note: guarded against exceptions
     */
   def filter[B <: A](passes: B => Boolean): Observer[B] = {
     // #Note[Format] case function newlines
@@ -89,14 +92,12 @@ trait Observer[-A] extends Sink[A] with Named {
 
   /** Creates another Observer such that calling it calls the original observer after the specified delay.
     *
-    * Note: unlike Observable operators, Observer operators are not ownership-aware, so this can fire the
-    * observer even after the subscription that bound this observer to the observable has been killed.
-    * So in Laminar for example, it's possible for such a delayed observer to fire even after the element
-    * that owns this subscription was unmounted. Use the Observable delay operator to avoid that.
+    * Note: unlike Observable operators, Observer operators are not ownership-aware, so this can fire the observer even after the
+    * subscription that bound this observer to the observable has been killed. So in Laminar for example, it's possible for such a delayed
+    * observer to fire even after the element that owns this subscription was unmounted. Use the Observable delay operator to avoid that.
     *
-    * Of course, whether anything happens if the observer is fired is a separate issue altogether.
-    * For example, if the observer is an EventBus writer, firing into it won't do anything if the EventBus
-    * stream is stopped.
+    * Of course, whether anything happens if the observer is fired is a separate issue altogether. For example, if the observer is an
+    * EventBus writer, firing into it won't do anything if the EventBus stream is stopped.
     */
   def delay(ms: Int): Observer[A] = {
     Observer.fromTry { nextValue =>
@@ -132,12 +133,13 @@ object Observer {
     withRecover(onNext, onError = _ => ())
   }
 
-  /**
-    * @param onNext               Note: guarded against exceptions. See docs for details.
-    * @param onError              Note: guarded against exceptions. See docs for details.
-    * @param handleObserverErrors If true, we will call this observer's onError(ObserverError(err))
-    *                             if this observer throws while processing an incoming event,
-    *                             giving this observer one last chance to process its own error.
+  /** @param onNext
+    *   Note: guarded against exceptions. See docs for details.
+    * @param onError
+    *   Note: guarded against exceptions. See docs for details.
+    * @param handleObserverErrors
+    *   If true, we will call this observer's onError(ObserverError(err)) if this observer throws while processing an incoming event, giving
+    *   this observer one last chance to process its own error.
     */
   def withRecover[A](
     onNext: A => Unit,
@@ -181,10 +183,11 @@ object Observer {
     }
   }
 
-  /** @param onTry                Note: guarded against exceptions. See docs for details.
-    * @param handleObserverErrors If true, we will call this observer's onError(ObserverError(err))
-    *                             if this observer throws while processing an incoming event,
-    *                             giving this observer one last chance to process its own error.
+  /** @param onTry
+    *   Note: guarded against exceptions. See docs for details.
+    * @param handleObserverErrors
+    *   If true, we will call this observer's onError(ObserverError(err)) if this observer throws while processing an incoming event, giving
+    *   this observer one last chance to process its own error.
     */
   def fromTry[A](
     onTry: PartialFunction[Try[A], Unit],

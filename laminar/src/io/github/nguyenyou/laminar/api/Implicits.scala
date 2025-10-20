@@ -10,7 +10,7 @@ import io.github.nguyenyou.laminar.modifiers._
 import io.github.nguyenyou.laminar.nodes._
 import org.scalajs.dom
 
-trait Implicits extends Implicits.LowPriorityImplicits with CompositeValueMappers {
+trait Implicits extends Implicits.LowPriorityImplicits, CompositeValueMappers {
 
   /** Add --> methods to Observables */
   @inline implicit def enrichSource[A](source: Source[A]): RichSource[A] = {
