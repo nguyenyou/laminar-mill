@@ -43,12 +43,12 @@ trait Implicits extends Implicits.LowPriorityImplicits with CompositeValueMapper
   }
 
   /** Convert primitive renderable values (strings, numbers, booleans, etc.) to text nodes */
-  implicit def textToTextNode[A](value: A)(implicit r: RenderableText[A]): TextNode = {
+  implicit def textToTextNode[A](value: A)(using r: RenderableText[A]): TextNode = {
     new TextNode(r.asString(value))
   }
 
   /** Convert a custom component to Laminar DOM node */
-  implicit def componentToNode[A](component: A)(implicit r: RenderableNode[A]): ChildNode.Base = {
+  implicit def componentToNode[A](component: A)(using r: RenderableNode[A]): ChildNode.Base = {
     r.asNode(component)
   }
 

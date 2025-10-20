@@ -12,16 +12,16 @@ import scala.scalajs.js
 class RenderableSpec extends UnitSpec {
 
   object TextNodeImplicits extends BaseTrait {
-    implicit val intRenderableX: RenderableText[Int] = RenderableText("%04d".format(_))
+    given intRenderableX: RenderableText[Int] = RenderableText("%04d".format(_))
   }
 
   trait BaseTrait {
-    implicit val boolRenderable: RenderableText[Boolean] = RenderableText(_.toString.toUpperCase())
+    given boolRenderable: RenderableText[Boolean] = RenderableText(_.toString.toUpperCase())
   }
 
   it("Custom RenderableText implicits") {
 
-    import TextNodeImplicits._
+    import TextNodeImplicits.given
 
     val el = div(
       1,
@@ -62,7 +62,7 @@ class RenderableSpec extends UnitSpec {
     )
   }
 
-  implicit val componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
+  given componentRenderable: RenderableNode[Component] = RenderableNode(_.node)
 
   it("Component rendering") {
 
