@@ -8,6 +8,7 @@ case class App() {
 
   def apply() = {
     div(
+      child(div()) <-- Val(true),
       button(
         "+1",
         onClick --> Observer { _ =>
