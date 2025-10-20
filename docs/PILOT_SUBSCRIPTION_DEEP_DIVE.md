@@ -561,29 +561,171 @@ div(
   }
 )
 
+// Initial DOM structure:
+// <div>
+//   <div>Item: A</div>  ← position 0
+//   <div>Item: B</div>  ← position 1
+//   <div>Item: C</div>  ← position 2
+// </div>
+
 // Later, reorder the list
 items.set(List("C", "A", "B"))  // ← LIVE TRANSFERS happen here!
-// → "C" moves from position 3 to position 1 (live transfer)
-// → "A" moves from position 1 to position 2 (live transfer)
-// → "B" moves from position 2 to position 3 (live transfer)
-// → All elements stay active throughout!
-// → No deactivations, no reactivations
-// → All subscriptions remain active
+
+// Target DOM structure:
+// <div>
+//   <div>Item: C</div>  ← position 0 (was at position 2)
+//   <div>Item: A</div>  ← position 1 (was at position 0)
+//   <div>Item: B</div>  ← position 2 (was at position 1)
+// </div>
 ```
 
-**Without live transfer optimization**, reordering would cause:
-- 3 deactivations (one per element)
-- 3 reactivations (one per element)
-- All subscriptions killed and recreated
-- Potential UI flicker
-- Wasted CPU cycles
+#### Why Does Changing Position Cause Live Transfer?
+
+When you reorder a list, the `split` operator **reuses existing DOM elements** and physically moves them to new positions. Here's what happens:
+
+**Step 1: Split operator detects the new order**
+```scala
+// Split operator has cached elements:
+// "A" → divA (currently at position 0)
+// "B" → divB (currently at position 1)
+// "C" → divC (currently at position 2)
+
+// New order requires:
+// Position 0 should be "C" (currently divC is at position 2)
+// Position 1 should be "A" (currently divA is at position 0)
+// Position 2 should be "B" (currently divB is at position 1)
+```
+
+**Step 2: Split operator moves elements in the DOM**
+```scala
+// To move divC from position 2 to position 0:
+parentDiv.insertBefore(divC, divA)
+
+// This DOM operation is equivalent to:
+parentDiv.removeChild(divC)        // Temporarily detached!
+parentDiv.insertBefore(divC, divA) // Re-attached at new position!
+```
+
+**Step 3: DOM operation triggers lifecycle hooks**
+```scala
+// When insertBefore is called:
+
+1. Browser removes divC from position 2
+   → divC.willSetParent(Some(parentDiv))
+   → isUnmounting? No (prev=parentDiv (active), next=parentDiv (active))
+   → Do nothing in willSetParent
+
+2. Browser inserts divC at position 0
+   → divC.setParent(Some(parentDiv))  // Same parent!
+   → setPilotSubscriptionOwner(Some(parentDiv))
+   → pilotSubscription.setOwner(parentDiv.dynamicOwner)
+
+3. Inside setOwner:
+   → isCurrentOwnerActive? true (parentDiv is active)
+   → nextOwner.isActive? true (same parentDiv, still active)
+   → isLiveTransferInProgress = true  // LIVE TRANSFER DETECTED!
+   → Old subscription killed (but skips deactivate)
+   → New subscription created (but skips activate)
+   → divC stays active throughout!
+```
+
+**Key Insight**: Even though it's the **same parent**, the element is being **removed and re-inserted** in the DOM. This triggers the parent-child relationship to be re-established, which requires transferring the pilotSubscription.
+
+#### Why Re-register pilotSubscription with Same Parent?
+
+Even though the parent is the same, the pilotSubscription needs to be re-registered because:
+
+1. The old subscription was tied to a specific position in the parent's subscriptions array
+2. The DOM operation (removeChild + insertBefore) breaks and re-establishes the parent-child relationship
+3. The new subscription needs to be added to the parent's subscriptions array
+4. The live transfer optimization ensures this happens **without deactivating/reactivating**
+
+#### Visual Trace of pilotSubscription During Reordering
+
+```
+Initial State:
+parentDiv.dynamicOwner.subscriptions = [
+  divA.pilotSubscription,  // index 0
+  divB.pilotSubscription,  // index 1
+  divC.pilotSubscription   // index 2
+]
+parentDiv.dynamicOwner.isActive = true
+divC.dynamicOwner.isActive = true
+
+After items.set(List("C", "A", "B")):
+
+Step 1: Move divC to position 0
+  → parentDiv.insertBefore(divC, divA)
+  → divC.pilotSubscription.setOwner(parentDiv.dynamicOwner)
+  → isLiveTransferInProgress = true (both active!)
+
+  → Kill old subscription:
+    - subscription.kill() called
+    - cleanup() runs
+    - if (!isLiveTransferInProgress) deactivate()  // SKIPPED!
+    - Old subscription removed from array
+
+  → Create new subscription:
+    - DynamicSubscription.unsafe(...) called
+    - Added to parentDiv.dynamicOwner.subscriptions
+    - if (!isLiveTransferInProgress) activate()  // SKIPPED!
+
+  → isLiveTransferInProgress = false
+
+Result:
+parentDiv.dynamicOwner.subscriptions = [
+  divA.pilotSubscription,  // index 0
+  divB.pilotSubscription,  // index 1
+  divC.pilotSubscription   // index 2 (NEW subscription instance!)
+]
+divC.dynamicOwner.isActive = true  // STAYED ACTIVE!
+```
+
+#### Performance Impact
+
+**Without live transfer optimization**, moving divC would cause:
+```scala
+1. divC.dynamicOwner.deactivate()
+   → All subscriptions on divC deactivate
+   → Event listeners removed
+   → Reactive bindings stopped
+   → If divC has 10 subscriptions: 10 deactivations
+
+2. divC.dynamicOwner.activate()
+   → All subscriptions on divC reactivate
+   → Event listeners re-added
+   → Reactive bindings restarted
+   → If divC has 10 subscriptions: 10 activations
+
+Total: 20 operations per element moved!
+```
 
 **With live transfer optimization**:
-- 0 deactivations
-- 0 reactivations
-- Just ownership transfers (minimal work)
-- Smooth UI updates
-- Excellent performance
+```scala
+1. pilotSubscription transfers ownership
+   → No deactivate
+   → No activate
+   → divC stays active
+   → If divC has 10 subscriptions: 0 deactivations, 0 activations
+
+Total: 1 ownership transfer per element moved!
+```
+
+**For the full reordering** (moving 3 elements):
+- **Without optimization**: ~60 operations (20 per element × 3 elements)
+- **With optimization**: ~3 operations (1 transfer per element × 3 elements)
+- **Speedup**: ~20x faster!
+
+#### Summary: Why Position Changes Trigger Live Transfers
+
+1. ✅ Changing position requires **physically moving the element in the DOM**
+2. ✅ Moving in DOM = `removeChild` + `insertBefore`/`appendChild`
+3. ✅ This triggers `willSetParent` and `setParent` lifecycle hooks
+4. ✅ Even though it's the same parent, the pilotSubscription needs to be re-registered
+5. ✅ Since both old and new parent are the same **active** parent, it's a live transfer
+6. ✅ Live transfer skips deactivate/reactivate, keeping the element active throughout
+
+**The key insight**: DOM position changes require re-establishing the parent-child relationship, which triggers the pilotSubscription transfer mechanism. The live transfer optimization ensures this happens efficiently without disrupting the element's active state.
 
 ### Another Real-World Example: Drag and Drop
 
