@@ -27,6 +27,82 @@ The **Mount Hooks System** in Laminar provides a way to execute code when elemen
 - **MountContext**: A context object provided to mount hooks containing the element reference and an implicit `Owner` for subscriptions
 - **Automatic cleanup**: Mount hooks automatically manage subscription lifecycle to prevent memory leaks
 
+### Complete System Overview
+
+```mermaid
+graph TB
+    subgraph "User Code Layer"
+        USER[User writes element with mount hooks]
+    end
+
+    subgraph "Mount Hooks API Layer"
+        OMC[onMountCallback<br/>Simple callback]
+        OMB[onMountBind<br/>Reactive subscription]
+        OMI[onMountInsert<br/>Child insertion]
+        OMS[onMountSet<br/>Property setter]
+    end
+
+    subgraph "Element Lifecycle Layer"
+        RE[ReactiveElement<br/>The element itself]
+        WS[willSetParent<br/>Pre-mount notification]
+        SP[setParent<br/>Post-mount notification]
+        PS[pilotSubscription<br/>Lifecycle bridge]
+    end
+
+    subgraph "Ownership Management Layer"
+        PDO[Parent's DynamicOwner<br/>Manages parent's subscriptions]
+        EDO[Element's DynamicOwner<br/>Manages element's subscriptions]
+        DS[DynamicSubscription<br/>Reusable subscription wrapper]
+    end
+
+    subgraph "Activation Layer"
+        OTO[OneTimeOwner<br/>Created on each mount]
+        SUB[Subscription<br/>With cleanup callback]
+        MC[MountContext<br/>element + owner]
+    end
+
+    subgraph "User Callback Layer"
+        CB[User's mount callback<br/>Executes with MountContext]
+    end
+
+    USER --> OMC
+    USER --> OMB
+    USER --> OMI
+    USER --> OMS
+
+    OMC --> RE
+    OMB --> RE
+    OMI --> RE
+    OMS --> RE
+
+    RE --> WS
+    RE --> SP
+    RE --> PS
+
+    WS -.detects unmounting.-> PS
+    SP -.detects mounting.-> PS
+
+    PS -.owned by.-> PDO
+    PS -.activates.-> EDO
+
+    EDO --> DS
+    DS --> OTO
+    DS --> SUB
+
+    OTO --> MC
+    SUB --> MC
+    MC --> CB
+
+    style USER fill:#e1f5ff
+    style OMC fill:#ffe1e1
+    style OMB fill:#ffe1e1
+    style RE fill:#fff4e1
+    style PS fill:#ffebe1
+    style EDO fill:#e1ffe1
+    style OTO fill:#e1f5ff
+    style CB fill:#ffe1ff
+```
+
 ---
 
 ## Architecture
