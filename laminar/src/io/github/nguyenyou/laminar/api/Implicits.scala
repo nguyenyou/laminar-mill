@@ -151,16 +151,12 @@ object Implicits {
 
   }
 
-  /** Implicit conversions from X to Inserter are primarily needed for
-    * `onMountInsert`, but they are relatively expensive compared to simpler
-    * alternatives when a mere Modifier would suffice. And so, the conversions
-    * below are de-prioritized.
+  /** Implicit conversions from X to Inserter are primarily needed for `onMountInsert`, but they are relatively expensive compared to
+    * simpler alternatives when a mere Modifier would suffice. And so, the conversions below are de-prioritized.
     *
-    * #Note: Prior to v17, these conversions involved dynamic inserters with
-    *  inefficient implementations like `children <-- Val(nodes.toList)`.
-    *  Now, they use static inserters, and don't have such a significant
-    *  inefficiency.
-    * #TODO Simplify this! See the other #TODO comment above about moving stuff out of LowPriorityImplicits.
+    * #Note: Prior to v17, these conversions involved dynamic inserters with inefficient implementations like `children <--
+    * Val(nodes.toList)`. Now, they use static inserters, and don't have such a significant inefficiency. #TODO Simplify this! See the other
+    * #TODO comment above about moving stuff out of LowPriorityImplicits.
     */
   trait LowPriorityImplicits {
 

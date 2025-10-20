@@ -12,11 +12,11 @@ import scala.scalajs.js
 class RenderableSpec extends UnitSpec {
 
   object TextNodeImplicits extends BaseTrait {
-    given intRenderableX: RenderableText[Int] = RenderableText("%04d".format(_))
+    implicit val intRenderableX: RenderableText[Int] = RenderableText("%04d".format(_))
   }
 
   trait BaseTrait {
-    given boolRenderable: RenderableText[Boolean] = RenderableText(_.toString.toUpperCase())
+    implicit val boolRenderable: RenderableText[Boolean] = RenderableText(_.toString.toUpperCase())
   }
 
   it("Custom RenderableText implicits") {
