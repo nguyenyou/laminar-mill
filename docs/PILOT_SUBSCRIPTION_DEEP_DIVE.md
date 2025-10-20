@@ -441,6 +441,184 @@ def deactivate(): Unit = {
 
 A **live transfer** occurs when an element moves from one **active** parent to another **active** parent. The element remains "mounted" throughout the transfer.
 
+### When Does Live Transfer Happen?
+
+A live transfer happens when **ALL** of these conditions are true:
+
+1. ✅ Element is currently mounted to an **active** parent (parent1)
+2. ✅ Element is being moved to another **active** parent (parent2)
+3. ✅ The move happens via `appendChild` or similar DOM operation
+
+**Key Detection Code**:
+```scala
+// airstream/src/io/github/nguyenyou/airstream/ownership/TransferableSubscription.scala:58-60
+if (isCurrentOwnerActive && nextOwner.isActive) {
+  isLiveTransferInProgress = true  // LIVE TRANSFER DETECTED!
+}
+```
+
+### Concrete Example: When Live Transfer DOES Happen
+
+```scala
+// Setup: Create two parent divs and mount them both
+val parent1 = div(idAttr := "parent1")
+val parent2 = div(idAttr := "parent2")
+
+render(containerNode, parent1)  // parent1 is now ACTIVE
+render(containerNode, parent2)  // parent2 is now ACTIVE
+
+// Create a child element
+val child = span("Hello")
+
+// Step 1: Add child to parent1
+parent1.appendChild(child)
+// → child becomes ACTIVE (normal mount)
+// → child.pilotSubscription.setOwner(parent1.dynamicOwner)
+// → child.dynamicOwner.activate() is called
+
+// Step 2: Move child from parent1 to parent2
+parent2.appendChild(child)  // ← LIVE TRANSFER HAPPENS HERE!
+// → Both parent1 and parent2 are ACTIVE
+// → child.pilotSubscription.setOwner(parent2.dynamicOwner)
+// → isLiveTransferInProgress = true (both parents active!)
+// → child.dynamicOwner.activate() is SKIPPED
+// → child.dynamicOwner.deactivate() is SKIPPED
+// → child stays ACTIVE throughout!
+```
+
+### When Live Transfer Does NOT Happen
+
+**Scenario 1: Mounting to first parent (no previous owner)**
+```scala
+val child = span("Hello")  // Not mounted yet
+parent1.appendChild(child)  // NOT a live transfer
+// → isCurrentOwnerActive = false (no previous owner)
+// → nextOwner.isActive = true
+// → Normal activation happens
+```
+
+**Scenario 2: Moving from active to inactive parent**
+```scala
+parent1.appendChild(child)  // child is active
+unmount(parent2)            // parent2 becomes inactive
+parent2.appendChild(child)  // NOT a live transfer
+// → isCurrentOwnerActive = true
+// → nextOwner.isActive = false (parent2 is inactive)
+// → child deactivates
+```
+
+**Scenario 3: Moving from inactive to active parent**
+```scala
+unmount(parent1)            // parent1 becomes inactive
+parent1.appendChild(child)  // child is inactive
+parent2.appendChild(child)  // NOT a live transfer
+// → isCurrentOwnerActive = false (parent1 was inactive)
+// → nextOwner.isActive = true
+// → child activates normally
+```
+
+**Scenario 4: Unmounting (no next parent)**
+```scala
+parent1.removeChild(child)  // NOT a live transfer
+// → nextOwner doesn't exist
+// → child deactivates
+```
+
+**Scenario 5: Moving between inactive parents**
+```scala
+unmount(parent1)
+unmount(parent2)
+parent1.appendChild(child)  // child is inactive
+parent2.appendChild(child)  // NOT a live transfer
+// → isCurrentOwnerActive = false
+// → nextOwner.isActive = false
+// → child stays inactive
+```
+
+### Live Transfer Condition Summary Table
+
+| Current Parent State | Next Parent State | Live Transfer? | What Happens |
+|---------------------|-------------------|----------------|--------------|
+| **Active** | **Active** | ✅ **YES** | Element stays active, no deactivate/reactivate |
+| Active | Inactive | ❌ No | Element deactivates |
+| Inactive | Active | ❌ No | Element activates |
+| Inactive | Inactive | ❌ No | Element stays inactive |
+| None (first mount) | Active | ❌ No | Element activates |
+| None (first mount) | Inactive | ❌ No | Element stays inactive |
+| Active | None (unmount) | ❌ No | Element deactivates |
+| Inactive | None (unmount) | ❌ No | Element stays inactive |
+
+### Real-World Example: Dynamic Lists
+
+The most common place live transfers happen is with **dynamic lists** using `children <-- signal.split()`:
+
+```scala
+val items = Var(List("A", "B", "C"))
+
+div(
+  children <-- items.signal.split(identity) { (key, initial, signal) =>
+    div(s"Item: $key")
+  }
+)
+
+// Later, reorder the list
+items.set(List("C", "A", "B"))  // ← LIVE TRANSFERS happen here!
+// → "C" moves from position 3 to position 1 (live transfer)
+// → "A" moves from position 1 to position 2 (live transfer)
+// → "B" moves from position 2 to position 3 (live transfer)
+// → All elements stay active throughout!
+// → No deactivations, no reactivations
+// → All subscriptions remain active
+```
+
+**Without live transfer optimization**, reordering would cause:
+- 3 deactivations (one per element)
+- 3 reactivations (one per element)
+- All subscriptions killed and recreated
+- Potential UI flicker
+- Wasted CPU cycles
+
+**With live transfer optimization**:
+- 0 deactivations
+- 0 reactivations
+- Just ownership transfers (minimal work)
+- Smooth UI updates
+- Excellent performance
+
+### Another Real-World Example: Drag and Drop
+
+```scala
+val draggableItems = Var(List(
+  Item("1", "First"),
+  Item("2", "Second"),
+  Item("3", "Third")
+))
+
+div(
+  children <-- draggableItems.signal.split(_.id) { (id, initial, signal) =>
+    div(
+      cls := "draggable-item",
+      draggable := true,
+      onDragStart --> { ev => /* ... */ },
+      onDrop --> { ev => /* reorder items */ },
+      child.text <-- signal.map(_.name)
+    )
+  }
+)
+
+// When user drags item "3" to position 1:
+draggableItems.update { items =>
+  val item = items(2)  // Get "Third"
+  item :: items.take(2)  // Move to front
+}
+// → Item "3" moves from position 3 to position 1 (LIVE TRANSFER)
+// → Item "1" moves from position 1 to position 2 (LIVE TRANSFER)
+// → Item "2" moves from position 2 to position 3 (LIVE TRANSFER)
+// → All drag event listeners stay active!
+// → No re-registration of event handlers
+// → Smooth drag-and-drop experience
+```
+
 ### Visual Comparison
 
 **Normal Transfer (inactive → active)**:
