@@ -157,35 +157,35 @@ stream2.writer.onNext(2)  // Transaction 2: merged emits 2
 ```mermaid
 graph TB
     subgraph "Layer 1: User Code"
-        USER[User calls a.set(2)]
+        USER[User calls a.set 2]
     end
-    
+
     subgraph "Layer 2: Transaction Management"
         TRX[Transaction created]
         STACK[Transaction Stack]
         CHILDREN[Child Transactions]
     end
-    
+
     subgraph "Layer 3: Observable Propagation"
-        PENDING[Pending Observables Queue<br/>Priority Queue sorted by topoRank]
+        PENDING[Pending Observables Queue - Priority Queue sorted by topoRank]
         FIRE[Fire observables in order]
     end
-    
+
     subgraph "Layer 4: Observer Notification"
         OBS[Observers notified]
         DOM[DOM updates]
     end
-    
+
     USER --> TRX
     TRX --> STACK
     STACK --> PENDING
     PENDING --> FIRE
     FIRE --> OBS
     OBS --> DOM
-    
+
     TRX -.creates.-> CHILDREN
     CHILDREN -.queued after parent.-> STACK
-    
+
     style TRX fill:#ffe1e1
     style PENDING fill:#e1ffe1
     style STACK fill:#e1e1ff
