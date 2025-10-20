@@ -727,6 +727,277 @@ Total: 1 ownership transfer per element moved!
 
 **The key insight**: DOM position changes require re-establishing the parent-child relationship, which triggers the pilotSubscription transfer mechanism. The live transfer optimization ensures this happens efficiently without disrupting the element's active state.
 
+### Code Implementation: How Position Changes Are Detected and Handled
+
+#### 1. ChildrenInserter: The Diffing Algorithm
+
+**File**: `laminar/src/io/github/nguyenyou/laminar/inserters/ChildrenInserter.scala:88-203`
+
+The `updateChildren` method compares the previous children list with the next children list and determines what needs to be moved:
+
+```scala
+private def updateChildren(
+  prevChildren: JsMap[dom.Node, ChildNode.Base],
+  nextChildren: laminar.Seq[ChildNode.Base],
+  nextChildrenMap: JsMap[dom.Node, ChildNode.Base],
+  parentNode: ReactiveElement.Base,
+  sentinelNode: ChildNode.Base,
+  prevChildrenCount: Int,
+  hooks: js.UndefOr[InserterHooks]
+): Int = {
+  var index = 0
+  var currentChildrenCount = prevChildrenCount
+  var prevChildRef = sentinelNode.ref.nextSibling
+  var lastIndexChild = sentinelNode
+
+  nextChildren.foreach { nextChild =>
+    if (currentChildrenCount <= index) {
+      // Append new children at the end
+      ParentNode.insertChildAfter(
+        parent = parentNode,
+        newChild = nextChild,
+        referenceChild = lastIndexChild,
+        hooks
+      )
+      prevChildRef = nextChild.ref
+      currentChildrenCount += 1
+
+    } else {
+      if (nextChild.ref == prevChildRef) {
+        // Child is already in the correct position - do nothing
+      } else {
+        // Child is NOT in the correct position
+
+        if (!prevChildren.has(nextChild.ref)) {
+          // This is a NEW child - insert it
+          ParentNode.insertChildAfter(
+            parent = parentNode,
+            newChild = nextChild,
+            referenceChild = lastIndexChild,
+            hooks
+          )
+          prevChildRef = nextChild.ref
+          currentChildrenCount += 1
+
+        } else {
+          // Child EXISTS but at WRONG position - MOVE it!
+
+          // First, remove any old children that should be deleted
+          while (
+            nextChild.ref != prevChildRef &&
+            !containsRef(nextChildrenMap, prevChildRef)
+          ) {
+            // Remove prevChild from DOM
+            val prevChild = prevChildFromRef(prevChildren, prevChildRef)
+            val nextPrevChildRef = prevChildRef.nextSibling
+            ParentNode.removeChild(parent = parentNode, child = prevChild)
+            prevChildRef = nextPrevChildRef
+            currentChildrenCount -= 1
+          }
+
+          if (nextChild.ref != prevChildRef) {
+            // nextChild is still not in the right place - MOVE IT!
+            // This is where the LIVE TRANSFER happens!
+            ParentNode.insertChildAfter(
+              parent = parentNode,
+              newChild = nextChild,  // ← Element being moved
+              referenceChild = lastIndexChild,
+              hooks
+            )
+            prevChildRef = nextChild.ref
+            // This is a MOVE, not an insert, so don't update count
+          }
+        }
+      }
+    }
+
+    lastIndexChild = nextChild
+    index += 1
+  }
+
+  // Remove any remaining old children
+  while (currentChildrenCount > index) {
+    val nextPrevChildRef = prevChildRef.nextSibling
+    val prevChild = prevChildFromRef(prevChildren, prevChildRef)
+    ParentNode.removeChild(parent = parentNode, child = prevChild)
+    prevChildRef = nextPrevChildRef
+    currentChildrenCount -= 1
+  }
+
+  currentChildrenCount
+}
+```
+
+**Key Logic**:
+- Line 137-139: Check if `nextChild.ref == prevChildRef` - if yes, child is already in correct position
+- Line 144: Check if child is new (`!prevChildren.has(nextChild.ref)`)
+- Line 158-202: If child exists but at wrong position, **move it** by calling `ParentNode.insertChildAfter`
+
+#### 2. ParentNode.insertChildAfter: Triggering the Lifecycle
+
+**File**: `laminar/src/io/github/nguyenyou/laminar/nodes/ParentNode.scala:85-101`
+
+```scala
+def insertChildAfter(
+  parent: ParentNode.Base,
+  newChild: ChildNode.Base,
+  referenceChild: ChildNode.Base,
+  hooks: js.UndefOr[InserterHooks]
+): Boolean = {
+  val nextParent = Some(parent)
+
+  // STEP 1: Call willSetParent BEFORE DOM changes
+  newChild.willSetParent(nextParent)
+  hooks.foreach(_.onWillInsertNode(parent = parent, child = newChild))
+
+  // STEP 2: Perform the actual DOM operation
+  val inserted = DomApi.insertAfter(
+    parent = parent.ref,
+    newChild = newChild.ref,
+    referenceChild = referenceChild.ref
+  )
+
+  // STEP 3: Call setParent AFTER DOM changes
+  newChild.setParent(nextParent)
+  inserted
+}
+```
+
+**Key Points**:
+- Line 92: `willSetParent(nextParent)` called **before** DOM changes
+- Line 94-98: `DomApi.insertAfter` performs the actual DOM operation (removes from old position, inserts at new position)
+- Line 99: `setParent(nextParent)` called **after** DOM changes
+
+**Note**: The comment on line 103-104 explicitly states: *"this method can also be used to move children, even within the same parent"*
+
+#### 3. DomApi.insertAfter: The Low-Level DOM Operation
+
+**File**: `laminar/src/io/github/nguyenyou/laminar/DomApi.scala`
+
+```scala
+def insertAfter(
+  parent: dom.Element,
+  newChild: dom.Node,
+  referenceChild: dom.Node
+): Boolean = {
+  val nextSibling = referenceChild.nextSibling
+  if (nextSibling != null) {
+    parent.insertBefore(newChild, nextSibling)
+  } else {
+    parent.appendChild(newChild)
+  }
+  true
+}
+```
+
+**What happens**:
+- If `newChild` is already in the DOM (even in the same parent), `insertBefore` **automatically removes it** from its current position
+- Then inserts it at the new position
+- This is standard DOM behavior!
+
+#### 4. Complete Flow: From List Update to Live Transfer
+
+```
+User Code:
+  items.set(List("C", "A", "B"))
+    ↓
+Signal emits new value
+    ↓
+ChildrenInserter.switchToChildren(newChildren = [divC, divA, divB])
+    ↓
+ChildrenInserter.updateChildren(...)
+    ↓
+Loop through nextChildren:
+  - index=0: Want divC, currently have divA
+    → divC exists in prevChildren (at position 2)
+    → divC.ref != prevChildRef (not in correct position)
+    → Call ParentNode.insertChildAfter(parent, divC, sentinel)
+        ↓
+      ParentNode.insertChildAfter:
+        1. divC.willSetParent(Some(parent))
+           → isUnmounting? No (prev=parent (active), next=parent (active))
+           → Do nothing
+
+        2. DomApi.insertAfter(parent.ref, divC.ref, sentinel.ref)
+           → Browser removes divC from position 2
+           → Browser inserts divC at position 0
+
+        3. divC.setParent(Some(parent))
+           → setPilotSubscriptionOwner(Some(parent))
+           → pilotSubscription.setOwner(parent.dynamicOwner)
+               ↓
+             TransferableSubscription.setOwner:
+               → isCurrentOwnerActive? true (parent is active)
+               → nextOwner.isActive? true (same parent, still active)
+               → isLiveTransferInProgress = true  ← LIVE TRANSFER!
+               → Kill old subscription (skip deactivate)
+               → Create new subscription (skip activate)
+               → divC.dynamicOwner stays active!
+```
+
+#### 5. Position Change Detection: The Key Check
+
+The critical check that determines if an element needs to be moved:
+
+**File**: `laminar/src/io/github/nguyenyou/laminar/inserters/ChildrenInserter.scala:137-139`
+
+```scala
+if (nextChild.ref == prevChildRef) {
+  // Child is already in the correct position - do nothing
+} else {
+  // Child is NOT in the correct position - need to move it
+  // ... (move logic)
+}
+```
+
+This simple reference equality check (`==`) compares:
+- `nextChild.ref`: The DOM node we want at this position
+- `prevChildRef`: The DOM node currently at this position
+
+If they don't match, the element needs to be moved!
+
+#### 6. Example Trace: Moving "C" from Position 2 to Position 0
+
+```
+Initial DOM:
+  parent.childNodes = [sentinel, divA, divB, divC]
+  prevChildRef = divA (sentinel.nextSibling)
+
+Loop iteration 0 (want divC at position 0):
+  nextChild = divC
+  prevChildRef = divA
+
+  Check: divC.ref == divA?  → false (NOT in correct position!)
+  Check: prevChildren.has(divC.ref)?  → true (exists, needs to move)
+
+  Call: ParentNode.insertChildAfter(parent, divC, sentinel)
+    → willSetParent(Some(parent))
+    → DomApi.insertAfter(parent.ref, divC.ref, sentinel.ref)
+      → Browser: parent.insertBefore(divC, sentinel.nextSibling)
+      → Browser removes divC from position 3
+      → Browser inserts divC at position 1 (after sentinel)
+    → setParent(Some(parent))
+      → pilotSubscription.setOwner(parent.dynamicOwner)
+      → LIVE TRANSFER! (both active)
+
+  Update: prevChildRef = divC.ref
+
+Result DOM:
+  parent.childNodes = [sentinel, divC, divA, divB]
+  divC moved from position 3 to position 1 ✓
+  divC stayed active throughout! ✓
+```
+
+### Summary: Code Flow for Position Changes
+
+1. **Detection**: `ChildrenInserter.updateChildren` compares `nextChild.ref == prevChildRef`
+2. **Decision**: If not equal and child exists in prevChildren, it needs to be moved
+3. **Execution**: Call `ParentNode.insertChildAfter` to move the element
+4. **Lifecycle**: `willSetParent` → DOM operation → `setParent`
+5. **Transfer**: `setParent` calls `setPilotSubscriptionOwner` → `pilotSubscription.setOwner`
+6. **Optimization**: `setOwner` detects both parents are active → live transfer!
+7. **Result**: Element moved without deactivating/reactivating
+
 ### Another Real-World Example: Drag and Drop
 
 ```scala
