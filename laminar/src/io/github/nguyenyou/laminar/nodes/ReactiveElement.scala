@@ -12,14 +12,12 @@ import org.scalajs.dom
 
 import scala.scalajs.js
 
-trait ReactiveElement[+Ref <: dom.Element]
-extends ChildNode[Ref]
-with ParentNode[Ref] {
+trait ReactiveElement[+Ref <: dom.Element] extends ChildNode[Ref], ParentNode[Ref] {
 
   // @Warning[Fragile] deactivate should not need an isActive guard.
   //  If Laminar starts to cause exceptions here, we need to find the root cause.
-  /** This subscription activates and deactivates this element's subscriptions when mounting and unmounting this element.
-    * In terms of memory management it's ok because a detached node will not have any active subscriptions here.
+  /** This subscription activates and deactivates this element's subscriptions when mounting and unmounting this element. In terms of memory
+    * management it's ok because a detached node will not have any active subscriptions here.
     */
   private val pilotSubscription: TransferableSubscription = new TransferableSubscription(
     activate = dynamicOwner.activate,
@@ -70,31 +68,20 @@ with ParentNode[Ref] {
     }
   }
 
-  /** This structure keeps track of reasons for including a given item for a given composite key.
-    * For example, this remembers which modifiers have previously added which className.
+  /** This structure keeps track of reasons for including a given item for a given composite key. For example, this remembers which
+    * modifiers have previously added which className.
     *
-    * We need this to avoid interference in cases when two modifiers want to add the same
-    * class name (e.g.) and one of those subsequently does not want to add that class name
-    * anymore. Without this structure, the element would end up without that class name even
-    * though one modifier still wants it added.
+    * We need this to avoid interference in cases when two modifiers want to add the same class name (e.g.) and one of those subsequently
+    * does not want to add that class name anymore. Without this structure, the element would end up without that class name even though one
+    * modifier still wants it added.
     *
     * Structure:
     *
-    * Map(
-    *   cls: List(
-    *     "always" -> null,
-    *     "present" -> null,
-    *     "classes" -> null,
-    *     "class1" -> modThatWantsClass1Set,
-    *     "class1" -> anotherModThatWantsClass1Set,
-    *     "class2" -> modThatWantsClass2Set
-    *   ),
-    *   rel: List( ... ),
-    *   role: List( ... )
-    * )
+    * Map( cls: List( "always" -> null, "present" -> null, "classes" -> null, "class1" -> modThatWantsClass1Set, "class1" ->
+    * anotherModThatWantsClass1Set, "class2" -> modThatWantsClass2Set ), rel: List( ... ), role: List( ... ) )
     *
-    * Note that `mod` key can be null if the mod is not reactive, e.g. in the simple case of `cls` := "always"
-    * This is to avoid keeping the mod in memory after it has served its purpose.
+    * Note that `mod` key can be null if the mod is not reactive, e.g. in the simple case of `cls` := "always" This is to avoid keeping the
+    * mod in memory after it has served its purpose.
     *
     * Note that this structure can have redundant items (e.g. class names) in it, they are filtered out when writing to the DOM
     */
@@ -264,10 +251,8 @@ object ReactiveElement {
     DynamicSubscription.subscribeBus(element.dynamicOwner, eventStream, writeBus)
   }
 
-  /** #Note: Unsafe because you must make sure that the Subscription created by
-    *  the `subscribe` callback is not killed externally. Otherwise, when the
-    *  DynamicSubscription decides to kill it, the already-killed Subscription
-    *  will throw an exception.
+  /** #Note: Unsafe because you must make sure that the Subscription created by the `subscribe` callback is not killed externally.
+    * Otherwise, when the DynamicSubscription decides to kill it, the already-killed Subscription will throw an exception.
     */
   @inline def bindSubscriptionUnsafe[El <: ReactiveElement.Base](
     element: El
@@ -291,9 +276,8 @@ object ReactiveElement {
     )
   }
 
-  /** Bind subscription such that it will appear first in the list of dynamicOwner's subscriptions.
-    * Be careful, use wisely. If you're using this for events, make sure that the listeners in the
-    * DOM (and also the `maybeEventListeners` array) are in the same order.
+  /** Bind subscription such that it will appear first in the list of dynamicOwner's subscriptions. Be careful, use wisely. If you're using
+    * this for events, make sure that the listeners in the DOM (and also the `maybeEventListeners` array) are in the same order.
     */
   private[laminar] def unsafeBindPrependSubscription[El <: ReactiveElement.Base](
     element: El
@@ -325,12 +309,10 @@ object ReactiveElement {
     element.dynamicOwner.numSubscriptions
   }
 
-  /** Transform tag name obtained from the DOM to match the tag name
-    * that we would have defined for it in HtmlTags / SvgTags.
+  /** Transform tag name obtained from the DOM to match the tag name that we would have defined for it in HtmlTags / SvgTags.
     *
-    * Basically this just means lower-casing HTML tag names, e.g.
-    * transforming "DIV" returned from the DOM to "div", taking care
-    * to avoid mangling custom element tag names.
+    * Basically this just means lower-casing HTML tag names, e.g. transforming "DIV" returned from the DOM to "div", taking care to avoid
+    * mangling custom element tag names.
     */
   def normalizeTagName(element: dom.Element): String = {
     val rawTagName = element.tagName

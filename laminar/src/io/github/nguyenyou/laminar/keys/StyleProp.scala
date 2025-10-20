@@ -14,7 +14,9 @@ import scala.scalajs.js.|
 class StyleProp[V](
   override val name: String,
   val prefixes: Seq[String] = Nil
-) extends Key with GlobalKeywords with DerivedStyleBuilder[StyleSetter, DerivedStyleProp] {
+) extends Key,
+      GlobalKeywords,
+      DerivedStyleBuilder[StyleSetter, DerivedStyleProp] {
 
   def :=(value: V | String): StyleSetter = {
     new KeySetter[StyleProp[?], String, HtmlElement](this, value.toString, DomApi.setHtmlStringStyle)

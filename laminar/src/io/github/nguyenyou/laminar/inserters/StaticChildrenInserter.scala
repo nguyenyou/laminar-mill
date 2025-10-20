@@ -7,15 +7,13 @@ import io.github.nguyenyou.laminar.nodes.{ChildNode, ReactiveElement}
 
 import scala.scalajs.js
 
-/**
-  * Inserter for multiple static nodes.
-  * This can also insert a single nodes, just a bit less efficiently
-  * than SingleStaticInserter.
+/** Inserter for multiple static nodes. This can also insert a single nodes, just a bit less efficiently than SingleStaticInserter.
   */
 class StaticChildrenInserter(
   nodes: laminar.Seq[ChildNode.Base],
   hooks: js.UndefOr[InserterHooks]
-) extends StaticInserter with Hookable[StaticChildrenInserter] {
+) extends StaticInserter,
+      Hookable[StaticChildrenInserter] {
 
   override def apply(element: ReactiveElement.Base): Unit = {
     Transaction.onStart.shared {

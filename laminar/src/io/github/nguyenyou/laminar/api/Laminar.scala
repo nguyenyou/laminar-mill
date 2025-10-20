@@ -19,32 +19,27 @@ import org.scalajs.dom
 // @TODO[Performance] Check if order of traits matters for quicker access (given trait linearization). Not sure how it's encoded in JS.
 
 trait Laminar
-extends HtmlTags
-with HtmlAttrs
-with HtmlProps
-with GlobalEventProps
-with StyleProps
-with ComplexHtmlKeys
-with MountHooks // onMountFocus, onMountSet, onMountBind, OnMountCallback, OnUnmountCallback, etc.
-with AirstreamAliases
-with LaminarAliases
-with Implicits {
+    extends HtmlTags,
+      HtmlAttrs,
+      HtmlProps,
+      GlobalEventProps,
+      StyleProps,
+      ComplexHtmlKeys,
+      MountHooks, // onMountFocus, onMountSet, onMountBind, OnMountCallback, OnUnmountCallback, etc.
+      AirstreamAliases,
+      LaminarAliases,
+      Implicits {
 
   /** Contains Helpers like `style.px(12)` // returns "12px" */
-  object style
-  extends StyleUnitsApi
+  object style extends StyleUnitsApi
 
   /** Contains ARIA attrs for accessibility */
-  object aria
-  extends AriaAttrs
+  object aria extends AriaAttrs
 
   // @TODO[API] Add GlobalEventProps to SVG as well?
   //  Regular event props work fine, but they might be hard to import if you also import svg._
   /** Contains SVG tags and attrs */
-  object svg
-  extends SvgTags
-  with SvgAttrs
-  with ComplexSvgKeys
+  object svg extends SvgTags, SvgAttrs, ComplexSvgKeys
 
   //
   // Document & window events
@@ -72,8 +67,8 @@ with Implicits {
 
   /** An owner that never kills its possessions.
     *
-    * Be careful to only use for subscriptions whose lifetime should match
-    * the lifetime of `dom.window` (that is, of your whole application, basically).
+    * Be careful to only use for subscriptions whose lifetime should match the lifetime of `dom.window` (that is, of your whole application,
+    * basically).
     *
     * Legitimate use case: for app-wide observers of [[documentEvents]] and [[windowEvents]].
     */
@@ -83,9 +78,8 @@ with Implicits {
   // Rendering
   //
 
-  /** Render a Laminar element into a container DOM node, right now.
-    * You must make sure that the container node already exists
-    * in the DOM, otherwise this method will throw.
+  /** Render a Laminar element into a container DOM node, right now. You must make sure that the container node already exists in the DOM,
+    * otherwise this method will throw.
     */
   @inline def render(
     container: dom.Element,
@@ -94,9 +88,8 @@ with Implicits {
     new RootNode(container, rootNode)
   }
 
-  /** Wait for `DOMContentLoaded` event to fire, then render a Laminar
-    * element into a container DOM node. This is probably what you want
-    * to initialize your Laminar application on page load.
+  /** Wait for `DOMContentLoaded` event to fire, then render a Laminar element into a container DOM node. This is probably what you want to
+    * initialize your Laminar application on page load.
     *
     * See https://developer.mozilla.org/en-US/docs/Web/API/Window/DOMContentLoaded_event
     */
@@ -109,15 +102,12 @@ with Implicits {
     }(using unsafeWindowOwner)
   }
 
-  /** Wrap a Laminar element in [[DetachedRoot]], which allows you to
-    * manually activate and deactivate Laminar subscriptions on this
-    * element. Pass `activateNow = true` to activate the subscriptions
-    * upon calling this method, or call `.activate()` manually.
+  /** Wrap a Laminar element in [[DetachedRoot]], which allows you to manually activate and deactivate Laminar subscriptions on this
+    * element. Pass `activateNow = true` to activate the subscriptions upon calling this method, or call `.activate()` manually.
     *
-    * Unlike other `render*` methods, this one does NOT attach the element
-    * to any container / parent DOM node. Instead, you can obtain the JS DOM
-    * node as `.ref`, and pass it to a third party JS library that requires
-    * you to provide a DOM node (which it will attach to the DOM on its own).
+    * Unlike other `render*` methods, this one does NOT attach the element to any container / parent DOM node. Instead, you can obtain the
+    * JS DOM node as `.ref`, and pass it to a third party JS library that requires you to provide a DOM node (which it will attach to the
+    * DOM on its own).
     */
   def renderDetached[El <: ReactiveElement.Base](
     rootNode: => El,
@@ -126,24 +116,19 @@ with Implicits {
     new DetachedRoot(rootNode, activateNow)
   }
 
-  /**
-    * Get a Seq of modifiers. You could just use Seq(...), but this helper
-    * has better type inference in some cases.
+  /** Get a Seq of modifiers. You could just use Seq(...), but this helper has better type inference in some cases.
     */
   def modSeq[El <: Element](mods: Modifier[El]*): Seq[Modifier[El]] = mods
 
-  /**
-    * Get a Seq of nodes. You could just use Seq(...), but this helper
-    * has better type inference in some cases.
+  /** Get a Seq of nodes. You could just use Seq(...), but this helper has better type inference in some cases.
     */
   def nodeSeq[El <: Node](nodes: Node*): Seq[Node] = nodes
 
   /** A universal Modifier that does nothing */
   val emptyMod: Modifier.Base = Modifier.empty
 
-  /** Note: this is not a [[nodes.ReactiveElement]] because [[dom.Comment]] is not a [[dom.Element]].
-    * This is a bit annoying, I know, but we kinda have to follow the native JS DOM API on this.
-    * Both [[CommentNode]] and [[nodes.ReactiveElement]] are [[Node]].
+  /** Note: this is not a [[nodes.ReactiveElement]] because [[dom.Comment]] is not a [[dom.Element]]. This is a bit annoying, I know, but we
+    * kinda have to follow the native JS DOM API on this. Both [[CommentNode]] and [[nodes.ReactiveElement]] are [[Node]].
     */
   @inline def emptyNode: CommentNode = commentNode("")
 
@@ -151,8 +136,7 @@ with Implicits {
 
   /** Non-breaking space character
     *
-    * Note: In Laminar you don't need to use html entities, you can just
-    * insert the actual character you want, e.g. "»" instead of "&raquo;"
+    * Note: In Laminar you don't need to use html entities, you can just insert the actual character you want, e.g. "»" instead of "&raquo;"
     */
   val nbsp: String = "\u00a0"
 
@@ -216,8 +200,7 @@ with Implicits {
 
   //
 
-  /** Creates controlled input block.
-    * See [[https://laminar.dev/documentation#controlled-inputs Controlled Inputs docs]]
+  /** Creates controlled input block. See [[https://laminar.dev/documentation#controlled-inputs Controlled Inputs docs]]
     */
   def controlled[Ref <: dom.html.Element, Ev <: dom.Event, V](
     listener: EventListener[Ev, ?],
@@ -226,8 +209,7 @@ with Implicits {
     InputController.controlled(listener, updater)
   }
 
-  /** Creates controlled input block.
-    * See [[https://laminar.dev/documentation#controlled-inputs Controlled Inputs docs]]
+  /** Creates controlled input block. See [[https://laminar.dev/documentation#controlled-inputs Controlled Inputs docs]]
     */
   def controlled[Ref <: dom.html.Element, Ev <: dom.Event, V](
     updater: KeyUpdater[ReactiveHtmlElement[Ref], HtmlProp[V, ?], V],
