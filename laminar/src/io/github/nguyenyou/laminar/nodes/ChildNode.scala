@@ -6,6 +6,21 @@ import org.scalajs.dom
 import scala.annotation.tailrec
 import scala.scalajs.js
 
+/** A trait representing nodes that can be children of other nodes.
+  *
+  * Type parameter explanation:
+  *   - `ChildNode[+Ref <: dom.Node]` where:
+  *     - `+Ref` makes the type covariant: if TextNode <: Node, then ChildNode[TextNode] <: ChildNode[Node]
+  *     - `<: dom.Node` is an upper bound constraint: Ref must be a subtype of dom.Node
+  *
+  * This allows specific node types like TextNode (ChildNode[dom.Text]) and CommentNode (ChildNode[dom.Comment]) to be used anywhere
+  * ChildNode[dom.Node] is expected, while maintaining type safety.
+  *
+  * Examples:
+  *   - TextNode extends ChildNode[dom.Text]
+  *   - CommentNode extends ChildNode[dom.Comment]
+  *   - ReactiveElement extends ChildNode[dom.Element]
+  */
 trait ChildNode[+Ref <: dom.Node] extends ReactiveNode[Ref], Modifier[ReactiveElement[dom.Element]] {
 
   private var _maybeParent: Option[ParentNode.Base] = None
