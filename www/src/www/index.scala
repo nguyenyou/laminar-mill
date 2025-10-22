@@ -8,10 +8,6 @@ import io.github.nguyenyou.laminar.api.L.*
 
   render(
     dom.document.getElementById("app"),
-    div(
-      button("-1", onClick --> Observer { _ => counterVar.update(_ - 1) }),
-      div(text <-- counterVar),
-      button("+1", onClick --> (_ => counterVar.update(_ + 1)))
-    )
+    App()()
   )
 }

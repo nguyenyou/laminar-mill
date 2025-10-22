@@ -1,6 +1,7 @@
 package www
 
 import io.github.nguyenyou.laminar.api.L.*
+import www.components.*
 
 case class App() {
   val countVar = Var(0)
@@ -8,22 +9,30 @@ case class App() {
 
   def apply() = {
     div(
-      child(div()) <-- Val(true),
-      button(
-        "+1",
-        onClick --> Observer { _ =>
-          countVar.update(_ + 1)
-        }
-      ),
-      span(
-        text <-- countSignal
-      ),
-      button(
-        "-1",
-        onClick --> Observer { _ =>
-          countVar.update(_ - 1)
-        }
-      )
+      Popover {
+        Popover.Trigger(
+          button("Click me!")
+        )
+        Popover.Content(
+          div(
+            width.percent(100),
+            height.percent(100),
+            backgroundColor.green
+          )
+        )
+      },
+      Popover {
+        Popover.Trigger(
+          button("Click meeeee!")
+        )
+        Popover.Content(
+          div(
+            width.percent(100),
+            height.percent(100),
+            backgroundColor.red
+          )
+        )
+      }
     )
   }
 }

@@ -9,8 +9,3 @@ body {
   align-items: center;
   height: 100vh;
 }
-
-div {
-  display: flex;
-  gap: 10px;
-}
