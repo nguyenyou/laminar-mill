@@ -63,7 +63,7 @@ case class PopoverRoot(store: Popover.Store) {
   def setupTrigger(trigger: HtmlElement) = {
     trigger.amend(
       onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
-        store.onChangeOpen.onNext(!open)
+        store.onOpenChange.onNext(!open)
       },
       store.openSignal --> Observer[Boolean] { open =>
         if (open) mount() else unmount()

@@ -5,7 +5,7 @@ import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 
 object Popover {
-  case class Store(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])
+  case class Store(openSignal: Signal[Boolean], onOpenChange: Observer[Boolean])
 
   def apply(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])(init: PopoverRoot ?=> Unit) = {
     given popover: PopoverRoot = PopoverRoot(Store(openSignal, onChangeOpen))
