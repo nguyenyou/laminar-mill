@@ -5,11 +5,9 @@ import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.nodes.ReactiveHtmlElement
 
-case class Popover() {
+case class Popover(store: Popover.Store) {
   var initialized: Option[Boolean] = None
 
-  val openVar = Var[Option[Boolean]](None)
-  val openSignal = openVar.signal
   val targetVar = Var[Option[HtmlElement]](None)
   val targetSignal = targetVar.signal
 
@@ -23,16 +21,12 @@ case class Popover() {
   )
 
   contentWrapper.amend(
-    openSignal --> Observer[Option[Boolean]] { openOpt =>
-      openOpt match
-        case Some(open) =>
-          if (open) {
-            contentWrapper.ref.style.display = "block"
-          } else {
-            contentWrapper.ref.style.display = "none"
-          }
-        case None =>
-          contentWrapper.ref.style.display = "none"
+    store.openSignal --> Observer[Boolean] { open =>
+      if (open) {
+        contentWrapper.ref.style.display = "block"
+      } else {
+        contentWrapper.ref.style.display = "none"
+      }
     }
   )
 
@@ -68,25 +62,15 @@ case class Popover() {
 
   def setupTrigger(trigger: HtmlElement) = {
     trigger.amend(
-      onClick(_.sample(openSignal)) --> Observer[Option[Boolean]] {
-        case Some(open) =>
-          openVar.set(Some(!open))
-        case None =>
-          openVar.set(Some(true))
+      onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
+        store.onChange.onNext(!open)
       },
-      openSignal --> Observer[Option[Boolean]] {
-        case Some(open) =>
-          if (open) mount() else unmount()
-        case None =>
-          ()
+      store.openSignal --> Observer[Boolean] { open =>
+        if (open) mount() else unmount()
       }
     )
     targetVar.set(Some(trigger))
     mount()
-  }
-
-  def open() = {
-    activateSubscriptions()
   }
 
   def setContent(content: HtmlElement) = {
@@ -95,9 +79,18 @@ case class Popover() {
 }
 
 object Popover {
+  case class Store(openSignal: Signal[Boolean], onChange: Observer[Boolean])
 
-  def apply(init: Popover ?=> Unit) = {
-    given popover: Popover = new Popover()
+  def Root()(init: Popover ?=> Unit) = {
+    val openVar = Var(false)
+    val store = Store(openVar.signal, openVar.writer)
+    given popover: Popover = Popover(store)
+    init
+    child.maybe <-- popover.targetSignal
+  }
+
+  def Root(store: Store)(init: Popover ?=> Unit) = {
+    given popover: Popover = Popover(store)
     init
     child.maybe <-- popover.targetSignal
   }
