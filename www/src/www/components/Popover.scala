@@ -63,7 +63,7 @@ case class Popover(store: Popover.Store) {
   def setupTrigger(trigger: HtmlElement) = {
     trigger.amend(
       onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
-        store.onChange.onNext(!open)
+        store.onChangeOpen.onNext(!open)
       },
       store.openSignal --> Observer[Boolean] { open =>
         if (open) mount() else unmount()
@@ -79,7 +79,7 @@ case class Popover(store: Popover.Store) {
 }
 
 object Popover {
-  case class Store(openSignal: Signal[Boolean], onChange: Observer[Boolean])
+  case class Store(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])
 
   def Root()(init: Popover ?=> Unit) = {
     val openVar = Var(false)
