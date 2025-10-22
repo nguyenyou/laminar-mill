@@ -14,7 +14,7 @@ case class App() {
 
   def apply() = {
     div(
-      Popover() {
+      Popover {
         Popover.Trigger(
           button("Green")
         )
@@ -25,51 +25,51 @@ case class App() {
             backgroundColor.green
           )
         )
-      },
-      Popover() {
-        Popover.Trigger(
-          button("Red")
-        )
-        Popover.Content(
-          div(
-            width.percent(100),
-            height.percent(100),
-            backgroundColor.red
-          )
-        )
-      },
-      Popover(store) {
-        Popover.Trigger(
-          button("Blue")
-        )
-        Popover.Content(
-          div(
-            width.percent(100),
-            height.percent(100),
-            backgroundColor.blue
-          )
-        )
-      },
-      Popover(
-        openVar2.signal,
-        openVar2.writer
-      ) {
-        Popover.Trigger { store =>
-          button(
-            onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
-              store.onChangeOpen.onNext(!open)
-            },
-            "Yellow"
-          )
-        }
-        Popover.Content(
-          div(
-            width.percent(100),
-            height.percent(100),
-            backgroundColor.yellow
-          )
-        )
       }
+      // Popover() {
+      //   Popover.Trigger(
+      //     button("Red")
+      //   )
+      //   Popover.Content(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.red
+      //     )
+      //   )
+      // },
+      // Popover(store) {
+      //   Popover.Trigger(
+      //     button("Blue")
+      //   )
+      //   Popover.Content(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.blue
+      //     )
+      //   )
+      // },
+      // Popover(
+      //   openVar2.signal,
+      //   openVar2.writer
+      // ) {
+      //   Popover.Trigger { store =>
+      //     button(
+      //       onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
+      //         store.onChangeOpen.onNext(!open)
+      //       },
+      //       "Yellow"
+      //     )
+      //   }
+      //   Popover.Content(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.yellow
+      //     )
+      //   )
+      // }
     )
   }
 }

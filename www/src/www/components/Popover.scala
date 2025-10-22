@@ -7,34 +7,34 @@ import org.scalajs.dom
 object Popover {
   case class Store(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])
 
-  def apply(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])(init: PopoverRoot ?=> Unit) = {
-    given popover: PopoverRoot = PopoverRoot(Store(openSignal, onChangeOpen))
-    init
-    child.maybe <-- popover.targetSignal
-  }
+  // def apply(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])(init: PopoverRoot ?=> Unit) = {
+  //   given popover: PopoverRoot = PopoverRoot(Store(openSignal, onChangeOpen))
+  //   init
+  //   child.maybe <-- popover.targetSignal
+  // }
 
-  def apply()(init: PopoverRoot ?=> Unit) = {
+  def apply(init: PopoverRoot ?=> Unit) = {
     val openVar = Var(false)
     given popover: PopoverRoot = PopoverRoot(Store(openVar.signal, openVar.writer))
     init
     child.maybe <-- popover.targetSignal
   }
 
-  def apply(store: Store)(init: PopoverRoot ?=> Unit) = {
-    given popover: PopoverRoot = PopoverRoot(store)
-    init
-    child.maybe <-- popover.targetSignal
+  // def apply(store: Store)(init: PopoverRoot ?=> Unit) = {
+  //   given popover: PopoverRoot = PopoverRoot(store)
+  //   init
+  //   child.maybe <-- popover.targetSignal
+  // }
+
+  def Trigger(trigger: HtmlElement)(using root: PopoverRoot) = {
+    root.setupTrigger(trigger)
   }
 
-  def Trigger(trigger: HtmlElement)(using ctx: PopoverRoot) = {
-    ctx.setupTrigger(trigger)
+  def Trigger(render: Store => HtmlElement)(using root: PopoverRoot) = {
+    root.setupRenderPropTrigger(render)
   }
 
-  def Trigger(renderProps: Store => HtmlElement)(using ctx: PopoverRoot) = {
-    ctx.setupRenderPropTrigger(renderProps)
-  }
-
-  def Content(content: HtmlElement)(using ctx: PopoverRoot) = {
-    ctx.setContent(content)
+  def Content(content: HtmlElement)(using root: PopoverRoot) = {
+    root.setContent(content)
   }
 }
