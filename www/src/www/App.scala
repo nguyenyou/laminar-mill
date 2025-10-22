@@ -18,7 +18,7 @@ case class App() {
         PopoverTrigger(
           button("Green")
         )
-        PopoverContent(
+        PopoverContent(side = _.Bottom)(
           div(
             width.percent(100),
             height.percent(100),
