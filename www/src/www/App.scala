@@ -14,7 +14,7 @@ case class App() {
 
   def apply() = {
     div(
-      Popover.Root() {
+      Popover() {
         Popover.Trigger(
           button("Green")
         )
@@ -26,7 +26,7 @@ case class App() {
           )
         )
       },
-      Popover.Root() {
+      Popover() {
         Popover.Trigger(
           button("Red")
         )
@@ -38,7 +38,7 @@ case class App() {
           )
         )
       },
-      Popover.Root(store) {
+      Popover(store) {
         Popover.Trigger(
           button("Blue")
         )
@@ -50,7 +50,7 @@ case class App() {
           )
         )
       },
-      Popover.Root(
+      Popover(
         openVar2.signal,
         openVar2.writer
       ) {
