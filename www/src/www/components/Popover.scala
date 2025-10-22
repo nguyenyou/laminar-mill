@@ -72,6 +72,16 @@ case class Popover(store: Popover.Store) {
     targetVar.set(Some(trigger))
     mount()
   }
+  def setupRenderPropTrigger(renderProps: Popover.Store => HtmlElement) = {
+    val trigger = renderProps(store)
+    trigger.amend(
+      store.openSignal --> Observer[Boolean] { open =>
+        if (open) mount() else unmount()
+      }
+    )
+    targetVar.set(Some(trigger))
+    mount()
+  }
 
   def setContent(content: HtmlElement) = {
     contentWrapper.amend(content)
@@ -81,10 +91,15 @@ case class Popover(store: Popover.Store) {
 object Popover {
   case class Store(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])
 
+  def Root(openSignal: Signal[Boolean], onChangeOpen: Observer[Boolean])(init: Popover ?=> Unit) = {
+    given popover: Popover = Popover(Store(openSignal, onChangeOpen))
+    init
+    child.maybe <-- popover.targetSignal
+  }
+
   def Root()(init: Popover ?=> Unit) = {
     val openVar = Var(false)
-    val store = Store(openVar.signal, openVar.writer)
-    given popover: Popover = Popover(store)
+    given popover: Popover = Popover(Store(openVar.signal, openVar.writer))
     init
     child.maybe <-- popover.targetSignal
   }
@@ -97,6 +112,10 @@ object Popover {
 
   def Trigger(trigger: HtmlElement)(using ctx: Popover) = {
     ctx.setupTrigger(trigger)
+  }
+
+  def Trigger(renderProps: Store => HtmlElement)(using ctx: Popover) = {
+    ctx.setupRenderPropTrigger(renderProps)
   }
 
   def Content(content: HtmlElement)(using ctx: Popover) = {
