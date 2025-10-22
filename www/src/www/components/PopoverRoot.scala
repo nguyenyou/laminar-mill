@@ -10,7 +10,7 @@ case class PopoverRoot(store: Popover.Store) {
   val targetVar = Var[Option[HtmlElement]](None)
   val targetSignal = targetVar.signal
 
-  val contentWrapper = div(
+  val portal = div(
     dataAttr("slot") := "popover-content-wrapper",
     position.fixed,
     left.px(0),
@@ -20,24 +20,24 @@ case class PopoverRoot(store: Popover.Store) {
     cls("hidden")
   )
 
-  contentWrapper.amend(
+  portal.amend(
     store.openSignal --> Observer[Boolean] { open =>
       if (open) {
-        contentWrapper.ref.style.display = "block"
+        portal.ref.style.display = "block"
       } else {
-        contentWrapper.ref.style.display = "none"
+        portal.ref.style.display = "none"
       }
     }
   )
 
-  val contentRoot: DetachedRoot[Div] = renderDetached(
-    contentWrapper,
+  val portalRoot: DetachedRoot[Div] = renderDetached(
+    portal,
     activateNow = false
   )
 
   private def mount() = {
     if (initialized.isEmpty) {
-      dom.document.body.appendChild(contentRoot.ref)
+      dom.document.body.appendChild(portalRoot.ref)
       activateSubscriptions()
       initialized = Some(true)
     }
@@ -46,16 +46,16 @@ case class PopoverRoot(store: Popover.Store) {
   private def unmount() = {
     if (initialized.isDefined) {
       deactivateSubscriptions()
-      dom.document.body.removeChild(contentRoot.ref)
+      dom.document.body.removeChild(portalRoot.ref)
       initialized = None
     }
   }
 
   private def activateSubscriptions() = {
-    contentRoot.activate()
+    portalRoot.activate()
   }
   private def deactivateSubscriptions() = {
-    contentRoot.deactivate()
+    portalRoot.deactivate()
   }
 
   def show() = {}
@@ -84,6 +84,6 @@ case class PopoverRoot(store: Popover.Store) {
   }
 
   def setContent(content: HtmlElement) = {
-    contentWrapper.amend(content.amend(dataAttr("slot") := "popover-content"))
+    portal.amend(content.amend(dataAttr("slot") := "popover-content"))
   }
 }

@@ -15,10 +15,10 @@ case class App() {
   def apply() = {
     div(
       Popover() {
-        Popover.Trigger(
+        PopoverTrigger(
           button("Green")
         )
-        Popover.Content(
+        PopoverContent(
           div(
             width.percent(100),
             height.percent(100),

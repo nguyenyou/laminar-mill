@@ -25,16 +25,4 @@ object Popover {
     init
     child.maybe <-- popover.targetSignal
   }
-
-  def Trigger(trigger: HtmlElement)(using root: PopoverRoot) = {
-    root.setupTrigger(trigger)
-  }
-
-  def Trigger(render: Store => HtmlElement)(using root: PopoverRoot) = {
-    root.setupRenderPropTrigger(render)
-  }
-
-  def Content(content: HtmlElement)(using root: PopoverRoot) = {
-    root.setContent(content)
-  }
 }
