@@ -11,6 +11,7 @@ case class PopoverRoot(store: Popover.Store) {
   val targetSignal = targetVar.signal
 
   val contentWrapper = div(
+    dataAttr("slot") := "popover-content-wrapper",
     position.fixed,
     left.px(0),
     bottom.px(0),
@@ -83,6 +84,6 @@ case class PopoverRoot(store: Popover.Store) {
   }
 
   def setContent(content: HtmlElement) = {
-    contentWrapper.amend(content)
+    contentWrapper.amend(content.amend(dataAttr("slot") := "popover-content"))
   }
 }

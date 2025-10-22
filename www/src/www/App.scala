@@ -14,7 +14,7 @@ case class App() {
 
   def apply() = {
     div(
-      Popover {
+      Popover() {
         Popover.Trigger(
           button("Green")
         )
