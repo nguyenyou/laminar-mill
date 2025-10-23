@@ -13,7 +13,6 @@ case class App() {
   val openVar2 = Var(false)
 
   def apply() = {
-    given parent: HtmlElement = div("1234")
     div(
       Popover() {
         PopoverTrigger()(

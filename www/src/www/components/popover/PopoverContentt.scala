@@ -3,8 +3,69 @@ package www.components.popover
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
 import www.components.popover.PopoverRoot
+import io.github.nguyenyou.laminar.nodes.DetachedRoot
+import org.scalajs.dom
 
-class PopoverContent(val ref: HtmlElement) {}
+class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
+  var initialized = false
+
+  content.amend(
+    dataAttr("slot") := "popover-content"
+  )
+
+  val portal = div(
+    dataAttr("slot") := "popover-content-portal",
+    position.fixed,
+    left.px(0),
+    bottom.px(0),
+    width.px(400),
+    height.px(400),
+    cls("hidden"),
+    content
+  )
+
+  portal.amend(
+    root.store.openSignal --> Observer[Boolean] { open =>
+      if (open) {
+        show()
+      } else {
+        hide()
+      }
+    }
+  )
+
+  private val portalRoot: DetachedRoot[Div] = renderDetached(
+    portal,
+    activateNow = false
+  )
+  def show() = {
+    portal.ref.style.display = "block"
+  }
+
+  def hide() = {
+    portal.ref.style.display = "none"
+  }
+
+  def mount() = {
+    if (!initialized) {
+      dom.document.body.appendChild(portalRoot.ref)
+      portalRoot.activate()
+      initialized = true
+    }
+  }
+  def unmount() = {
+    if (initialized) {
+      portalRoot.deactivate()
+      dom.document.body.removeChild(portalRoot.ref)
+      initialized = false
+    }
+  }
+
+  def onOpenChange(isOpen: Boolean) = {
+    if (isOpen) mount() else unmount()
+  }
+
+}
 
 object PopoverContent {
   sealed trait PopoverContentModifier
@@ -17,7 +78,8 @@ object PopoverContent {
   }
 
   def apply(content: HtmlElement)(using root: PopoverRoot): Unit = {
-    root.setContent(content)
+    val popoverContent: PopoverContent = new PopoverContent(content, root)
+    root.setContent(popoverContent)
   }
 
   // Concrete modifier types with built-in application logic
@@ -66,9 +128,9 @@ object PopoverContent {
   // }
 
   def apply(mods: Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
-    val popoverContent: PopoverContent = new PopoverContent(content)
+    val popoverContent: PopoverContent = new PopoverContent(content, root)
     val resolvedMods: Seq[PopoverContentModifier] = mods.map(_(Props))
-    root.setContent(content)
+    root.setContent(popoverContent)
   }
 
   // def apply(mods: Props.Selector)(render: PopoverStore => HtmlElement)(using root: PopoverRoot): Unit = {
