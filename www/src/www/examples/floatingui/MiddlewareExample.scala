@@ -1,7 +1,6 @@
 package www.examples.floatingui
 
 import scala.scalajs.js
-import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L._
@@ -65,7 +64,7 @@ object MiddlewareExample {
                     flip() // Automatically flips when there's no space
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
                 // You can check which placement was actually used:
@@ -130,7 +129,7 @@ object MiddlewareExample {
                     )
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
@@ -194,7 +193,7 @@ object MiddlewareExample {
                     )
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
 
@@ -286,7 +285,7 @@ object MiddlewareExample {
                     arrow(ArrowOptions(element = arrowEl, padding = 5))
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
 

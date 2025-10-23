@@ -1,7 +1,6 @@
 package www.examples.floatingui
 
 import scala.scalajs.js
-import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L._
@@ -65,7 +64,7 @@ object AutoUpdateExample {
                   placement = "top",
                   middleware = js.Array(offset(8), flip(), shift())
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
@@ -158,7 +157,7 @@ object AutoUpdateExample {
                   placement = "top",
                   middleware = js.Array(offset(8))
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
@@ -256,7 +255,7 @@ object AutoUpdateExample {
                     shift(ShiftOptions())
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 menuEl.style.left = s"${result.x}px"
                 menuEl.style.top = s"${result.y}px"
               }

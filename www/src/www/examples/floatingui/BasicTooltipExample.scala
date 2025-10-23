@@ -1,7 +1,6 @@
 package www.examples.floatingui
 
 import scala.scalajs.js
-import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L._
@@ -63,8 +62,8 @@ object BasicTooltipExample {
           // Position the tooltip whenever it becomes visible
           isVisible.signal.foreach { visible =>
             if (visible) {
-              // Convert Promise to Future using thenable2future
-              computePosition(buttonEl, tooltipEl).foreach { result =>
+              // Convert Promise to Future using .toFuture
+              computePosition(buttonEl, tooltipEl).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
@@ -112,7 +111,7 @@ object BasicTooltipExample {
                 buttonEl,
                 tooltipEl,
                 ComputePositionConfig(placement = placement)
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
@@ -197,7 +196,7 @@ object BasicTooltipExample {
                     offset(10) // 10px offset from the button
                   )
                 )
-              ).foreach { result =>
+              ).toFuture.foreach { result =>
                 tooltipEl.style.left = s"${result.x}px"
                 tooltipEl.style.top = s"${result.y}px"
               }
