@@ -1,7 +1,7 @@
 package www.examples.floatingui
 
 import scala.scalajs.js
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L._
 import www.facades.floatingui.FloatingUIDOM._

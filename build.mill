@@ -13,6 +13,7 @@ object Versions {
     val scaladomtestutils = "18.0.0"
     val urldsl = "0.6.2"
     val upickle = "2.0.0"
+    val macrotask = "1.1.1"
 }
 
 trait WebModule extends ScalaJSModule { 
@@ -28,7 +29,8 @@ trait WebModule extends ScalaJSModule {
     
     def mvnDeps = Seq(
       mvn"org.scala-js::scalajs-dom::${Versions.sjsdom}",
-      mvn"app.tulz::tuplez-full-light::${Versions.tuplez}"
+      mvn"app.tulz::tuplez-full-light::${Versions.tuplez}",
+      mvn"org.scala-js::scala-js-macrotask-executor::${Versions.macrotask}"
     )
 
     object test extends ScalaJSTests with TestModule.ScalaTest {

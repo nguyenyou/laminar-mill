@@ -118,16 +118,26 @@ cleanupFn.foreach(cleanup => cleanup())
 
 ### 1. Promise to Future Conversion
 
-FloatingUI returns JavaScript Promises. Convert them to Scala Futures:
+FloatingUI returns JavaScript Promises. Convert them to Scala Futures using `.toFuture`:
 
 ```scala
-import scala.scalajs.js.Thenable.Implicits.thenable2future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-computePosition(ref, floating).foreach { result =>
+computePosition(ref, floating).toFuture.foreach { result =>
   // Use result
 }
 ```
+
+**Why `.toFuture` instead of `thenable2future` implicit?**
+- More explicit and clear about the conversion
+- No need to import implicit conversions
+- Follows the principle of explicit over implicit
+
+**Why `JSExecutionContext.queue` instead of `ExecutionContext.global`?**
+- `JSExecutionContext.queue` is the Scala.js-specific ExecutionContext
+- `ExecutionContext.global` triggers compiler warnings in Scala.js
+- `JSExecutionContext.queue` is what the Airstream and Laminar test suites use
+- It's optimized for JavaScript environments (uses Promise microtasks or setTimeout)
 
 ### 2. Creating Configuration Objects
 
