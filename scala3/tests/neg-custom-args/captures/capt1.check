@@ -1,0 +1,112 @@
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:5:2 ------------------------------------------
+5 |  () => if x == null then y else y  // error
+  |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |  Found:    () ->{x} C
+  |  Required: () -> C
+  |
+  |  Note that capability x is not included in capture set {}.
+  |
+  | longer explanation available when compiling with `-explain`
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:8:2 ------------------------------------------
+8 |  () => if x == null then y else y  // error
+  |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |  Found:    () ->{x} C^'s1
+  |  Required: Matchable
+  |
+  |  Note that capability x is not included in capture set {}.
+  |
+  | longer explanation available when compiling with `-explain`
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:16:2 -----------------------------------------
+16 |  f  // error
+   |  ^
+   |  Found:    (y: Int) ->{x} Int
+   |  Required: Matchable
+   |
+   |  Note that capability x is not included in capture set {}.
+   |
+   | longer explanation available when compiling with `-explain`
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:24:2 -----------------------------------------
+24 |  F(22)  // error
+   |  ^^^^^
+   |  Found:    A^{x}
+   |  Required: A
+   |
+   |  Note that capability x is not included in capture set {}.
+   |
+   | longer explanation available when compiling with `-explain`
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:28:40 ----------------------------------------
+28 |    def m() = if x == null then y else y  // error
+   |                                        ^
+   |                                        Found:    A^{x}
+   |                                        Required: A
+   |
+   |                                        Note that capability x is not included in capture set {}.
+   |
+   | longer explanation available when compiling with `-explain`
+-- Error: tests/neg-custom-args/captures/capt1.scala:36:16 -------------------------------------------------------------
+36 |  val z2 = h[() -> Cap](() => x) // error // error
+   |             ^^^^^^^^^
+   |             Type variable X of method h cannot be instantiated to () -> C^ since
+   |             the part C^ of that type captures the root capability `cap`.
+   |
+   |             where:    ^ refers to the universal root capability
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:36:24 ----------------------------------------
+36 |  val z2 = h[() -> Cap](() => x) // error // error
+   |                        ^^^^^^^
+   |Found:    () ->'s2 C^
+   |Required: () -> C^²
+   |
+   |Note that capability cap is not included in capture set {cap²}
+   |because cap is not visible from cap² in value z2.
+   |
+   |where:    ^ and cap   refer to a root capability associated with the result type of (): C^
+   |          ^² and cap² refer to a fresh root capability created in value z2 when checking argument to parameter a of method h
+   |
+   | longer explanation available when compiling with `-explain`
+-- [E007] Type Mismatch Error: tests/neg-custom-args/captures/capt1.scala:37:5 -----------------------------------------
+37 |    (() => C()) // error
+   |     ^^^^^^^^^
+   |Found:    () ->'s3 C^
+   |Required: () -> C^²
+   |
+   |Note that capability cap is not included in capture set {cap²}
+   |because cap is not visible from cap² in value z2.
+   |
+   |where:    ^ and cap   refer to a root capability associated with the result type of (): C^
+   |          ^² and cap² refer to a fresh root capability created in value z2 when checking argument to parameter b of method h
+   |
+   | longer explanation available when compiling with `-explain`
+-- Error: tests/neg-custom-args/captures/capt1.scala:38:13 -------------------------------------------------------------
+38 |  val z3 = h[(() -> Cap) @retains[x.type]](() => x)(() => C())  // error
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |             Type variable X of method h cannot be instantiated to () ->{x} C^ since
+   |             the part C^ of that type captures the root capability `cap`.
+   |
+   |             where:    ^ refers to the universal root capability
+-- Error: tests/neg-custom-args/captures/capt1.scala:43:7 --------------------------------------------------------------
+43 |    if x == null then  // error: separation
+   |       ^
+   |       Separation failure: Illegal access to {x} which is hidden by the previous definition
+   |       of value z1 with type () => C^.
+   |       This type hides capabilities  {x}
+   |
+   |       where:    => refers to a fresh root capability in the type of value z1
+   |                 ^  refers to a fresh root capability in the type of value z1
+-- Error: tests/neg-custom-args/captures/capt1.scala:44:12 -------------------------------------------------------------
+44 |      () => x  // error: separation
+   |            ^
+   |            Separation failure: Illegal access to {x} which is hidden by the previous definition
+   |            of value z1 with type () => C^.
+   |            This type hides capabilities  {x}
+   |
+   |            where:    => refers to a fresh root capability in the type of value z1
+   |                      ^  refers to a fresh root capability in the type of value z1
+-- Error: tests/neg-custom-args/captures/capt1.scala:47:2 --------------------------------------------------------------
+47 |  x // error: separation
+   |  ^
+   |  Separation failure: Illegal access to {x} which is hidden by the previous definition
+   |  of value z1 with type () => C^.
+   |  This type hides capabilities  {x}
+   |
+   |  where:    => refers to a fresh root capability in the type of value z1
+   |            ^  refers to a fresh root capability in the type of value z1
