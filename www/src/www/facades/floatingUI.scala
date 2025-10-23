@@ -279,13 +279,36 @@ object FloatingUIDOM {
   // Configuration and Return Types
   // ============================================================================
 
-  /** Configuration for computePosition. */
-  @js.native
+  /** Configuration for computePosition.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala. Use the companion object's apply method or create instances
+    * with `new`.
+    */
   trait ComputePositionConfig extends js.Object {
-    val placement: js.UndefOr[Placement] = js.native
-    val strategy: js.UndefOr[Strategy] = js.native
-    val middleware: js.UndefOr[js.Array[Middleware | Null]] = js.native
-    val platform: js.UndefOr[Platform] = js.native
+    val placement: js.UndefOr[Placement] = js.undefined
+    val strategy: js.UndefOr[Strategy] = js.undefined
+    val middleware: js.UndefOr[js.Array[Middleware | Null]] = js.undefined
+    val platform: js.UndefOr[Platform] = js.undefined
+  }
+
+  object ComputePositionConfig {
+
+    /** Create a ComputePositionConfig with optional parameters. */
+    def apply(
+      placement: js.UndefOr[Placement] = js.undefined,
+      strategy: js.UndefOr[Strategy] = js.undefined,
+      middleware: js.UndefOr[js.Array[Middleware | Null]] = js.undefined,
+      platform: js.UndefOr[Platform] = js.undefined
+    ): ComputePositionConfig = {
+      js.Dynamic
+        .literal(
+          placement = placement,
+          strategy = strategy,
+          middleware = middleware,
+          platform = platform
+        )
+        .asInstanceOf[ComputePositionConfig]
+    }
   }
 
   /** Return value from computePosition. */
@@ -300,71 +323,229 @@ object FloatingUIDOM {
   // Middleware Options
   // ============================================================================
 
-  /** Options for offset middleware. */
-  @js.native
+  /** Options for offset middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait OffsetOptions extends js.Object {
-    val mainAxis: js.UndefOr[Double] = js.native
-    val crossAxis: js.UndefOr[Double] = js.native
-    val alignmentAxis: js.UndefOr[Double | Null] = js.native
+    val mainAxis: js.UndefOr[Double] = js.undefined
+    val crossAxis: js.UndefOr[Double] = js.undefined
+    val alignmentAxis: js.UndefOr[Double | Null] = js.undefined
   }
 
-  /** Options for arrow middleware. */
-  @js.native
+  object OffsetOptions {
+
+    /** Create OffsetOptions with optional parameters. */
+    def apply(
+      mainAxis: js.UndefOr[Double] = js.undefined,
+      crossAxis: js.UndefOr[Double] = js.undefined,
+      alignmentAxis: js.UndefOr[Double | Null] = js.undefined
+    ): OffsetOptions = {
+      val obj = js.Dynamic.literal()
+      if (mainAxis.isDefined) obj.mainAxis = mainAxis.get
+      if (crossAxis.isDefined) obj.crossAxis = crossAxis.get
+      if (alignmentAxis.isDefined) obj.alignmentAxis = alignmentAxis.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[OffsetOptions]
+    }
+  }
+
+  /** Options for arrow middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait ArrowOptions extends js.Object {
-    val element: dom.HTMLElement = js.native
-    val padding: js.UndefOr[Double | SideObject] = js.native
+    val element: dom.HTMLElement
+    val padding: js.UndefOr[Double | SideObject] = js.undefined
   }
 
-  /** Options for shift middleware. */
-  @js.native
+  object ArrowOptions {
+
+    /** Create ArrowOptions with required element and optional padding. */
+    def apply(
+      element: dom.HTMLElement,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): ArrowOptions = {
+      val obj = js.Dynamic.literal(element = element)
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[ArrowOptions]
+    }
+  }
+
+  /** Options for shift middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait ShiftOptions extends js.Object {
-    val mainAxis: js.UndefOr[Boolean] = js.native
-    val crossAxis: js.UndefOr[Boolean] = js.native
-    val limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.native
+    val mainAxis: js.UndefOr[Boolean] = js.undefined
+    val crossAxis: js.UndefOr[Boolean] = js.undefined
+    val limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined
   }
 
-  /** Detect overflow options. */
-  @js.native
+  object ShiftOptions {
+
+    /** Create ShiftOptions with optional parameters. */
+    def apply(
+      mainAxis: js.UndefOr[Boolean] = js.undefined,
+      crossAxis: js.UndefOr[Boolean] = js.undefined,
+      limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined
+    ): ShiftOptions = {
+      js.Dynamic
+        .literal(
+          mainAxis = mainAxis,
+          crossAxis = crossAxis,
+          limiter = limiter
+        )
+        .asInstanceOf[ShiftOptions]
+    }
+  }
+
+  /** Detect overflow options.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait DetectOverflowOptions extends js.Object {
-    val boundary: js.UndefOr[Boundary] = js.native
-    val rootBoundary: js.UndefOr[RootBoundary] = js.native
-    val elementContext: js.UndefOr[ElementContext] = js.native
-    val altBoundary: js.UndefOr[Boolean] = js.native
-    val padding: js.UndefOr[Double | SideObject] = js.native
+    val boundary: js.UndefOr[Boundary] = js.undefined
+    val rootBoundary: js.UndefOr[RootBoundary] = js.undefined
+    val elementContext: js.UndefOr[ElementContext] = js.undefined
+    val altBoundary: js.UndefOr[Boolean] = js.undefined
+    val padding: js.UndefOr[Double | SideObject] = js.undefined
   }
 
-  /** Options for flip middleware. */
-  @js.native
+  object DetectOverflowOptions {
+
+    /** Create DetectOverflowOptions with optional parameters. */
+    def apply(
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): DetectOverflowOptions = {
+      val obj = js.Dynamic.literal()
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[DetectOverflowOptions]
+    }
+  }
+
+  /** Options for flip middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait FlipOptions extends DetectOverflowOptions {
-    val mainAxis: js.UndefOr[Boolean] = js.native
-    val crossAxis: js.UndefOr[Boolean] = js.native
-    val fallbackAxisSideDirection: js.UndefOr[String] = js.native
-    val flipAlignment: js.UndefOr[Boolean] = js.native
-    val fallbackPlacements: js.UndefOr[js.Array[Placement]] = js.native
-    val fallbackStrategy: js.UndefOr[String] = js.native
+    val mainAxis: js.UndefOr[Boolean] = js.undefined
+    val crossAxis: js.UndefOr[Boolean] = js.undefined
+    val fallbackAxisSideDirection: js.UndefOr[String] = js.undefined
+    val flipAlignment: js.UndefOr[Boolean] = js.undefined
+    val fallbackPlacements: js.UndefOr[js.Array[Placement]] = js.undefined
+    val fallbackStrategy: js.UndefOr[String] = js.undefined
   }
 
-  /** Options for autoPlacement middleware. */
-  @js.native
+  object FlipOptions {
+
+    /** Create FlipOptions with optional parameters. */
+    def apply(
+      mainAxis: js.UndefOr[Boolean] = js.undefined,
+      crossAxis: js.UndefOr[Boolean] = js.undefined,
+      fallbackAxisSideDirection: js.UndefOr[String] = js.undefined,
+      flipAlignment: js.UndefOr[Boolean] = js.undefined,
+      fallbackPlacements: js.UndefOr[js.Array[Placement]] = js.undefined,
+      fallbackStrategy: js.UndefOr[String] = js.undefined,
+      // DetectOverflowOptions fields
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): FlipOptions = {
+      val obj = js.Dynamic.literal()
+      if (mainAxis.isDefined) obj.mainAxis = mainAxis.get
+      if (crossAxis.isDefined) obj.crossAxis = crossAxis.get
+      if (fallbackAxisSideDirection.isDefined) obj.fallbackAxisSideDirection = fallbackAxisSideDirection.get
+      if (flipAlignment.isDefined) obj.flipAlignment = flipAlignment.get
+      if (fallbackPlacements.isDefined) obj.fallbackPlacements = fallbackPlacements.get
+      if (fallbackStrategy.isDefined) obj.fallbackStrategy = fallbackStrategy.get
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[FlipOptions]
+    }
+  }
+
+  /** Options for autoPlacement middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait AutoPlacementOptions extends DetectOverflowOptions {
-    val alignment: js.UndefOr[Alignment | Null] = js.native
-    val allowedPlacements: js.UndefOr[js.Array[Placement]] = js.native
-    val autoAlignment: js.UndefOr[Boolean] = js.native
+    val alignment: js.UndefOr[Alignment | Null] = js.undefined
+    val allowedPlacements: js.UndefOr[js.Array[Placement]] = js.undefined
+    val autoAlignment: js.UndefOr[Boolean] = js.undefined
   }
 
-  /** Options for hide middleware. */
-  @js.native
+  object AutoPlacementOptions {
+
+    /** Create AutoPlacementOptions with optional parameters. */
+    def apply(
+      alignment: js.UndefOr[Alignment | Null] = js.undefined,
+      allowedPlacements: js.UndefOr[js.Array[Placement]] = js.undefined,
+      autoAlignment: js.UndefOr[Boolean] = js.undefined,
+      // DetectOverflowOptions fields
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): AutoPlacementOptions = {
+      val obj = js.Dynamic.literal()
+      if (alignment.isDefined) obj.alignment = alignment.get.asInstanceOf[js.Any]
+      if (allowedPlacements.isDefined) obj.allowedPlacements = allowedPlacements.get
+      if (autoAlignment.isDefined) obj.autoAlignment = autoAlignment.get
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[AutoPlacementOptions]
+    }
+  }
+
+  /** Options for hide middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait HideOptions extends DetectOverflowOptions {
-    val strategy: js.UndefOr[String] = js.native
+    val strategy: js.UndefOr[String] = js.undefined
   }
 
-  /** Options for size middleware. */
-  @js.native
-  trait SizeOptions extends DetectOverflowOptions {
-    @JSName("apply")
-    val applyFn: js.UndefOr[js.Function1[SizeApplyArgs, Unit]] = js.native
+  object HideOptions {
+
+    /** Create HideOptions with optional parameters. */
+    def apply(
+      strategy: js.UndefOr[String] = js.undefined,
+      // DetectOverflowOptions fields
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): HideOptions = {
+      val obj = js.Dynamic.literal()
+      if (strategy.isDefined) obj.strategy = strategy.get
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[HideOptions]
+    }
   }
 
+  /** Arguments passed to size middleware apply function. */
   @js.native
   trait SizeApplyArgs extends js.Object {
     val state: MiddlewareState = js.native
@@ -372,22 +553,94 @@ object FloatingUIDOM {
     val availableHeight: Double = js.native
   }
 
-  /** Options for inline middleware. */
-  @js.native
-  trait InlineOptions extends js.Object {
-    val x: js.UndefOr[Double] = js.native
-    val y: js.UndefOr[Double] = js.native
-    val padding: js.UndefOr[Double | SideObject] = js.native
+  /** Options for size middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
+  trait SizeOptions extends DetectOverflowOptions {
+    @JSName("apply")
+    val applyFn: js.UndefOr[js.Function1[SizeApplyArgs, Unit]] = js.undefined
   }
 
-  /** Options for autoUpdate. */
-  @js.native
+  object SizeOptions {
+
+    /** Create SizeOptions with optional parameters. */
+    def apply(
+      applyFn: js.UndefOr[js.Function1[SizeApplyArgs, Unit]] = js.undefined,
+      // DetectOverflowOptions fields
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): SizeOptions = {
+      val obj = js.Dynamic.literal()
+      if (applyFn.isDefined) obj.applyDynamic("apply")(applyFn.get)
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[SizeOptions]
+    }
+  }
+
+  /** Options for inline middleware.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
+  trait InlineOptions extends js.Object {
+    val x: js.UndefOr[Double] = js.undefined
+    val y: js.UndefOr[Double] = js.undefined
+    val padding: js.UndefOr[Double | SideObject] = js.undefined
+  }
+
+  object InlineOptions {
+
+    /** Create InlineOptions with optional parameters. */
+    def apply(
+      x: js.UndefOr[Double] = js.undefined,
+      y: js.UndefOr[Double] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
+    ): InlineOptions = {
+      val obj = js.Dynamic.literal()
+      if (x.isDefined) obj.x = x.get
+      if (y.isDefined) obj.y = y.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
+      obj.asInstanceOf[InlineOptions]
+    }
+  }
+
+  /** Options for autoUpdate.
+    *
+    * Note: This is a non-native trait so you can create instances from Scala.
+    */
   trait AutoUpdateOptions extends js.Object {
-    val ancestorScroll: js.UndefOr[Boolean] = js.native
-    val ancestorResize: js.UndefOr[Boolean] = js.native
-    val elementResize: js.UndefOr[Boolean] = js.native
-    val layoutShift: js.UndefOr[Boolean] = js.native
-    val animationFrame: js.UndefOr[Boolean] = js.native
+    val ancestorScroll: js.UndefOr[Boolean] = js.undefined
+    val ancestorResize: js.UndefOr[Boolean] = js.undefined
+    val elementResize: js.UndefOr[Boolean] = js.undefined
+    val layoutShift: js.UndefOr[Boolean] = js.undefined
+    val animationFrame: js.UndefOr[Boolean] = js.undefined
+  }
+
+  object AutoUpdateOptions {
+
+    /** Create AutoUpdateOptions with optional parameters. */
+    def apply(
+      ancestorScroll: js.UndefOr[Boolean] = js.undefined,
+      ancestorResize: js.UndefOr[Boolean] = js.undefined,
+      elementResize: js.UndefOr[Boolean] = js.undefined,
+      layoutShift: js.UndefOr[Boolean] = js.undefined,
+      animationFrame: js.UndefOr[Boolean] = js.undefined
+    ): AutoUpdateOptions = {
+      val obj = js.Dynamic.literal()
+      if (ancestorScroll.isDefined) obj.ancestorScroll = ancestorScroll.get
+      if (ancestorResize.isDefined) obj.ancestorResize = ancestorResize.get
+      if (elementResize.isDefined) obj.elementResize = elementResize.get
+      if (layoutShift.isDefined) obj.layoutShift = layoutShift.get
+      if (animationFrame.isDefined) obj.animationFrame = animationFrame.get
+      obj.asInstanceOf[AutoUpdateOptions]
+    }
   }
 
   // ============================================================================
