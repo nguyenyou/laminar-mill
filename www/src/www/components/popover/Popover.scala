@@ -1,8 +1,9 @@
-package www.components
+package www.components.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
+import www.components.popover.PopoverRoot
 
 object Popover {
   case class Store(openSignal: Signal[Boolean], onOpenChange: Observer[Boolean])

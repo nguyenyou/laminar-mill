@@ -1,6 +1,8 @@
-package www.components
+package www.components.popover
 
 import io.github.nguyenyou.laminar.api.L.*
+import www.components.popover.Popover
+import www.components.popover.PopoverRoot
 
 object PopoverTrigger {
 

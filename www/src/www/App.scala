@@ -1,7 +1,7 @@
 package www
 
 import io.github.nguyenyou.laminar.api.L.*
-import www.components.*
+import www.components.popover.*
 
 case class App() {
   val openVar = Var(false)

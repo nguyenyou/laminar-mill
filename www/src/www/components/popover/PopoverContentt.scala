@@ -1,6 +1,7 @@
-package www.components
+package www.components.popover
 
 import io.github.nguyenyou.laminar.api.L.*
+import www.components.popover.PopoverRoot
 
 object PopoverContent {
   def apply(content: HtmlElement)(using root: PopoverRoot) = {

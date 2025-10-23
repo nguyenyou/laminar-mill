@@ -1,8 +1,9 @@
-package www.components
+package www.components.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
+import www.components.popover.Popover
 
 case class PopoverRoot(store: Popover.Store) {
   var initialized: Option[Boolean] = None
