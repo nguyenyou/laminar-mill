@@ -64,20 +64,20 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
     if (isOpen) mount() else unmount()
   }
 
-  def processSize(side: PopoverContent.PopoverSide) = {
+  def processSize(side: PopoverContent.Side) = {
     side match
-      case PopoverContent.PopoverSide.Top    => "top-0 left-0"
-      case PopoverContent.PopoverSide.Bottom => "bottom-0 left-0"
+      case PopoverContent.Side.Top    => "top-0 left-0"
+      case PopoverContent.Side.Bottom => "bottom-0 left-0"
   }
 
-  def setSide(side: PopoverContent.PopoverSide) = {
+  def setSide(side: PopoverContent.Side) = {
     println("set side")
     portal.amend(
       cls := processSize(side)
     )
   }
 
-  def setSide(side: L.SignalSource[PopoverContent.PopoverSide]) = {
+  def setSide(side: L.SignalSource[PopoverContent.Side]) = {
     portal.amend(
       cls <-- side.toObservable.map { processSize }
     )
@@ -117,23 +117,23 @@ object PopoverContent {
     def <--(source: L.SignalSource[V]): PropUpdater[V] = PropUpdater(this, source)
   }
 
-  enum PopoverSide {
+  enum Side {
     case Top, Bottom
   }
 
-  object SideProp extends Prop[PopoverSide]("side") {
-    def applyValue(popoverContent: PopoverContent, value: PopoverSide): Unit = {
+  object SideProp extends Prop[Side]("side") {
+    def applyValue(popoverContent: PopoverContent, value: Side): Unit = {
       popoverContent.setSide(value)
     }
 
-    def applySource(popoverContent: PopoverContent, source: L.SignalSource[PopoverSide]): Unit = {
+    def applySource(popoverContent: PopoverContent, source: L.SignalSource[Side]): Unit = {
       popoverContent.setSide(source)
     }
 
-    type Selector = SideProp.type => PopoverSide
+    type Selector = SideProp.type => Side
 
-    lazy val top = SideProp(PopoverSide.Top)
-    lazy val bottom = SideProp(PopoverSide.Bottom)
+    lazy val top = SideProp(Side.Top)
+    lazy val bottom = SideProp(Side.Bottom)
   }
 
   object Props {

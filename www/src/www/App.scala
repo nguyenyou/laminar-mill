@@ -12,8 +12,22 @@ case class App() {
 
   val openVar2 = Var(false)
 
+  val sideVar = Var(PopoverContent.Side.Top)
+
   def apply() = {
     div(
+      button(
+        onClick --> Observer { _ =>
+          sideVar.set(PopoverContent.Side.Top)
+        },
+        "Set Top"
+      ),
+      button(
+        onClick --> Observer { _ =>
+          sideVar.set(PopoverContent.Side.Bottom)
+        },
+        "Set Bottom"
+      ),
       Popover() {
         PopoverTrigger()(
           button("Green")
@@ -39,6 +53,20 @@ case class App() {
             width.percent(100),
             height.percent(100),
             backgroundColor.red
+          )
+        )
+      },
+      Popover() {
+        PopoverTrigger()(
+          button("Yellow")
+        )
+        PopoverContent(
+          _.side <-- sideVar
+        )(
+          div(
+            width.percent(100),
+            height.percent(100),
+            backgroundColor.yellow
           )
         )
       }
