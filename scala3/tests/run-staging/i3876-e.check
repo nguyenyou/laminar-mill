@@ -1,6 +1,0 @@
-
-6
-Test.inlineLambda.apply({
-  scala.Predef.println()
-  3
-})

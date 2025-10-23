@@ -1,1 +1,0 @@
-def test() = f // error

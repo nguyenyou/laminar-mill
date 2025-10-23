@@ -1,2 +1,0 @@
-13: Pattern Match Exhaustivity: NodeA(_), NodeB(_), NodeC(_)
-15: Match case Unreachable

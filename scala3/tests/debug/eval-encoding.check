@@ -1,3 +1,0 @@
-break Test$ 4
-eval | + new <> + &(":") + !
-result |<>&(:)!

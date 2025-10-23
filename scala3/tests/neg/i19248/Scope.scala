@@ -1,4 +1,0 @@
-object Scope {
-}
-object Foo {
-}

@@ -1,5 +1,0 @@
-((q: scala.quoted.Quotes) ?=> {
-  val t: scala.quoted.Type[java.lang.String] = scala.quoted.Type.of[java.lang.String](q)
-
-  (t: scala.quoted.Type[java.lang.String])
-})

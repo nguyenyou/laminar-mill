@@ -1,1 +1,0 @@
-def method: Unit = myMacro

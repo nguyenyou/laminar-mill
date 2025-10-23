@@ -1,4 +1,0 @@
--- Error: tests/neg/i16842.scala:24:7 ----------------------------------------------------------------------------------
-24 |  Liter(SemanticArray[SemanticInt.type], x) // error
-   |       ^
-   |invalid new prefix (dim: Int): SemanticArray[SemanticInt.type] cannot replace (ty : SemanticArray[SemanticType]) in type ty.T

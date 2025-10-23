@@ -1,7 +1,0 @@
-zero
-one
-many
-got a
-got b
-got some letter
-scala.MatchError: 100000 (of class java.lang.Integer)

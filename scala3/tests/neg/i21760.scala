@@ -1,1 +1,0 @@
-open object O // error

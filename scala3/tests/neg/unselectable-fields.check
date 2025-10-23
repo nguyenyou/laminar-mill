@@ -1,4 +1,0 @@
--- Error: tests/neg/unselectable-fields.scala:4:13 ---------------------------------------------------------------------
-4 |val _ = foo1.xyz // error
-  |        ^^^^^^^^
-  |        Cannot use selectDynamic here since it needs another selectDynamic to be invoked

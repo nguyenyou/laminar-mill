@@ -1,6 +1,0 @@
-foo(scala.Equals): void
-foo(java.lang.Object): void
-bar(Bar): void
-bar2(Bar): void
-bar3(Bar): void
-bar4(Bar): void

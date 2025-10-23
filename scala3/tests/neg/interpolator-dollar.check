@@ -1,4 +1,0 @@
--- Error: tests/neg/interpolator-dollar.scala:5:20 ---------------------------------------------------------------------
-5 |  def oops = f"$s%s $<s" // error: invalid string interpolation
-  |                    ^
-  |                    invalid string interpolation: `$$`, `$"`, `$`ident or `$`BlockExpr expected

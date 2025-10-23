@@ -1,7 +1,0 @@
--- Error: tests/neg-macros/annot-crash/Test_2.scala:1:0 ----------------------------------------------------------------
-1 |@crash // error
-  |^^^^^^
-  |Failed to evaluate macro annotation '@crash'.
-  |  Caused by class scala.NotImplementedError: an implementation is missing
-  |    scala.Predef$.$qmark$qmark$qmark(Predef.scala:401)
-  |    crash.transform(Macro_1.scala:7)

@@ -1,3 +1,0 @@
-strings: WrappedVarArgs(hello)
-ints: WrappedVarArgs(1, 2)
-objs: WrappedVarArgs(1, hi)

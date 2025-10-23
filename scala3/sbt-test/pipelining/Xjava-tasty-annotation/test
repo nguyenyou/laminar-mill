@@ -1,5 +1,0 @@
-> a/compile
-# Test depending on a java compiled annotation through TASTy
-> b/compile
-# double check against the real java classes
-> bAlt/compile

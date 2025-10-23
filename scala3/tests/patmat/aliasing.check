@@ -1,3 +1,0 @@
-14: Pattern Match Exhaustivity: _: Trait & Alias1, _: Clazz & Alias1
-19: Pattern Match Exhaustivity: _: Trait & Alias2
-23: Pattern Match Exhaustivity: _: Trait & (Alias2 & OpenTrait2){val x: Int}

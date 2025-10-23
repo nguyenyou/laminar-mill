@@ -1,3 +1,0 @@
-object Exports{
-  export OverloadedInline.*
-}

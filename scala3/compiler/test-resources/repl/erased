@@ -1,3 +1,0 @@
-scala> import scala.language.experimental.erasedDefinitions
-scala> def f(erased a: Int): Int = ???
-def f(erased a: Int): Int
