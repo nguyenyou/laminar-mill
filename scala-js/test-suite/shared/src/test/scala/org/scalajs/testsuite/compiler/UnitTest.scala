@@ -1,0 +1,40 @@
+/*
+ * Scala.js (https://www.scala-js.org/)
+ *
+ * Copyright EPFL.
+ *
+ * Licensed under Apache License 2.0
+ * (https://www.apache.org/licenses/LICENSE-2.0).
+ *
+ * See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
+ */
+
+package org.scalajs.testsuite.compiler
+
+import org.junit.Test
+import org.junit.Assert._
+
+class UnitTest {
+  @Test def testHashCode(): Unit = {
+    assertEquals(0, ().hashCode())
+    assertEquals(0, ((): Any).hashCode())
+    assertEquals(0, ().##)
+  }
+
+  @Test def testEquals(): Unit = {
+    assertTrue(().asInstanceOf[AnyRef].equals(().asInstanceOf[AnyRef]))
+  }
+
+  @Test def testEqualsOtherValues(): Unit = {
+    def testAgainst(v: Any): Unit = {
+      assertFalse(().asInstanceOf[AnyRef].equals(v.asInstanceOf[AnyRef]))
+    }
+
+    testAgainst(0)
+    testAgainst(1)
+    testAgainst(null)
+    testAgainst(false)
+    testAgainst("")
+  }
+}
