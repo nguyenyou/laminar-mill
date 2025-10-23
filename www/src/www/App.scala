@@ -1,7 +1,7 @@
 package www
 
 import io.github.nguyenyou.laminar.api.L.*
-import www.components.popover.{Popover}
+import www.components.popover.*
 
 case class App() {
   val openVar = Var(false)
@@ -29,17 +29,17 @@ case class App() {
       //   "Set Bottom"
       // ),
       Popover() {
-        Popover.Trigger()("Green")
+        PopoverTrigger()("Green")
         // PopoverTrigger()(
         //   button("Green")
         // )
-        Popover.Content(
+        PopoverContent(
           _.side.bottom
         )(
           div(
             width.percent(100),
             height.percent(100),
-            backgroundColor.green
+            backgroundColor.red
           )
         )
       }

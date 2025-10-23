@@ -1,8 +1,8 @@
-package www.primitives.popover
+package io.github.nguyenyou.laminar.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
-import www.primitives.popover.PopoverRoot
+import io.github.nguyenyou.laminar.primitives.popover.PopoverRoot
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 

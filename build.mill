@@ -50,7 +50,7 @@ trait WebModule extends ScalaJSModule {
 }
 
 object www extends WebModule {
-  def moduleDeps = Seq(laminar)
+  def moduleDeps = Seq(laminar, primitives)
 }
 
 object waypoint extends WebModule {
@@ -60,6 +60,10 @@ object waypoint extends WebModule {
     mvn"be.doeraene::url-dsl::${Versions.urldsl}",
     mvn"com.lihaoyi::upickle::${Versions.upickle}"
   )
+}
+
+object primitives extends WebModule {
+  def moduleDeps = Seq(laminar)
 }
 
 object airstream extends WebModule {

@@ -1,4 +1,4 @@
-package www.primitives.popover
+package io.github.nguyenyou.laminar.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.nodes.DetachedRoot

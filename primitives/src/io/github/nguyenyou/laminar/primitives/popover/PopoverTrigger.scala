@@ -1,10 +1,10 @@
-package www.primitives.popover
+package io.github.nguyenyou.laminar.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
-import www.primitives.popover.Popover
-import www.primitives.popover.PopoverRoot
+import io.github.nguyenyou.laminar.primitives.popover.Popover
+import io.github.nguyenyou.laminar.primitives.popover.PopoverRoot
 
-import www.primitives.popover.Popover as PopoverPrimitive
+import io.github.nguyenyou.laminar.primitives.popover.Popover as PopoverPrimitive
 
 object PopoverTrigger {
 
