@@ -7,7 +7,7 @@ import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 
 class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
-  var initialized = false
+  private var initialized = false
 
   content.amend(
     dataAttr("slot") := "popover-content"
@@ -38,6 +38,7 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
     portal,
     activateNow = false
   )
+
   def show() = {
     portal.ref.style.display = "block"
   }
@@ -65,16 +66,19 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
     if (isOpen) mount() else unmount()
   }
 
+  def setSide(side: PopoverContent.Side) = {
+    // Apply the side value to the button
+  }
+
+  def setSide(side: L.Source[PopoverContent.Side]) = {
+    // Apply the side source to the button
+  }
+
 }
 
 object PopoverContent {
-  sealed trait PopoverContentModifier
-  class StoreProp extends PopoverContentModifier
-
-  object Props {
-    type Selector = Props.type => PopoverContentModifier
-
-    lazy val store: StoreProp = StoreProp()
+  sealed trait PopoverContentModifier {
+    def applyTo(popoverContent: PopoverContent): Unit
   }
 
   def apply(content: HtmlElement)(using root: PopoverRoot): Unit = {
@@ -94,8 +98,8 @@ object PopoverContent {
   // Abstract Prop class with type-safe application methods
   abstract class Prop[V](val name: String) {
     // Abstract methods that subclasses must implement for type-safe application
-    def applyValue(button: PopoverContent, value: V): Unit
-    def applySource(button: PopoverContent, source: L.Source[V]): Unit
+    def applyValue(popoverContent: PopoverContent, value: V): Unit
+    def applySource(popoverContent: PopoverContent, source: L.Source[V]): Unit
 
     inline def apply(value: V): PropSetter[V] = this := value
 
@@ -117,6 +121,15 @@ object PopoverContent {
       // Apply the side source to the button
     }
     type Selector = Side.type => Side
+
+    lazy val top = Side(Side.Top)
+    lazy val bottom = Side(Side.Bottom)
+    lazy val left = Side(Side.Left)
+    lazy val right = Side(Side.Right)
+  }
+
+  object Props {
+    type Selector = Props.type => PopoverContentModifier
   }
 
   // def apply(side: Side)(content: HtmlElement)(using root: PopoverRoot): Unit = {
@@ -130,6 +143,8 @@ object PopoverContent {
   def apply(mods: Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
     val resolvedMods: Seq[PopoverContentModifier] = mods.map(_(Props))
+    resolvedMods.foreach(_.applyTo(popoverContent))
+
     root.setContent(popoverContent)
   }
 
