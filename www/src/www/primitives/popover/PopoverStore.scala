@@ -1,4 +1,4 @@
-package www.components.popover
+package www.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 

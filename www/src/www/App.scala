@@ -1,38 +1,39 @@
 package www
 
 import io.github.nguyenyou.laminar.api.L.*
-import www.components.popover.*
+import www.components.popover.{Popover}
 
 case class App() {
   val openVar = Var(false)
-  val store = PopoverStore(
-    openVar.signal,
-    openVar.writer
-  )
+  // val store = PopoverStore(
+  //   openVar.signal,
+  //   openVar.writer
+  // )
 
   val openVar2 = Var(false)
 
-  val sideVar = Var(PopoverContent.Side.Top)
+  // val sideVar = Var(PopoverContent.Side.Top)
 
   def apply() = {
     div(
-      button(
-        onClick --> Observer { _ =>
-          sideVar.set(PopoverContent.Side.Top)
-        },
-        "Set Top"
-      ),
-      button(
-        onClick --> Observer { _ =>
-          sideVar.set(PopoverContent.Side.Bottom)
-        },
-        "Set Bottom"
-      ),
+      // button(
+      //   onClick --> Observer { _ =>
+      //     sideVar.set(PopoverContent.Side.Top)
+      //   },
+      //   "Set Top"
+      // ),
+      // button(
+      //   onClick --> Observer { _ =>
+      //     sideVar.set(PopoverContent.Side.Bottom)
+      //   },
+      //   "Set Bottom"
+      // ),
       Popover() {
-        PopoverTrigger()(
-          button("Green")
-        )
-        PopoverContent(
+        Popover.Trigger()("Green")
+        // PopoverTrigger()(
+        //   button("Green")
+        // )
+        Popover.Content(
           _.side.bottom
         )(
           div(
@@ -41,35 +42,35 @@ case class App() {
             backgroundColor.green
           )
         )
-      },
-      Popover() {
-        PopoverTrigger()(
-          button("Red")
-        )
-        PopoverContent(
-          _.side.top
-        )(
-          div(
-            width.percent(100),
-            height.percent(100),
-            backgroundColor.red
-          )
-        )
-      },
-      Popover() {
-        PopoverTrigger()(
-          button("Yellow")
-        )
-        PopoverContent(
-          _.side <-- sideVar
-        )(
-          div(
-            width.percent(100),
-            height.percent(100),
-            backgroundColor.yellow
-          )
-        )
       }
+      // Popover() {
+      //   PopoverTrigger()(
+      //     button("Red")
+      //   )
+      //   PopoverContent(
+      //     _.side.top
+      //   )(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.red
+      //     )
+      //   )
+      // },
+      // Popover() {
+      //   PopoverTrigger()(
+      //     button("Yellow")
+      //   )
+      //   PopoverContent(
+      //     _.side <-- sideVar
+      //   )(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.yellow
+      //     )
+      //   )
+      // }
       // Popover() {
       //   Popover.Trigger(
       //     button("Red")

@@ -1,9 +1,8 @@
-package www.components.popover
+package www.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
-import www.components.popover.Popover
 
 case class PopoverRoot(store: PopoverStore) {
   private var popoverContentRef: Option[PopoverContent] = None
