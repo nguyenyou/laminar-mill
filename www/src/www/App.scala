@@ -16,13 +16,29 @@ case class App() {
     div(
       Popover() {
         PopoverTrigger()(
-          button("Greeneee")
+          button("Green")
         )
-        PopoverContent()(
+        PopoverContent(
+          _.side.bottom
+        )(
           div(
             width.percent(100),
             height.percent(100),
             backgroundColor.green
+          )
+        )
+      },
+      Popover() {
+        PopoverTrigger()(
+          button("Red")
+        )
+        PopoverContent(
+          _.side.top
+        )(
+          div(
+            width.percent(100),
+            height.percent(100),
+            backgroundColor.red
           )
         )
       }

@@ -16,8 +16,6 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
   val portal = div(
     dataAttr("slot") := "popover-content-portal",
     position.fixed,
-    left.px(0),
-    bottom.px(0),
     width.px(400),
     height.px(400),
     cls("hidden"),
@@ -66,12 +64,23 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
     if (isOpen) mount() else unmount()
   }
 
-  def setSide(side: PopoverContent.Side) = {
-    // Apply the side value to the button
+  def processSize(side: PopoverContent.PopoverSide) = {
+    side match
+      case PopoverContent.PopoverSide.Top    => "top-0 left-0"
+      case PopoverContent.PopoverSide.Bottom => "bottom-0 left-0"
   }
 
-  def setSide(side: L.Source[PopoverContent.Side]) = {
-    // Apply the side source to the button
+  def setSide(side: PopoverContent.PopoverSide) = {
+    println("set side")
+    portal.amend(
+      cls := processSize(side)
+    )
+  }
+
+  def setSide(side: L.SignalSource[PopoverContent.PopoverSide]) = {
+    portal.amend(
+      cls <-- side.toObservable.map { processSize }
+    )
   }
 
 }
@@ -91,7 +100,7 @@ object PopoverContent {
     def applyTo(popoverContent: PopoverContent): Unit = prop.applyValue(popoverContent, initialValue)
   }
 
-  final class PropUpdater[V](val prop: Prop[V], val source: L.Source[V]) extends PopoverContentModifier {
+  final class PropUpdater[V](val prop: Prop[V], val source: L.SignalSource[V]) extends PopoverContentModifier {
     def applyTo(popoverContent: PopoverContent): Unit = prop.applySource(popoverContent, source)
   }
 
@@ -99,37 +108,38 @@ object PopoverContent {
   abstract class Prop[V](val name: String) {
     // Abstract methods that subclasses must implement for type-safe application
     def applyValue(popoverContent: PopoverContent, value: V): Unit
-    def applySource(popoverContent: PopoverContent, source: L.Source[V]): Unit
+    def applySource(popoverContent: PopoverContent, source: L.SignalSource[V]): Unit
 
     inline def apply(value: V): PropSetter[V] = this := value
 
     def :=(value: V): PropSetter[V] = PropSetter(this, value)
 
-    def <--(source: L.Source[V]): PropUpdater[V] = PropUpdater(this, source)
+    def <--(source: L.SignalSource[V]): PropUpdater[V] = PropUpdater(this, source)
   }
 
-  enum Side {
-    case Top, Bottom, Left, Right
+  enum PopoverSide {
+    case Top, Bottom
   }
 
-  object Side extends Prop[Side]("side") {
-    def applyValue(popoverContent: PopoverContent, value: Side): Unit = {
-      // Apply the side value to the button
+  object SideProp extends Prop[PopoverSide]("side") {
+    def applyValue(popoverContent: PopoverContent, value: PopoverSide): Unit = {
+      popoverContent.setSide(value)
     }
 
-    def applySource(popoverContent: PopoverContent, source: L.Source[Side]): Unit = {
-      // Apply the side source to the button
+    def applySource(popoverContent: PopoverContent, source: L.SignalSource[PopoverSide]): Unit = {
+      popoverContent.setSide(source)
     }
-    type Selector = Side.type => Side
 
-    lazy val top = Side(Side.Top)
-    lazy val bottom = Side(Side.Bottom)
-    lazy val left = Side(Side.Left)
-    lazy val right = Side(Side.Right)
+    type Selector = SideProp.type => PopoverSide
+
+    lazy val top = SideProp(PopoverSide.Top)
+    lazy val bottom = SideProp(PopoverSide.Bottom)
   }
 
   object Props {
     type Selector = Props.type => PopoverContentModifier
+
+    lazy val side: SideProp.type = SideProp
   }
 
   // def apply(side: Side)(content: HtmlElement)(using root: PopoverRoot): Unit = {
