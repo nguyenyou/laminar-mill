@@ -51,6 +51,9 @@ trait WebModule extends ScalaJSModule {
 
 object www extends WebModule {
   def moduleDeps = Seq(laminar, primitives)
+
+  // Enable ES module support for @JSImport to work with FloatingUI
+  override def moduleKind = ModuleKind.ESModule
 }
 
 object waypoint extends WebModule {

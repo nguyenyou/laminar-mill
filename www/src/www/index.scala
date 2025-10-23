@@ -2,12 +2,12 @@ package www
 
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L.*
+import www.examples.floatingui.*
 
 @main def main(): Unit = {
-  val counterVar = Var(0)
 
   render(
     dom.document.getElementById("app"),
-    App()()
+    AutoUpdateExample.demo()
   )
 }
