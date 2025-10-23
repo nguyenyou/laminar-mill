@@ -5,7 +5,7 @@ import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 import www.components.popover.Popover
 
-case class PopoverRoot(store: Popover.Store) {
+case class PopoverRoot(store: PopoverStore) {
   var initialized: Option[Boolean] = None
 
   val targetVar = Var[Option[HtmlElement]](None)
@@ -73,7 +73,7 @@ case class PopoverRoot(store: Popover.Store) {
     targetVar.set(Some(trigger))
     mount()
   }
-  def setupRenderPropTrigger(renderProps: Popover.Store => HtmlElement) = {
+  def setupRenderPropTrigger(renderProps: PopoverStore => HtmlElement) = {
     val trigger = renderProps(store)
     trigger.amend(
       store.openSignal --> Observer[Boolean] { open =>

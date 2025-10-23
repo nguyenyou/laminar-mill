@@ -5,7 +5,7 @@ import www.components.popover.*
 
 case class App() {
   val openVar = Var(false)
-  val store = Popover.Store(
+  val store = PopoverStore(
     openVar.signal,
     openVar.writer
   )
@@ -13,12 +13,13 @@ case class App() {
   val openVar2 = Var(false)
 
   def apply() = {
+    given parent: HtmlElement = div("1234")
     div(
       Popover() {
-        PopoverTrigger(
-          button("Green")
+        PopoverTrigger()(
+          button("Greeneee")
         )
-        PopoverContent(side = _.Bottom)(
+        PopoverContent()(
           div(
             width.percent(100),
             height.percent(100),

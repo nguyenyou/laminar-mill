@@ -6,11 +6,16 @@ import www.components.popover.PopoverRoot
 
 object PopoverTrigger {
 
-  def apply(trigger: HtmlElement)(using root: PopoverRoot) = {
+  def apply()(text: String)(using root: PopoverRoot): Unit = {
+    val trigger = button(text)
     root.setupTrigger(trigger)
   }
 
-  def apply(render: Popover.Store => HtmlElement)(using root: PopoverRoot) = {
+  def apply()(trigger: HtmlElement)(using root: PopoverRoot): Unit = {
+    root.setupTrigger(trigger)
+  }
+
+  def apply()(render: PopoverStore => HtmlElement)(using root: PopoverRoot): Unit = {
     root.setupRenderPropTrigger(render)
   }
 }
