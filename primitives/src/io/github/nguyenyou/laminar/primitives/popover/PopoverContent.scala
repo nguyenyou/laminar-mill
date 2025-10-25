@@ -112,9 +112,13 @@ object PopoverContent {
 
     inline def apply(value: V): PropSetter[V] = this := value
 
-    def :=(value: V): PropSetter[V] = PropSetter(this, value)
+    def :=(value: V): PropSetter[V] = {
+      new PropSetter(this, value)
+    }
 
-    def <--(source: L.SignalSource[V]): PropUpdater[V] = PropUpdater(this, source)
+    def <--(source: L.SignalSource[V]): PropUpdater[V] = {
+      new PropUpdater(this, source)
+    }
   }
 
   enum Side {
