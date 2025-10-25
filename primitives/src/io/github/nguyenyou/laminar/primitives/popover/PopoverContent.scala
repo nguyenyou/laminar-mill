@@ -4,6 +4,7 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.primitives.popover.PopoverRoot
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
+import io.github.nguyenyou.laminar.primitives.base.*
 import org.scalajs.dom
 
 class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
@@ -86,51 +87,21 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
 }
 
 object PopoverContent {
-  sealed trait PopoverContentModifier {
-    def applyTo(popoverContent: PopoverContent): Unit
-  }
-
   def apply(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
     root.setContent(popoverContent)
-  }
-
-  // Concrete modifier types with built-in application logic
-  final class PropSetter[V](val prop: Prop[V], val initialValue: V) extends PopoverContentModifier {
-    def applyTo(popoverContent: PopoverContent): Unit = prop.applyValue(popoverContent, initialValue)
-  }
-
-  final class PropUpdater[V](val prop: Prop[V], val source: L.SignalSource[V]) extends PopoverContentModifier {
-    def applyTo(popoverContent: PopoverContent): Unit = prop.applySource(popoverContent, source)
-  }
-
-  // Abstract Prop class with type-safe application methods
-  abstract class Prop[V](val name: String) {
-    // Abstract methods that subclasses must implement for type-safe application
-    def applyValue(popoverContent: PopoverContent, value: V): Unit
-    def applySource(popoverContent: PopoverContent, source: L.SignalSource[V]): Unit
-
-    inline def apply(value: V): PropSetter[V] = this := value
-
-    def :=(value: V): PropSetter[V] = {
-      new PropSetter(this, value)
-    }
-
-    def <--(source: L.SignalSource[V]): PropUpdater[V] = {
-      new PropUpdater(this, source)
-    }
   }
 
   enum Side {
     case Top, Bottom
   }
 
-  object SideProp extends Prop[Side]("side") {
+  object SideProp extends ComponentProp[Side, PopoverContent]("side") {
     def applyValue(popoverContent: PopoverContent, value: Side): Unit = {
       popoverContent.setSide(value)
     }
 
-    def applySource(popoverContent: PopoverContent, source: L.SignalSource[Side]): Unit = {
+    def applySignal(popoverContent: PopoverContent, source: L.SignalSource[Side]): Unit = {
       popoverContent.setSide(source)
     }
 
@@ -141,7 +112,7 @@ object PopoverContent {
   }
 
   object Props {
-    type Selector = Props.type => PopoverContentModifier
+    type Selector = Props.type => ComponentModifier[PopoverContent]
 
     lazy val side: SideProp.type = SideProp
   }
@@ -156,7 +127,7 @@ object PopoverContent {
 
   def apply(mods: Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
-    val resolvedMods: Seq[PopoverContentModifier] = mods.map(_(Props))
+    val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(Props))
     resolvedMods.foreach(_.applyTo(popoverContent))
 
     root.setContent(popoverContent)

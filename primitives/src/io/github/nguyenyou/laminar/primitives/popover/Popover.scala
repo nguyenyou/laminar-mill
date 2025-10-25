@@ -1,6 +1,7 @@
 package io.github.nguyenyou.laminar.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
+import io.github.nguyenyou.laminar.primitives.base.*
 
 object Popover {
   export io.github.nguyenyou.laminar.primitives.popover.PopoverRoot as Root
@@ -22,7 +23,7 @@ object Popover {
 
   def createContent(mods: PopoverContent.Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
-    val resolvedMods: Seq[PopoverContent.PopoverContentModifier] = mods.map(_(PopoverContent.Props))
+    val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(PopoverContent.Props))
     resolvedMods.foreach(_.applyTo(popoverContent))
 
     root.setContent(popoverContent)
