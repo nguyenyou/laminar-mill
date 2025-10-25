@@ -1,5 +1,5 @@
 package io.github.nguyenyou.laminar.primitives.base
 
-trait ComponentModifier[A] {
-  def applyTo(component: A): Unit
+trait ComponentModifier[Component] {
+  def applyTo(component: Component): Unit
 }
