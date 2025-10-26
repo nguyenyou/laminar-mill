@@ -3,6 +3,10 @@ package io.github.nguyenyou.laminar.primitives.tooltip
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.primitives.base.*
 import io.github.nguyenyou.facades.floatingui.FloatingUIDOM
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
+import scala.scalajs.js.Thenable.Implicits.thenable2future
+import scala.util.Failure
+import scala.util.Success
 
 import scala.scalajs.js
 
@@ -23,6 +27,63 @@ class TooltipRoot(val store: TooltipStore) {
     )
   )
 
+  def compute(): Unit = {
+    for {
+      trigger <- tooltipTrigger.map(_.element.ref)
+      portal <- tooltipPortal.map(_.element.ref)
+    } {
+      println(floatinguiMiddlewares)
+      FloatingUIDOM
+        .computePosition(
+          reference = trigger,
+          floating = portal,
+          options = FloatingUIDOM.ComputePositionConfig(
+            placement = "top",
+            middleware = floatinguiMiddlewares
+          )
+        )
+        .onComplete {
+          case Failure(exception) => println(exception)
+          case Success(result) =>
+            println(s"X: ${result.x}, Y: ${result.y}")
+            portal.style.left = s"${result.x}px"
+            portal.style.top = s"${result.y}px"
+            portal.style.opacity = "1"
+            // Position the arrow element if present
+            result.middlewareData.arrow.foreach { arrowData =>
+              tooltipArrow.foreach { arrowElement =>
+                // Calculate the static side based on placement
+                val staticSide = result.placement.split("-")(0) match {
+                  case "top"    => "bottom"
+                  case "right"  => "left"
+                  case "bottom" => "top"
+                  case "left"   => "right"
+                  case _        => "bottom"
+                }
+
+                // Apply x position if available
+                arrowData.x.foreach { x =>
+                  println(s"ARROW X: ${x}")
+                  arrowElement.element.ref.style.left = s"${x}px"
+                }
+
+                // Apply y position if available
+                arrowData.y.foreach { y =>
+                  println(s"ARROW Y: ${y}")
+                  arrowElement.element.ref.style.top = s"${y}px"
+                }
+
+                // Clear other sides and set the static side offset
+                arrowElement.element.ref.style.right = ""
+                arrowElement.element.ref.style.bottom = ""
+                arrowElement.element.ref.style.setProperty(staticSide, "-4px")
+              }
+            }
+        }
+    }
+
+  }
+
   def setupTrigger(trigger: TooltipTrigger): Unit = {
     trigger.element.amend(
       onMouseEnter --> Observer { _ =>
@@ -34,16 +95,25 @@ class TooltipRoot(val store: TooltipStore) {
       store.isHoveringSignal --> Observer[Boolean] { isHovering =>
         println(s"IS HOVERING: $isHovering")
         tooltipPortal.foreach(_.onHoverChange(isHovering))
+      },
+      store.isHoveringSignal --> Observer[Boolean] { isHovering =>
+        if (isHovering) {
+          compute()
+        } else {
+          ()
+        }
       }
     )
   }
 
   def setContent(content: TooltipContent): Unit = {
     tooltipContent = Some(content)
+    println("SET > CONTENT")
   }
 
   def setArrow(arrow: TooltipArrow): Unit = {
     tooltipArrow = Some(arrow)
+    println("SET > ARROW")
     floatinguiMiddlewares.push(
       FloatingUIDOM.arrow(
         FloatingUIDOM.ArrowOptions(
@@ -55,10 +125,12 @@ class TooltipRoot(val store: TooltipStore) {
 
   def setTrigger(trigger: TooltipTrigger): Unit = {
     tooltipTrigger = Some(trigger)
+    println("SET > TRIGGER")
     setupTrigger(trigger)
   }
 
   def setPortal(portal: TooltipPortal): Unit = {
+    println("SET > PORTAL")
     tooltipPortal = Some(portal)
   }
 
