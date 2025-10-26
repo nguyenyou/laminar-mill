@@ -73,9 +73,35 @@ class TooltipContent(
               portal.ref.style.left = s"${result.x}px"
               portal.ref.style.top = s"${result.y}px"
               portal.ref.style.display = "block"
-              val arrowData = result.middlewareData.arrow
-              val placement = result.placement
 
+              // Position the arrow element if present
+              result.middlewareData.arrow.foreach { arrowData =>
+                tooltipArrow.foreach { arrowElement =>
+                  // Calculate the static side based on placement
+                  val staticSide = result.placement.split("-")(0) match {
+                    case "top"    => "bottom"
+                    case "right"  => "left"
+                    case "bottom" => "top"
+                    case "left"   => "right"
+                    case _        => "bottom"
+                  }
+
+                  // Apply x position if available
+                  arrowData.x.foreach { x =>
+                    arrowElement.element.ref.style.left = s"${x}px"
+                  }
+
+                  // Apply y position if available
+                  arrowData.y.foreach { y =>
+                    arrowElement.element.ref.style.top = s"${y}px"
+                  }
+
+                  // Clear other sides and set the static side offset
+                  arrowElement.element.ref.style.right = ""
+                  arrowElement.element.ref.style.bottom = ""
+                  arrowElement.element.ref.style.setProperty(staticSide, "-4px")
+                }
+              }
           }
         }
       }
