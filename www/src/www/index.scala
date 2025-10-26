@@ -8,6 +8,6 @@ import www.examples.floatingui.*
 
   render(
     dom.document.getElementById("app"),
-    AutoUpdateExample.demo()
+    BasicTooltipExample.simpleTooltip()
   )
 }
