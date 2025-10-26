@@ -18,7 +18,11 @@ class TooltipContent(
 ) extends Component {
   private var mounted = false
 
-  def render() = div()
+  def render() = div(
+    onMountCallback { ctx =>
+      println("MOUNTED > CONTENT")
+    }
+  )
 
   def setChildren(children: Seq[ChildNode.Base]) = {
     element.amend(

@@ -7,7 +7,11 @@ import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipTrigger() extends Component {
   def render(): HtmlElement = {
-    button()
+    button(
+      onMountCallback { ctx =>
+        println("MOUNTED > TRIGGER")
+      }
+    )
   }
 
   def setChild(child: ChildNode.Base) = {

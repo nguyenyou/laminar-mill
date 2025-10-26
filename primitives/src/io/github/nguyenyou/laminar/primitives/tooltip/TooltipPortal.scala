@@ -49,6 +49,7 @@ class TooltipPortal(
       top.px(0),
       left.px(0),
       onMountCallback { ctx =>
+        println("MOUNTED > PORTAL")
         val portal = ctx.thisNode
         root.trigger.foreach { trigger =>
           println("COMPUTE POSITION")
@@ -64,7 +65,7 @@ class TooltipPortal(
             .onComplete {
               case Failure(exception) => println(exception)
               case Success(result) =>
-                println(s"x: ${result.x}, y: ${result.y}")
+                println(s"X: ${result.x}, Y: ${result.y}")
                 portal.ref.style.left = s"${result.x}px"
                 portal.ref.style.top = s"${result.y}px"
                 portal.ref.style.display = "block"
@@ -83,11 +84,13 @@ class TooltipPortal(
 
                     // Apply x position if available
                     arrowData.x.foreach { x =>
+                      println(s"ARROW X: ${x}")
                       arrowElement.element.ref.style.left = s"${x}px"
                     }
 
                     // Apply y position if available
                     arrowData.y.foreach { y =>
+                      println(s"ARROW Y: ${y}")
                       arrowElement.element.ref.style.top = s"${y}px"
                     }
 
