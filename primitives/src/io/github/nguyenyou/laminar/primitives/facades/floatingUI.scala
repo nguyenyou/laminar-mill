@@ -299,14 +299,12 @@ object FloatingUIDOM {
       middleware: js.UndefOr[js.Array[Middleware | Null]] = js.undefined,
       platform: js.UndefOr[Platform] = js.undefined
     ): ComputePositionConfig = {
-      js.Dynamic
-        .literal(
-          placement = placement,
-          strategy = strategy,
-          middleware = middleware,
-          platform = platform
-        )
-        .asInstanceOf[ComputePositionConfig]
+      val obj = js.Dynamic.literal()
+      placement.foreach(v => obj.updateDynamic("placement")(v))
+      strategy.foreach(v => obj.updateDynamic("strategy")(v))
+      middleware.foreach(v => obj.updateDynamic("middleware")(v))
+      platform.foreach(v => obj.updateDynamic("platform")(v))
+      obj.asInstanceOf[ComputePositionConfig]
     }
   }
 
