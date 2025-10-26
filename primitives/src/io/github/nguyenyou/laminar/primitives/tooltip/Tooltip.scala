@@ -7,6 +7,7 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipStore as Store
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipTrigger as Trigger
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
+  export io.github.nguyenyou.laminar.primitives.tooltip.TooltipArrow as Arrow
 
   def root(init: TooltipRoot ?=> Unit): DynamicInserter = {
     val isHoveringVar = Var(true)
@@ -19,8 +20,13 @@ object Tooltip {
     root.setupTrigger(button(cls(className), text))
   }
 
-  def content(className: String)(content: HtmlElement)(using root: TooltipRoot) = {
-    val tooltipContent: TooltipContent = new TooltipContent(content = content, root = root, className = className)
+  def content(className: String)(content: HtmlElement, tooltipArrow: Option[TooltipArrow] = None)(using root: TooltipRoot) = {
+    val tooltipContent: TooltipContent = new TooltipContent(
+      content = content,
+      root = root,
+      className = className,
+      tooltipArrow = tooltipArrow
+    )
     root.setupContent(tooltipContent)
   }
 }

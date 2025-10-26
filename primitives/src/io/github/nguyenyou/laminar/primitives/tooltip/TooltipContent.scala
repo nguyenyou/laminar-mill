@@ -11,15 +11,21 @@ import scala.util.Failure
 import scala.util.Success
 import scala.scalajs.js
 
-class TooltipContent(val content: HtmlElement, val className: String, val root: TooltipRoot) {
+class TooltipContent(
+  val content: HtmlElement,
+  val className: String,
+  val root: TooltipRoot,
+  val tooltipArrow: Option[TooltipArrow] = None
+) {
   private var mounted = false
 
-  val portal = div(
+  val portal: Div = div(
     dataAttr("slot") := "tooltip-content-portal",
     cls := "absolute w-max",
     top.px(0),
     left.px(0),
-    content
+    content,
+    tooltipArrow
   )
 
   portal.amend(
@@ -33,20 +39,24 @@ class TooltipContent(val content: HtmlElement, val className: String, val root: 
     onMountBind { ctx =>
       root.targetSignal --> Observer[Option[HtmlElement]] { targetOpt =>
         targetOpt.foreach { target =>
+          val middlewares = js.Array(
+            offset(6),
+            flip(),
+            shift(
+              ShiftOptions(
+                padding = 8
+              )
+            )
+          )
+
+          tooltipArrow.foreach { arrow => }
+
           computePosition(
             reference = target.ref,
             floating = ctx.thisNode.ref,
             options = ComputePositionConfig(
               placement = "top",
-              middleware = js.Array(
-                offset(6),
-                flip(),
-                shift(
-                  ShiftOptions(
-                    padding = 8
-                  )
-                )
-              )
+              middleware = middlewares
             )
           ).onComplete {
             case Failure(exception) => println(exception)
