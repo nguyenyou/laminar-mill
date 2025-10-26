@@ -51,6 +51,7 @@ class TooltipPortal(
       onMountCallback { ctx =>
         val portal = ctx.thisNode
         root.trigger.foreach { trigger =>
+          println("COMPUTE POSITION")
           FloatingUIDOM
             .computePosition(
               reference = trigger.element.ref,
