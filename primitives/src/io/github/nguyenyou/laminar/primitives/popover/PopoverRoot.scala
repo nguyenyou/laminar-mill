@@ -4,7 +4,7 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 
-case class PopoverRoot(store: PopoverStore) {
+class PopoverRoot(val store: PopoverStore) {
   private var popoverContent: Option[PopoverContent] = None
 
   val targetVar = Var[Option[HtmlElement]](None)
