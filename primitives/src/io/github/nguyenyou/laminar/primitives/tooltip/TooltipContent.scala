@@ -38,7 +38,7 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
           floating = portal.ref,
           options = ComputePositionConfig(
             placement = "top",
-            middleware = js.Array(flip())
+            middleware = js.Array(flip(), shift())
           )
         ).onComplete {
           case Failure(exception) => println(exception)

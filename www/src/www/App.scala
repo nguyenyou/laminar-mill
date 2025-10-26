@@ -36,7 +36,7 @@ case class App() {
             width.percent(100),
             height.percent(100),
             backgroundColor.red,
-            "Hello World"
+            "My tooltip with more content"
           )
         )
       }
