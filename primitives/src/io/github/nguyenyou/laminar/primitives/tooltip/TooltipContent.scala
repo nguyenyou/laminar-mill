@@ -105,43 +105,7 @@ class TooltipContent(
           }
         }
       }
-    },
-    onMountCallback { ctx =>
-      println("portal mounted")
     }
-    // root.targetSignal --> Observer[Option[HtmlElement]] { targetOpt =>
-    //   targetOpt.foreach { target =>
-    //     computePosition(
-    //       reference = target.ref,
-    //       floating = portal.ref,
-    //       options = ComputePositionConfig(
-    //         placement = "top",
-    //         middleware = js.Array(
-    //           offset(6),
-    //           flip(),
-    //           shift(
-    //             ShiftOptions(
-    //               padding = 8
-    //             )
-    //           )
-    //         )
-    //       )
-    //     ).onComplete {
-    //       case Failure(exception) => println(exception)
-    //       case Success(result) =>
-    //         println(s"x: ${result.x}, y: ${result.y}")
-    //         portal.ref.style.left = s"${result.x}px"
-    //         portal.ref.style.top = s"${result.y}px"
-    //         portal.ref.style.display = "block"
-    //     }
-    //   }
-    //   // target.foreach { target =>
-    //   //   portal.amend(
-    //   //     top := target.ref.offsetTop,
-    //   //     left := target.ref.offsetLeft
-    //   //   )
-    //   // }
-    // }
   )
 
   private val portalRoot: DetachedRoot[Div] = renderDetached(
