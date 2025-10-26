@@ -20,62 +20,6 @@ class TooltipContent(
 
   def render() = div()
 
-  val portal: Div = div(
-    dataAttr("slot") := "tooltip-content-portal",
-    cls := "absolute w-max",
-    top.px(0),
-    left.px(0),
-    element
-  )
-
-  portal.amend(
-    // root.store.isHoveringSignal --> Observer[Boolean] { open =>
-    //   if (open) {
-    //     show()
-    //   } else {
-    //     hide()
-    //   }
-    // },
-
-  )
-
-  private val portalRoot: DetachedRoot[Div] = renderDetached(
-    portal,
-    activateNow = true
-  )
-
-  def show() = {
-    portal.ref.style.display = "block"
-  }
-
-  def hide() = {
-    portal.ref.style.display = "none"
-  }
-
-  def mount() = {
-    if (!mounted) {
-      mounted = true
-      dom.document.body.appendChild(portalRoot.ref)
-      if (!portalRoot.isActive) {
-        portalRoot.activate()
-      }
-    }
-  }
-
-  def unmount() = {
-    if (mounted) {
-      mounted = false
-      if (portalRoot.isActive) {
-        portalRoot.deactivate()
-      }
-      dom.document.body.removeChild(portalRoot.ref)
-    }
-  }
-
-  def onHoverChange(isHovering: Boolean) = {
-    if (isHovering) mount() else unmount()
-  }
-
   def setChildren(children: Seq[ChildNode.Base]) = {
     element.amend(
       children
@@ -87,8 +31,6 @@ class TooltipContent(
       children <-- values.toObservable
     )
   }
-
-  def setRoot(value: TooltipRoot) = {}
 }
 
 object TooltipContent extends HasClassNameProp[TooltipContent] {
