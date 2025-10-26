@@ -9,15 +9,14 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
 
   def root(init: TooltipRoot ?=> Unit): DynamicInserter = {
-    val isHoveringVar = Var(false)
+    val isHoveringVar = Var(true)
     given tooltip: TooltipRoot = TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     init
     child.maybe <-- tooltip.targetSignal
   }
 
   def trigger(text: String)(using root: TooltipRoot) = {
-    val trigger = div(text)
-    root.setupTrigger(trigger)
+    root.setupTrigger(button(text))
   }
 
   def content()(content: HtmlElement)(using root: TooltipRoot) = {
