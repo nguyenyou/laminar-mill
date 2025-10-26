@@ -108,9 +108,10 @@ object TooltipPortal extends HasClassNameProp[TooltipPortal] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
-  def apply()(children: ChildNode.Base*)(using root: TooltipRoot): TooltipPortal = {
-    val tooltipPortal = new TooltipPortal(root)
+  def apply()(context: TooltipPortal ?=> Unit)(using root: TooltipRoot): TooltipPortal = {
+    given tooltipPortal: TooltipPortal = new TooltipPortal(root)
     root.setPortal(tooltipPortal)
+    context
     tooltipPortal
   }
 

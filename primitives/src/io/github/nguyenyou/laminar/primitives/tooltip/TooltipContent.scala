@@ -106,7 +106,7 @@ object TooltipContent extends HasClassNameProp[TooltipContent] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
-  def apply(mods: Props.Selector*)(children: ChildNode.Base*)(using root: TooltipRoot): TooltipContent = {
+  def apply(mods: Props.Selector*)(children: ChildNode.Base*)(using root: TooltipRoot, portal: TooltipPortal): TooltipContent = {
     val resolvedMods: Seq[ComponentModifier[TooltipContent]] = mods.map(_(Props))
     val tooltipContent = new TooltipContent(root = root)
     resolvedMods.foreach(_(tooltipContent))
@@ -115,6 +115,11 @@ object TooltipContent extends HasClassNameProp[TooltipContent] {
     tooltipContent.setChildren(children)
 
     root.setContent(tooltipContent)
+
+    // portal add contetn
+    portal.element.amend(
+      tooltipContent
+    )
 
     tooltipContent
   }
