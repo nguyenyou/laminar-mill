@@ -25,4 +25,5 @@ trait Component {
 
 object Component {
   implicit val renderable: RenderableNode[Component] = RenderableNode(_.element)
+
 }

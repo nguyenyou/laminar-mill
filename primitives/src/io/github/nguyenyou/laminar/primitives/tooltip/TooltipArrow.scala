@@ -10,13 +10,25 @@ class TooltipArrow() extends Component {
   }
 }
 
-object TooltipArrow extends ComponentProps[TooltipArrow] {
-  object Props extends PropSelector[TooltipArrow] {
+object TooltipArrow {
+  object ClassNameProp extends ComponentProp[String, TooltipArrow] {
+    private[primitives] def setProp(component: TooltipArrow, value: String): Unit = {
+      component.setClassName(value)
+    }
+
+    private[primitives] def updateProp(component: TooltipArrow, values: Source[String]): Unit = {
+      component.updateClassName(values)
+    }
+  }
+
+  object Props {
+    type Selector = Props.type => ComponentModifier[TooltipArrow]
+
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
   def apply(mods: Props.Selector*)(using root: TooltipRoot): TooltipArrow = {
-    val resolvedMods = mods.map(_(Props))
+    val resolvedMods: Seq[ComponentModifier[TooltipArrow]] = mods.map(_(Props))
     val tooltipArrow = new TooltipArrow()
     resolvedMods.foreach(_(tooltipArrow))
 
