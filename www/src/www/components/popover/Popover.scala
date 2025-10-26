@@ -8,7 +8,7 @@ import io.github.nguyenyou.laminar.primitives.popover.Popover as PopoverPrimitiv
 object Popover {
 
   def apply()(init: PopoverPrimitive.Root ?=> Unit) = {
-    PopoverPrimitive.createRoot(init)
+    PopoverPrimitive.root(init)
   }
 
 }
@@ -16,7 +16,7 @@ object Popover {
 object PopoverTrigger {
 
   def apply()(text: String)(using root: PopoverPrimitive.Root): Unit = {
-    PopoverPrimitive.createTrigger(text)
+    PopoverPrimitive.trigger(text)
   }
 
 }
@@ -24,7 +24,7 @@ object PopoverTrigger {
 object PopoverContent {
 
   def apply(mods: PopoverPrimitive.Content.Props.Selector*)(content: HtmlElement)(using root: PopoverPrimitive.Root): Unit = {
-    PopoverPrimitive.createContent(mods*)(content)
+    PopoverPrimitive.content(mods*)(content)
   }
 
 }
