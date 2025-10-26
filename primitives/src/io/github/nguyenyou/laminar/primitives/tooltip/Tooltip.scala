@@ -9,4 +9,5 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipTrigger as Trigger
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipArrow as Arrow
+  export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContext as Context
 }

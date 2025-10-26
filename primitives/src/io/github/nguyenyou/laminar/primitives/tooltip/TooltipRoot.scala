@@ -1,6 +1,7 @@
 package io.github.nguyenyou.laminar.primitives.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
+import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipRoot(val store: TooltipStore) {
   private var tooltipContent: Option[TooltipContent] = None
@@ -41,9 +42,7 @@ class TooltipRoot(val store: TooltipStore) {
 }
 
 object TooltipRoot {
-  type Context = TooltipRoot ?=> Unit
-
-  def apply()(context: Context): Option[HtmlElement] = {
+  def apply()(context: TooltipContext): Option[HtmlElement] = {
     val isHoveringVar = Var(true)
     given tooltipRoot: TooltipRoot = new TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     context

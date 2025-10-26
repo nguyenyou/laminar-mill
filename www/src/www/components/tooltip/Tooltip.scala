@@ -4,7 +4,7 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.primitives.tooltip.Tooltip as TooltipPrimitive
 
 object Tooltip {
-  def apply()(context: TooltipPrimitive.Root.Context) = {
+  def apply()(context: TooltipPrimitive.Context) = {
     TooltipPrimitive.Root()(context)
   }
 }
