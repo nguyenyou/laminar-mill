@@ -17,10 +17,28 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
     content
   )
 
+  portal.amend(
+    root.store.isHoveringSignal --> Observer[Boolean] { open =>
+      if (open) {
+        show()
+      } else {
+        hide()
+      }
+    }
+  )
+
   private val portalRoot: DetachedRoot[Div] = renderDetached(
     portal,
     activateNow = false
   )
+
+  def show() = {
+    portal.ref.style.display = "block"
+  }
+
+  def hide() = {
+    portal.ref.style.display = "none"
+  }
 
   def mount() = {
     if (!mounted) {
@@ -36,5 +54,9 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
       portalRoot.deactivate()
       dom.document.body.removeChild(portalRoot.ref)
     }
+  }
+
+  def onHoverChange(isHovering: Boolean) = {
+    if (isHovering) mount() else unmount()
   }
 }

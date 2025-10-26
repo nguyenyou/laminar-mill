@@ -2,6 +2,7 @@ package www
 
 import io.github.nguyenyou.laminar.api.L.*
 import www.components.popover.*
+import www.components.tooltip.*
 
 case class App() {
   val openVar = Var(false)
@@ -28,14 +29,9 @@ case class App() {
       //   },
       //   "Set Bottom"
       // ),
-      Popover() {
-        PopoverTrigger()("Green")
-        // PopoverTrigger()(
-        //   button("Green")
-        // )
-        PopoverContent(
-          _.side.bottom
-        )(
+      Tooltip() {
+        TooltipTrigger()("Green")
+        TooltipContent()(
           div(
             width.percent(100),
             height.percent(100),
@@ -43,6 +39,18 @@ case class App() {
           )
         )
       }
+      // Popover() {
+      //   PopoverTrigger()("Green")
+      //   PopoverContent(
+      //     _.side.bottom
+      //   )(
+      //     div(
+      //       width.percent(100),
+      //       height.percent(100),
+      //       backgroundColor.red
+      //     )
+      //   )
+      // }
       // Popover() {
       //   PopoverTrigger()(
       //     button("Red")

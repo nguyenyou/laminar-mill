@@ -1,8 +1,6 @@
 package www.components.popover
 
 import io.github.nguyenyou.laminar.api.L.*
-import io.github.nguyenyou.laminar.nodes.DetachedRoot
-import org.scalajs.dom
 import io.github.nguyenyou.laminar.primitives.popover.Popover as PopoverPrimitive
 
 object Popover {

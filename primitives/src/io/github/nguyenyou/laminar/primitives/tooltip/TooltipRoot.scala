@@ -15,9 +15,16 @@ class TooltipRoot(val store: TooltipStore) {
       },
       onMouseLeave --> Observer { _ =>
         store.onHoverChange.onNext(false)
+      },
+      store.isHoveringSignal --> Observer[Boolean] { isHovering =>
+        tooltipContent.foreach(_.onHoverChange(isHovering))
       }
     )
     targetVar.set(Some(trigger))
     tooltipContent.foreach(_.mount())
+  }
+
+  def setupContent(content: TooltipContent) = {
+    tooltipContent = Some(content)
   }
 }
