@@ -3,8 +3,8 @@ package www.examples.floatingui
 import scala.scalajs.js
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import org.scalajs.dom
-import io.github.nguyenyou.laminar.api.L._
-import www.facades.floatingui.FloatingUIDOM._
+import io.github.nguyenyou.laminar.api.L.*
+import io.github.nguyenyou.facades.floatingui.FloatingUIDOM.*
 
 /** Middleware Examples - Demonstrates FloatingUI middleware usage.
   *

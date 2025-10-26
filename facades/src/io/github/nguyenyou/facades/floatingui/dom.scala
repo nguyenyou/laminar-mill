@@ -7,7 +7,7 @@
  * Following Scala.js best practices from the scala-js codebase
  */
 
-package io.github.nguyenyou.laminar.primitives.facades.floatingui
+package io.github.nguyenyou.facades.floatingui
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -300,10 +300,10 @@ object FloatingUIDOM {
       platform: js.UndefOr[Platform] = js.undefined
     ): ComputePositionConfig = {
       val obj = js.Dynamic.literal()
-      placement.foreach(v => obj.updateDynamic("placement")(v))
-      strategy.foreach(v => obj.updateDynamic("strategy")(v))
-      middleware.foreach(v => obj.updateDynamic("middleware")(v))
-      platform.foreach(v => obj.updateDynamic("platform")(v))
+      if (placement.isDefined) obj.placement = placement.get
+      if (strategy.isDefined) obj.strategy = strategy.get
+      if (middleware.isDefined) obj.middleware = middleware.get
+      if (platform.isDefined) obj.platform = platform.get
       obj.asInstanceOf[ComputePositionConfig]
     }
   }

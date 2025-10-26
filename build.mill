@@ -67,9 +67,14 @@ object waypoint extends WebModule {
   )
 }
 
-object primitives extends WebModule {
-  def moduleDeps = Seq(laminar)
+object facades extends WebModule {
+  
 }
+
+object primitives extends WebModule {
+  def moduleDeps = Seq(laminar, facades)
+}
+
 
 object airstream extends WebModule {
   def moduleDeps = Seq(ew)

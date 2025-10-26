@@ -4,7 +4,7 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
-import io.github.nguyenyou.laminar.primitives.facades.floatingui.FloatingUIDOM.*
+import io.github.nguyenyou.facades.floatingui.FloatingUIDOM.*
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.util.Failure
