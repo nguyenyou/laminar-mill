@@ -1,9 +1,9 @@
 package io.github.nguyenyou.laminar.primitives.base
 import io.github.nguyenyou.laminar.api.L
 
-abstract class ComponentProp[V, Component](val name: String) {
-  def applyValue(component: Component, value: V): Unit
-  def applySignal(component: Component, signalSource: L.SignalSource[V]): Unit
+abstract class ComponentProp[V, Component] {
+  def setProp(component: Component, value: V): Unit
+  def updateProp(component: Component, values: L.Source[V]): Unit
 
   inline def apply(value: V): ComponentPropSetter[V, Component] = this := value
 
@@ -11,7 +11,7 @@ abstract class ComponentProp[V, Component](val name: String) {
     new ComponentPropSetter(this, value)
   }
 
-  def <--(signalSource: L.SignalSource[V]): ComponentPropUpdater[V, Component] = {
-    new ComponentPropUpdater(this, signalSource)
+  def <--(values: L.Source[V]): ComponentPropUpdater[V, Component] = {
+    new ComponentPropUpdater(this, values)
   }
 }

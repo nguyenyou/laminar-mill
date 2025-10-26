@@ -78,7 +78,7 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
     )
   }
 
-  def setSide(side: L.SignalSource[PopoverContent.Side]) = {
+  def setSide(side: L.Source[PopoverContent.Side]) = {
     portal.amend(
       cls <-- side.toObservable.map { processSize }
     )
@@ -96,13 +96,13 @@ object PopoverContent {
     case Top, Bottom
   }
 
-  object SideProp extends ComponentProp[Side, PopoverContent]("side") {
-    def applyValue(popoverContent: PopoverContent, value: Side): Unit = {
+  object SideProp extends ComponentProp[Side, PopoverContent] {
+    def setProp(popoverContent: PopoverContent, value: Side): Unit = {
       popoverContent.setSide(value)
     }
 
-    def applySignal(popoverContent: PopoverContent, source: L.SignalSource[Side]): Unit = {
-      popoverContent.setSide(source)
+    def updateProp(popoverContent: PopoverContent, values: L.Source[Side]): Unit = {
+      popoverContent.setSide(values)
     }
 
     type Selector = SideProp.type => Side
@@ -128,7 +128,7 @@ object PopoverContent {
   def apply(mods: Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
     val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(Props))
-    resolvedMods.foreach(_.applyTo(popoverContent))
+    resolvedMods.foreach(_(popoverContent))
 
     root.setContent(popoverContent)
   }

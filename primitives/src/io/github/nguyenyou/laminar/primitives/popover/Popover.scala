@@ -24,7 +24,7 @@ object Popover {
   def createContent(mods: PopoverContent.Props.Selector*)(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
     val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(PopoverContent.Props))
-    resolvedMods.foreach(_.applyTo(popoverContent))
+    resolvedMods.foreach(_.apply(popoverContent))
 
     root.setContent(popoverContent)
   }
