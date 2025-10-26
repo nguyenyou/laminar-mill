@@ -372,7 +372,7 @@ object FloatingUIDOM {
     *
     * Note: This is a non-native trait so you can create instances from Scala.
     */
-  trait ShiftOptions extends js.Object {
+  trait ShiftOptions extends DetectOverflowOptions {
     val mainAxis: js.UndefOr[Boolean] = js.undefined
     val crossAxis: js.UndefOr[Boolean] = js.undefined
     val limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined
@@ -384,12 +384,23 @@ object FloatingUIDOM {
     def apply(
       mainAxis: js.UndefOr[Boolean] = js.undefined,
       crossAxis: js.UndefOr[Boolean] = js.undefined,
-      limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined
+      limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined,
+      // DetectOverflowOptions fields
+      boundary: js.UndefOr[Boundary] = js.undefined,
+      rootBoundary: js.UndefOr[RootBoundary] = js.undefined,
+      elementContext: js.UndefOr[ElementContext] = js.undefined,
+      altBoundary: js.UndefOr[Boolean] = js.undefined,
+      padding: js.UndefOr[Double | SideObject] = js.undefined
     ): ShiftOptions = {
       val obj = js.Dynamic.literal()
       if (mainAxis.isDefined) obj.mainAxis = mainAxis.get
       if (crossAxis.isDefined) obj.crossAxis = crossAxis.get
       if (limiter.isDefined) obj.limiter = limiter.get
+      if (boundary.isDefined) obj.boundary = boundary.get.asInstanceOf[js.Any]
+      if (rootBoundary.isDefined) obj.rootBoundary = rootBoundary.get
+      if (elementContext.isDefined) obj.elementContext = elementContext.get
+      if (altBoundary.isDefined) obj.altBoundary = altBoundary.get
+      if (padding.isDefined) obj.padding = padding.get.asInstanceOf[js.Any]
       obj.asInstanceOf[ShiftOptions]
     }
   }

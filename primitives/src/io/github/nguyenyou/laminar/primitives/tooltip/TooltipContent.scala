@@ -43,6 +43,7 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
               flip(),
               shift(
                 ShiftOptions(
+                  padding = 8
                 )
               )
             )
