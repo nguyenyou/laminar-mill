@@ -20,7 +20,11 @@ class TooltipRoot(val store: TooltipStore) {
     FloatingUI.shift(ShiftOptions(padding = 8))
   )
 
-  def compute(): Unit = {
+  // Store the cleanup function from autoUpdate
+  private var autoUpdateCleanup: Option[() => Unit] = None
+
+  /** Update the tooltip position based on current state. */
+  private def updatePosition(): Unit = {
     for {
       trigger <- tooltipTrigger.map(_.element.ref)
       portal <- tooltipPortal.map(_.element.ref)
@@ -69,7 +73,44 @@ class TooltipRoot(val store: TooltipStore) {
         }
       }
     }
+  }
 
+  /** Start automatic position updates using FloatingUI's autoUpdate. */
+  private def startAutoUpdate(): Unit = {
+    // Clean up any existing autoUpdate
+    stopAutoUpdate()
+
+    for {
+      trigger <- tooltipTrigger.map(_.element.ref)
+      portal <- tooltipPortal.map(_.element.ref)
+    } {
+      println("Starting autoUpdate for tooltip")
+
+      // Set up autoUpdate with default options
+      val cleanup = FloatingUI.autoUpdate(
+        reference = trigger,
+        floating = portal,
+        update = () => updatePosition(),
+        options = AutoUpdateOptions(
+          ancestorScroll = true,
+          ancestorResize = true,
+          elementResize = true,
+          layoutShift = true,
+          animationFrame = false
+        )
+      )
+
+      autoUpdateCleanup = Some(cleanup)
+    }
+  }
+
+  /** Stop automatic position updates and clean up resources. */
+  private def stopAutoUpdate(): Unit = {
+    autoUpdateCleanup.foreach { cleanup =>
+      println("Stopping autoUpdate for tooltip")
+      cleanup()
+    }
+    autoUpdateCleanup = None
   }
 
   def setupTrigger(trigger: TooltipTrigger): Unit = {
@@ -86,9 +127,11 @@ class TooltipRoot(val store: TooltipStore) {
       },
       store.isHoveringSignal --> Observer[Boolean] { isHovering =>
         if (isHovering) {
-          compute()
+          // Start automatic position updates when tooltip becomes visible
+          startAutoUpdate()
         } else {
-          ()
+          // Stop automatic updates and clean up when tooltip is hidden
+          stopAutoUpdate()
         }
       }
     )
@@ -124,7 +167,7 @@ class TooltipRoot(val store: TooltipStore) {
 
 object TooltipRoot {
   def apply()(context: TooltipContext): Option[TooltipTrigger] = {
-    val isHoveringVar = Var(true)
+    val isHoveringVar = Var(false)
     given tooltipRoot: TooltipRoot = new TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     context
     tooltipRoot.trigger
