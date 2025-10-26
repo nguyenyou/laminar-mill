@@ -2,6 +2,7 @@ package io.github.nguyenyou.laminar.primitives.utils.floating
 
 import Types.*
 import scala.math.{min, max}
+import org.scalajs.dom
 
 /** Utility functions for floating element positioning.
   *
@@ -172,5 +173,107 @@ object Utils {
   def updateCoords(coords: Coords, axis: Axis, value: Double): Coords = axis match {
     case "x" => coords.copy(x = value)
     case "y" => coords.copy(y = value)
+  }
+
+  // ============================================================================
+  // AutoUpdate Utilities
+  // ============================================================================
+
+  /** Get bounding client rect for an element (simplified version for autoUpdate). */
+  def getBoundingClientRect(element: dom.Element): ClientRectObject = {
+    val rect = element.getBoundingClientRect()
+    ClientRectObject(
+      x = rect.x,
+      y = rect.y,
+      width = rect.width,
+      height = rect.height,
+      top = rect.top,
+      right = rect.right,
+      bottom = rect.bottom,
+      left = rect.left
+    )
+  }
+
+  /** Check if two client rects are equal. */
+  def rectsAreEqual(a: ClientRectObject, b: ClientRectObject): Boolean = {
+    a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height
+  }
+
+  /** Get the document element for a node. */
+  def getDocumentElement(node: dom.Node): dom.Element = {
+    node.ownerDocument.documentElement
+  }
+
+  /** Get the window for a node. */
+  def getWindow(node: dom.Node): dom.Window = {
+    dom.window
+  }
+
+  /** Check if a node is an HTML element. */
+  def isHTMLElement(node: dom.Node): Boolean = {
+    node.isInstanceOf[dom.HTMLElement]
+  }
+
+  /** Check if an element has overflow. */
+  def isOverflowElement(element: dom.Element): Boolean = {
+    if (!element.isInstanceOf[dom.HTMLElement]) return false
+    val htmlElement = element.asInstanceOf[dom.HTMLElement]
+    val style = dom.window.getComputedStyle(htmlElement)
+    val overflow = style.overflow
+    val overflowX = style.overflowX
+    val overflowY = style.overflowY
+
+    (overflow == "auto" || overflow == "scroll" || overflow == "overlay" ||
+    overflowX == "auto" || overflowX == "scroll" || overflowX == "overlay" ||
+    overflowY == "auto" || overflowY == "scroll" || overflowY == "overlay")
+  }
+
+  /** Get parent node, handling shadow DOM. */
+  def getParentNode(node: dom.Node): dom.Node = {
+    if (node.nodeName.toLowerCase == "html") return node
+
+    // Try parent node or fallback to document element
+    Option(node.parentNode).getOrElse(getDocumentElement(node))
+  }
+
+  /** Check if we've reached the last traversable node. */
+  def isLastTraversableNode(node: dom.Node): Boolean = {
+    val nodeName = node.nodeName.toLowerCase
+    nodeName == "html" || nodeName == "body" || nodeName == "#document"
+  }
+
+  /** Get the nearest overflow ancestor. */
+  def getNearestOverflowAncestor(node: dom.Node): dom.HTMLElement = {
+    val parentNode = getParentNode(node)
+
+    if (isLastTraversableNode(parentNode)) {
+      return dom.document.body
+    }
+
+    if (isHTMLElement(parentNode) && isOverflowElement(parentNode.asInstanceOf[dom.Element])) {
+      return parentNode.asInstanceOf[dom.HTMLElement]
+    }
+
+    getNearestOverflowAncestor(parentNode)
+  }
+
+  /** Get all overflow ancestors for a node. */
+  def getOverflowAncestors(node: dom.Node): Seq[dom.EventTarget] = {
+    def collect(currentNode: dom.Node, acc: Seq[dom.EventTarget]): Seq[dom.EventTarget] = {
+      val scrollableAncestor = getNearestOverflowAncestor(currentNode)
+      val isBody = scrollableAncestor == dom.document.body
+      val win = getWindow(scrollableAncestor)
+
+      if (isBody) {
+        val windowSeq = Seq[dom.EventTarget](win)
+        // visualViewport is not available in all browsers, skip it for simplicity
+        val bodySeq = if (isOverflowElement(scrollableAncestor)) Seq(scrollableAncestor) else Seq.empty
+        acc ++ windowSeq ++ bodySeq
+      } else {
+        acc ++ Seq(scrollableAncestor) ++ collect(scrollableAncestor, Seq.empty)
+      }
+    }
+
+    collect(node, Seq.empty)
   }
 }
