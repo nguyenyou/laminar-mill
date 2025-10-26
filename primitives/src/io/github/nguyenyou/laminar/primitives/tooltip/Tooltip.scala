@@ -16,15 +16,13 @@ object Tooltip {
     child.maybe <-- tooltip.targetSignal
   }
 
-  def trigger(className: String)(text: String)(using root: TooltipRoot) = {
+  def trigger(className: String)(text: String)(using root: TooltipRoot): Unit = {
     root.setupTrigger(button(cls(className), text))
   }
 
-  def content(className: String)(content: HtmlElement, tooltipArrow: Option[TooltipArrow] = None)(using root: TooltipRoot) = {
+  def content(className: String)(content: HtmlElement, tooltipArrow: Option[TooltipArrow] = None)(using root: TooltipRoot): Unit = {
     val tooltipContent: TooltipContent = new TooltipContent(
-      content = content,
       root = root,
-      className = className,
       tooltipArrow = tooltipArrow
     )
     root.setupContent(tooltipContent)

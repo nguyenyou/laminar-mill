@@ -10,21 +10,22 @@ import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.util.Failure
 import scala.util.Success
 import scala.scalajs.js
+import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipContent(
-  val content: HtmlElement,
-  val className: String,
-  val root: TooltipRoot,
-  val tooltipArrow: Option[TooltipArrow] = None
+  val tooltipArrow: Option[TooltipArrow] = None,
+  val root: TooltipRoot
 ) {
   private var mounted = false
+
+  val contentWrapper = div()
 
   val portal: Div = div(
     dataAttr("slot") := "tooltip-content-portal",
     cls := "absolute w-max",
     top.px(0),
     left.px(0),
-    content,
+    contentWrapper,
     tooltipArrow
   )
 
@@ -139,5 +140,67 @@ class TooltipContent(
 
   def onHoverChange(isHovering: Boolean) = {
     if (isHovering) mount() else unmount()
+  }
+
+  def setClassName(value: String) = {
+    contentWrapper.amend(
+      cls := value
+    )
+  }
+
+  def updateClassName(values: Source[String]) = {
+    contentWrapper.amend(
+      cls <-- values.toObservable
+    )
+  }
+
+  def setContent(value: HtmlElement) = {
+    contentWrapper.amend(
+      value
+    )
+  }
+
+  def updateContent(values: Source[HtmlElement]) = {
+    contentWrapper.amend(
+      child <-- values.toObservable
+    )
+  }
+
+  def setRoot(value: TooltipRoot) = {}
+}
+
+object TooltipContent {
+  object ClassNameProp extends ComponentProp[String, TooltipContent] {
+    private[primitives] def setProp(component: TooltipContent, value: String): Unit = {
+      component.setClassName(value)
+    }
+
+    private[primitives] def updateProp(component: TooltipContent, values: Source[String]): Unit = {
+      component.updateClassName(values)
+    }
+  }
+
+  object ContentProp extends ComponentProp[HtmlElement, TooltipContent] {
+    private[primitives] def setProp(component: TooltipContent, value: HtmlElement): Unit = {
+      component.setContent(value)
+    }
+
+    private[primitives] def updateProp(component: TooltipContent, values: Source[HtmlElement]): Unit = {
+      component.updateContent(values)
+    }
+  }
+
+  object Props {
+    type Selector = Props.type => ComponentModifier[TooltipContent]
+
+    lazy val className: ClassNameProp.type = ClassNameProp
+    lazy val content: ContentProp.type = ContentProp
+  }
+
+  def apply(mods: Props.Selector*)(using root: TooltipRoot): TooltipContent = {
+    val resolvedMods: Seq[ComponentModifier[TooltipContent]] = mods.map(_(Props))
+    val tooltipContent = new TooltipContent(root = root)
+    resolvedMods.foreach(_(tooltipContent))
+    tooltipContent
   }
 }
