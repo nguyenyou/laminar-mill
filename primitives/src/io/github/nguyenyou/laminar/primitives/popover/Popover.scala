@@ -9,7 +9,7 @@ object Popover {
   export io.github.nguyenyou.laminar.primitives.popover.PopoverTrigger as Trigger
   export io.github.nguyenyou.laminar.primitives.popover.PopoverContent as Content
 
-  def root(init: PopoverRoot ?=> Unit) = {
+  def root(init: PopoverRoot ?=> Unit): DynamicInserter = {
     val openVar = Var(false)
     given popover: PopoverRoot = PopoverRoot(PopoverStore(openVar.signal, openVar.writer))
     init

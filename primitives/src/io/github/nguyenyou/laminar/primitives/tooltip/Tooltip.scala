@@ -8,7 +8,7 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipTrigger as Trigger
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
 
-  def root(init: TooltipRoot ?=> Unit) = {
+  def root(init: TooltipRoot ?=> Unit): DynamicInserter = {
     val isHoveringVar = Var(false)
     given tooltip: TooltipRoot = TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     init

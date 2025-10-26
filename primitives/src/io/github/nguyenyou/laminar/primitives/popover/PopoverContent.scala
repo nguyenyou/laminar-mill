@@ -48,16 +48,16 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
 
   def mount() = {
     if (!mounted) {
+      mounted = true
       dom.document.body.appendChild(portalRoot.ref)
       portalRoot.activate()
-      mounted = true
     }
   }
   def unmount() = {
     if (mounted) {
+      mounted = false
       portalRoot.deactivate()
       dom.document.body.removeChild(portalRoot.ref)
-      mounted = false
     }
   }
 
