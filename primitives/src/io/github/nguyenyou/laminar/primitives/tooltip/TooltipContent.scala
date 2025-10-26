@@ -36,54 +36,7 @@ class TooltipContent(
     //     hide()
     //   }
     // },
-    onMountCallback { ctx =>
-      root.trigger.foreach { trigger =>
-        computePosition(
-          reference = trigger.element.ref,
-          floating = ctx.thisNode.ref,
-          options = ComputePositionConfig(
-            placement = "top",
-            middleware = root.floatinguiMiddlewares
-          )
-        ).onComplete {
-          case Failure(exception) => println(exception)
-          case Success(result) =>
-            println(s"x: ${result.x}, y: ${result.y}")
-            portal.ref.style.left = s"${result.x}px"
-            portal.ref.style.top = s"${result.y}px"
-            portal.ref.style.display = "block"
 
-            // Position the arrow element if present
-            result.middlewareData.arrow.foreach { arrowData =>
-              root.arrow.foreach { arrowElement =>
-                // Calculate the static side based on placement
-                val staticSide = result.placement.split("-")(0) match {
-                  case "top"    => "bottom"
-                  case "right"  => "left"
-                  case "bottom" => "top"
-                  case "left"   => "right"
-                  case _        => "bottom"
-                }
-
-                // Apply x position if available
-                arrowData.x.foreach { x =>
-                  arrowElement.element.ref.style.left = s"${x}px"
-                }
-
-                // Apply y position if available
-                arrowData.y.foreach { y =>
-                  arrowElement.element.ref.style.top = s"${y}px"
-                }
-
-                // Clear other sides and set the static side offset
-                arrowElement.element.ref.style.right = ""
-                arrowElement.element.ref.style.bottom = ""
-                arrowElement.element.ref.style.setProperty(staticSide, "-4px")
-              }
-            }
-        }
-      }
-    }
   )
 
   private val portalRoot: DetachedRoot[Div] = renderDetached(
