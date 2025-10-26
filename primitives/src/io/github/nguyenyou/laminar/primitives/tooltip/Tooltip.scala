@@ -10,4 +10,5 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipArrow as Arrow
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContext as Context
+  export io.github.nguyenyou.laminar.primitives.tooltip.TooltipPortal as Portal
 }

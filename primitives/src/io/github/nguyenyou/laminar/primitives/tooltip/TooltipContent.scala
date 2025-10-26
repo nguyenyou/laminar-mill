@@ -15,17 +15,17 @@ import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipContent(
   val root: TooltipRoot
-) {
+) extends Component {
   private var mounted = false
 
-  val contentWrapper = div()
+  def render() = div()
 
   val portal: Div = div(
     dataAttr("slot") := "tooltip-content-portal",
     cls := "absolute w-max",
     top.px(0),
     left.px(0),
-    contentWrapper
+    element
   )
 
   portal.amend(
@@ -123,26 +123,14 @@ class TooltipContent(
     if (isHovering) mount() else unmount()
   }
 
-  def setClassName(value: String) = {
-    contentWrapper.amend(
-      cls := value
-    )
-  }
-
-  def updateClassName(values: Source[String]) = {
-    contentWrapper.amend(
-      cls <-- values.toObservable
-    )
-  }
-
   def setChildren(children: Seq[ChildNode.Base]) = {
-    contentWrapper.amend(
+    element.amend(
       children
     )
   }
 
   def updateChildren(values: Source[Seq[ChildNode.Base]]) = {
-    contentWrapper.amend(
+    element.amend(
       children <-- values.toObservable
     )
   }
@@ -150,17 +138,7 @@ class TooltipContent(
   def setRoot(value: TooltipRoot) = {}
 }
 
-object TooltipContent {
-  object ClassNameProp extends ComponentProp[String, TooltipContent] {
-    private[primitives] def setProp(component: TooltipContent, value: String): Unit = {
-      component.setClassName(value)
-    }
-
-    private[primitives] def updateProp(component: TooltipContent, values: Source[String]): Unit = {
-      component.updateClassName(values)
-    }
-  }
-
+object TooltipContent extends HasClassNameProp[TooltipContent] {
   object ChildrenProp extends ComponentProp[Seq[ChildNode.Base], TooltipContent] {
     private[primitives] def setProp(component: TooltipContent, value: Seq[ChildNode.Base]): Unit = {
       component.setChildren(value)
@@ -171,13 +149,11 @@ object TooltipContent {
     }
   }
 
-  object Props {
-    type Selector = Props.type => ComponentModifier[TooltipContent]
-
+  object Props extends PropSelector[TooltipContent] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
-  def apply(mods: Props.Selector*)(children: ChildNode.Base*)(using root: TooltipRoot): Unit = {
+  def apply(mods: Props.Selector*)(children: ChildNode.Base*)(using root: TooltipRoot): TooltipContent = {
     val resolvedMods: Seq[ComponentModifier[TooltipContent]] = mods.map(_(Props))
     val tooltipContent = new TooltipContent(root = root)
     resolvedMods.foreach(_(tooltipContent))
@@ -187,6 +163,6 @@ object TooltipContent {
 
     root.setContent(tooltipContent)
 
-    ()
+    tooltipContent
   }
 }

@@ -33,6 +33,10 @@ class TooltipPortal(
     }
   }
 
+  def onHoverChange(isHovering: Boolean) = {
+    if (isHovering) mount() else unmount()
+  }
+
   def render(): HtmlElement = {
     div(
       dataAttr("slot") := "tooltip-portal",
@@ -48,7 +52,7 @@ object TooltipPortal extends HasClassNameProp[TooltipPortal] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
-  def apply()(using root: TooltipRoot): TooltipPortal = {
+  def apply()(children: ChildNode.Base*)(using root: TooltipRoot): TooltipPortal = {
     val tooltipPortal = new TooltipPortal(root)
     root.setPortal(tooltipPortal)
     tooltipPortal

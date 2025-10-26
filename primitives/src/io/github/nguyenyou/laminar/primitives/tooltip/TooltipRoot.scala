@@ -32,7 +32,8 @@ class TooltipRoot(val store: TooltipStore) {
         store.onHoverChange.onNext(false)
       },
       store.isHoveringSignal --> Observer[Boolean] { isHovering =>
-        tooltipContent.foreach(_.onHoverChange(isHovering))
+        println(s"IS HOVERING: $isHovering")
+        tooltipPortal.foreach(_.onHoverChange(isHovering))
       }
     )
   }
