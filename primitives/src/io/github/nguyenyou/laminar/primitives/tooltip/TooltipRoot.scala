@@ -4,9 +4,8 @@ import io.github.nguyenyou.laminar.api.L.*
 
 class TooltipRoot(val store: TooltipStore) {
   private var tooltipContent: Option[TooltipContent] = None
-
-  val targetVar = Var[Option[HtmlElement]](None)
-  val targetSignal = targetVar.signal
+  private var tooltipArrow: Option[TooltipArrow] = None
+  private var tooltipTrigger: Option[HtmlElement] = None
 
   def setupTrigger(trigger: HtmlElement): Unit = {
     trigger.amend(
@@ -20,11 +19,23 @@ class TooltipRoot(val store: TooltipStore) {
         tooltipContent.foreach(_.onHoverChange(isHovering))
       }
     )
-    targetVar.set(Some(trigger))
     tooltipContent.foreach(_.mount())
   }
 
   def setupContent(content: TooltipContent): Unit = {
     tooltipContent = Some(content)
   }
+
+  def setupArrow(arrow: TooltipArrow): Unit = {
+    tooltipArrow = Some(arrow)
+  }
+
+  def setTrigger(trigger: HtmlElement): Unit = {
+    tooltipTrigger = Some(trigger)
+    setupTrigger(trigger)
+  }
+
+  def content: Option[TooltipContent] = tooltipContent
+  def arrow: Option[TooltipArrow] = tooltipArrow
+  def trigger: Option[HtmlElement] = tooltipTrigger
 }

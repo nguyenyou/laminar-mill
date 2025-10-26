@@ -11,7 +11,9 @@ object Tooltip {
 
 object TooltipTrigger {
   def apply(className: String)(text: String)(using root: TooltipPrimitive.Root) = {
-    TooltipPrimitive.trigger(className)(text)
+    TooltipPrimitive.Trigger(
+      _.className := className
+    )(text)
   }
 }
 

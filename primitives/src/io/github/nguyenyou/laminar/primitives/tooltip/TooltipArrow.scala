@@ -43,10 +43,13 @@ object TooltipArrow {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
-  def apply(mods: Props.Selector*): TooltipArrow = {
+  def apply(mods: Props.Selector*)(using root: TooltipRoot): TooltipArrow = {
     val resolvedMods: Seq[ComponentModifier[TooltipArrow]] = mods.map(_(Props))
     val tooltipArrow = new TooltipArrow()
     resolvedMods.foreach(_(tooltipArrow))
+
+    root.setupArrow(tooltipArrow)
+
     tooltipArrow
   }
 }
