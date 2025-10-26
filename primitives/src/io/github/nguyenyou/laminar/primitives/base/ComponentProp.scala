@@ -2,8 +2,8 @@ package io.github.nguyenyou.laminar.primitives.base
 import io.github.nguyenyou.laminar.api.L
 
 trait ComponentProp[V, Component] {
-  def setProp(component: Component, value: V): Unit
-  def updateProp(component: Component, values: L.Source[V]): Unit
+  private[primitives] def setProp(component: Component, value: V): Unit
+  private[primitives] def updateProp(component: Component, values: L.Source[V]): Unit
 
   inline def apply(value: V): ComponentPropSetter[V, Component] = this := value
 
