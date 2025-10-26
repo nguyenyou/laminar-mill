@@ -30,8 +30,8 @@ case class App() {
       //   "Set Bottom"
       // ),
       Tooltip() {
-        TooltipTrigger(className = "bg-gray-300 px-4 py-2 rounded")("My button")
-        TooltipContent(className = "")(
+        TooltipTrigger(_.className := "bg-gray-300 px-4 py-2 rounded")("My button")
+        TooltipContent()(
           div(
             className := "bg-[#222] text-white font-bold p-[5px] rounded text-[90%]",
             "My tooltip"

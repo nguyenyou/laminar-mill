@@ -10,18 +10,18 @@ object Tooltip {
 }
 
 object TooltipTrigger {
-  def apply(className: String)(text: String)(using root: TooltipPrimitive.Root) = {
+  def apply(mods: TooltipPrimitive.Trigger.Props.Selector*)(text: String)(using root: TooltipPrimitive.Root) = {
     TooltipPrimitive.Trigger(
-      _.className := className
+      mods*
     )(text)
   }
 }
 
 object TooltipContent {
-  def apply(className: String)(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
+  def apply(mods: TooltipPrimitive.Content.Props.Selector*)(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
     TooltipPrimitive.Portal() {
       TooltipPrimitive.Content(
-        _.className := className
+        mods*
       )(
         content,
         TooltipPrimitive.Arrow(
