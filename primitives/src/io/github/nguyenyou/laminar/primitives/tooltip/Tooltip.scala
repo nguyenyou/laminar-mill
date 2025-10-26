@@ -12,6 +12,7 @@ object Tooltip {
     val isHoveringVar = Var(false)
     given tooltip: TooltipRoot = TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     init
+    child.maybe <-- tooltip.targetSignal
   }
 
   def trigger() = {}

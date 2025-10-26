@@ -1,7 +1,6 @@
 package io.github.nguyenyou.laminar.primitives.popover
 
 import io.github.nguyenyou.laminar.api.L.*
-import io.github.nguyenyou.laminar.nodes.DetachedRoot
 import org.scalajs.dom
 
 class PopoverRoot(val store: PopoverStore) {
@@ -33,7 +32,7 @@ class PopoverRoot(val store: PopoverStore) {
     popoverContent.foreach(_.unmount())
   }
 
-  def setContent(content: PopoverContent) = {
+  def setupContent(content: PopoverContent) = {
     popoverContent = Some(content)
   }
 }

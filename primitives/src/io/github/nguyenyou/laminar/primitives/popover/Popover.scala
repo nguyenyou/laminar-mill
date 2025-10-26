@@ -26,6 +26,6 @@ object Popover {
     val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(PopoverContent.Props))
     resolvedMods.foreach(_.apply(popoverContent))
 
-    root.setContent(popoverContent)
+    root.setupContent(popoverContent)
   }
 }

@@ -8,7 +8,7 @@ import io.github.nguyenyou.laminar.primitives.base.*
 import org.scalajs.dom
 
 class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
-  private var initialized = false
+  private var mounted = false
 
   content.amend(
     dataAttr("slot") := "popover-content"
@@ -47,17 +47,17 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
   }
 
   def mount() = {
-    if (!initialized) {
+    if (!mounted) {
       dom.document.body.appendChild(portalRoot.ref)
       portalRoot.activate()
-      initialized = true
+      mounted = true
     }
   }
   def unmount() = {
-    if (initialized) {
+    if (mounted) {
       portalRoot.deactivate()
       dom.document.body.removeChild(portalRoot.ref)
-      initialized = false
+      mounted = false
     }
   }
 
@@ -89,7 +89,7 @@ class PopoverContent(val content: HtmlElement, val root: PopoverRoot) {
 object PopoverContent {
   def apply(content: HtmlElement)(using root: PopoverRoot): Unit = {
     val popoverContent: PopoverContent = new PopoverContent(content, root)
-    root.setContent(popoverContent)
+    root.setupContent(popoverContent)
   }
 
   enum Side {
@@ -128,7 +128,7 @@ object PopoverContent {
     val resolvedMods: Seq[ComponentModifier[PopoverContent]] = mods.map(_(Props))
     resolvedMods.foreach(_(popoverContent))
 
-    root.setContent(popoverContent)
+    root.setupContent(popoverContent)
   }
 
   // def apply(mods: Props.Selector)(render: PopoverStore => HtmlElement)(using root: PopoverRoot): Unit = {
