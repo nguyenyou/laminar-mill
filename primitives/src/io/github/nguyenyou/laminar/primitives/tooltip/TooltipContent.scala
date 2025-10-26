@@ -49,7 +49,15 @@ class TooltipContent(
             )
           )
 
-          tooltipArrow.foreach { arrow => }
+          tooltipArrow.foreach { arrowElement =>
+            middlewares.push(
+              arrow(
+                ArrowOptions(
+                  element = arrowElement.element.ref
+                )
+              )
+            )
+          }
 
           computePosition(
             reference = target.ref,
@@ -65,6 +73,9 @@ class TooltipContent(
               portal.ref.style.left = s"${result.x}px"
               portal.ref.style.top = s"${result.y}px"
               portal.ref.style.display = "block"
+              val arrowData = result.middlewareData.arrow
+              val placement = result.placement
+
           }
         }
       }
