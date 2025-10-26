@@ -10,20 +10,8 @@ class TooltipArrow() extends Component {
   }
 }
 
-object TooltipArrow {
-  object ClassNameProp extends ComponentProp[String, TooltipArrow] {
-    private[primitives] def setProp(component: TooltipArrow, value: String): Unit = {
-      component.setClassName(value)
-    }
-
-    private[primitives] def updateProp(component: TooltipArrow, values: Source[String]): Unit = {
-      component.updateClassName(values)
-    }
-  }
-
-  object Props {
-    type Selector = Props.type => ComponentModifier[TooltipArrow]
-
+object TooltipArrow extends HasClassNameProp[TooltipArrow] {
+  object Props extends PropSelector[TooltipArrow] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 

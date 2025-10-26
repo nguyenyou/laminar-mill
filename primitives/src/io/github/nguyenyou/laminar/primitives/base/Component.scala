@@ -5,7 +5,7 @@ import io.github.nguyenyou.laminar.modifiers.RenderableNode
 
 import io.github.nguyenyou.laminar.api.L.*
 
-trait Component {
+trait Component extends HasClassName {
   lazy val element = render()
 
   def setClassName(value: String) = {
