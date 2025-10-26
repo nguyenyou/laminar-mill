@@ -19,7 +19,11 @@ object TooltipContent {
   def apply(className: String)(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
     TooltipPrimitive.content(className = className)(
       content = content,
-      tooltipArrow = Some(TooltipPrimitive.Arrow(className = "absolute bg-[#222] w-2 h-2 rotate-45"))
+      tooltipArrow = Some(
+        TooltipPrimitive.Arrow(
+          _.className := "absolute bg-[#222] w-2 h-2 rotate-45"
+        )
+      )
     )
   }
 }

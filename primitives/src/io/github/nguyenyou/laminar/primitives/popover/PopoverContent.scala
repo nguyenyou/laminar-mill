@@ -97,12 +97,12 @@ object PopoverContent {
   }
 
   object SideProp extends ComponentProp[Side, PopoverContent] {
-    private[primitives] def setProp(popoverContent: PopoverContent, value: Side): Unit = {
-      popoverContent.setSide(value)
+    private[primitives] def setProp(component: PopoverContent, value: Side): Unit = {
+      component.setSide(value)
     }
 
-    private[primitives] def updateProp(popoverContent: PopoverContent, values: L.Source[Side]): Unit = {
-      popoverContent.setSide(values)
+    private[primitives] def updateProp(component: PopoverContent, values: L.Source[Side]): Unit = {
+      component.setSide(values)
     }
 
     lazy val top = SideProp(Side.Top)
