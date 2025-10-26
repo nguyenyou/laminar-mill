@@ -41,10 +41,12 @@ class TooltipRoot(val store: TooltipStore) {
 }
 
 object TooltipRoot {
-  def apply()(init: TooltipRoot ?=> Unit): Option[HtmlElement] = {
+  type Context = TooltipRoot ?=> Unit
+
+  def apply()(context: Context): Option[HtmlElement] = {
     val isHoveringVar = Var(true)
     given tooltipRoot: TooltipRoot = new TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
-    init
+    context
     tooltipRoot.trigger
   }
 }
