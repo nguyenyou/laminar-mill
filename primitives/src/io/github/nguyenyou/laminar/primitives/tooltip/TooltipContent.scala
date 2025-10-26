@@ -3,6 +3,7 @@ package io.github.nguyenyou.laminar.primitives.tooltip
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.nodes.DetachedRoot
+import io.github.nguyenyou.laminar.modifiers.RenderableNode
 import org.scalajs.dom
 import io.github.nguyenyou.facades.floatingui.FloatingUIDOM.*
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
@@ -197,10 +198,13 @@ object TooltipContent {
     lazy val content: ContentProp.type = ContentProp
   }
 
-  def apply(mods: Props.Selector*)(using root: TooltipRoot): TooltipContent = {
+  def apply(mods: Props.Selector*)(children: HtmlElement)(using root: TooltipRoot): TooltipContent = {
     val resolvedMods: Seq[ComponentModifier[TooltipContent]] = mods.map(_(Props))
     val tooltipContent = new TooltipContent(root = root)
     resolvedMods.foreach(_(tooltipContent))
+
+    root.setupContent(tooltipContent)
+
     tooltipContent
   }
 }

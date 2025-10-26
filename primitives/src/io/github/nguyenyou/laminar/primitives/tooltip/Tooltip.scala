@@ -21,10 +21,19 @@ object Tooltip {
   }
 
   def content(className: String)(content: HtmlElement, tooltipArrow: Option[TooltipArrow] = None)(using root: TooltipRoot): Unit = {
+    val x = TooltipContent(
+      _.className := className
+    )(content)
     val tooltipContent: TooltipContent = new TooltipContent(
       root = root,
       tooltipArrow = tooltipArrow
     )
+    /*
+    TooltipContent(
+
+    )
+
+     */
     root.setupContent(tooltipContent)
   }
 }
