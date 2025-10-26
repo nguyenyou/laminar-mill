@@ -2,6 +2,9 @@ package io.github.nguyenyou.laminar.primitives.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.primitives.base.*
+import io.github.nguyenyou.facades.floatingui.FloatingUIDOM
+
+import scala.scalajs.js
 
 class TooltipRoot(val store: TooltipStore) {
   // parts
@@ -9,6 +12,16 @@ class TooltipRoot(val store: TooltipStore) {
   private var tooltipArrow: Option[TooltipArrow] = None
   private var tooltipTrigger: Option[TooltipTrigger] = None
   private var tooltipPortal: Option[TooltipPortal] = None
+
+  val floatinguiMiddlewares = js.Array(
+    FloatingUIDOM.offset(6),
+    FloatingUIDOM.flip(),
+    FloatingUIDOM.shift(
+      FloatingUIDOM.ShiftOptions(
+        padding = 8
+      )
+    )
+  )
 
   def setupTrigger(trigger: TooltipTrigger): Unit = {
     trigger.element.amend(
@@ -22,7 +35,6 @@ class TooltipRoot(val store: TooltipStore) {
         tooltipContent.foreach(_.onHoverChange(isHovering))
       }
     )
-    tooltipContent.foreach(_.mount())
   }
 
   def setContent(content: TooltipContent): Unit = {
@@ -31,6 +43,13 @@ class TooltipRoot(val store: TooltipStore) {
 
   def setArrow(arrow: TooltipArrow): Unit = {
     tooltipArrow = Some(arrow)
+    floatinguiMiddlewares.push(
+      FloatingUIDOM.arrow(
+        FloatingUIDOM.ArrowOptions(
+          element = arrow.element.ref
+        )
+      )
+    )
   }
 
   def setTrigger(trigger: TooltipTrigger): Unit = {

@@ -38,32 +38,12 @@ class TooltipContent(
     // },
     onMountCallback { ctx =>
       root.trigger.foreach { trigger =>
-        val middlewares = js.Array(
-          offset(6),
-          flip(),
-          shift(
-            ShiftOptions(
-              padding = 8
-            )
-          )
-        )
-
-        root.arrow.foreach { arrowElement =>
-          middlewares.push(
-            arrow(
-              ArrowOptions(
-                element = arrowElement.element.ref
-              )
-            )
-          )
-        }
-
         computePosition(
           reference = trigger.element.ref,
           floating = ctx.thisNode.ref,
           options = ComputePositionConfig(
             placement = "top",
-            middleware = middlewares
+            middleware = root.floatinguiMiddlewares
           )
         ).onComplete {
           case Failure(exception) => println(exception)
