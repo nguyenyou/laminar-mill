@@ -5,12 +5,6 @@ import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.nodes.{ChildNode, DetachedRoot}
 import io.github.nguyenyou.laminar.modifiers.RenderableNode
 import org.scalajs.dom
-import io.github.nguyenyou.facades.floatingui.FloatingUIDOM.*
-import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
-import scala.scalajs.js.Thenable.Implicits.thenable2future
-import scala.util.Failure
-import scala.util.Success
-import scala.scalajs.js
 import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipContent(

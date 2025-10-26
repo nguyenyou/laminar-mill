@@ -13,7 +13,6 @@
     "vite": "npm:rolldown-vite@latest"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.4",
     "jsdom": "^26.1.0"
   }
 }

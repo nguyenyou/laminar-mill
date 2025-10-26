@@ -6,11 +6,6 @@ import io.github.nguyenyou.laminar.nodes.{ChildNode, DetachedRoot}
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.primitives.base.*
 import io.github.nguyenyou.laminar.nodes.ReactiveHtmlElement
-import io.github.nguyenyou.facades.floatingui.FloatingUIDOM
-import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
-import scala.scalajs.js.Thenable.Implicits.thenable2future
-import scala.util.Failure
-import scala.util.Success
 
 class TooltipPortal(
   val root: TooltipRoot
