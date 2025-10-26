@@ -8,7 +8,7 @@ class TooltipRoot(val store: TooltipStore) {
   val targetVar = Var[Option[HtmlElement]](None)
   val targetSignal = targetVar.signal
 
-  def setupTrigger(trigger: HtmlElement) = {
+  def setupTrigger(trigger: HtmlElement): Unit = {
     trigger.amend(
       onMouseEnter --> Observer { _ =>
         store.onHoverChange.onNext(true)
@@ -24,7 +24,7 @@ class TooltipRoot(val store: TooltipStore) {
     tooltipContent.foreach(_.mount())
   }
 
-  def setupContent(content: TooltipContent) = {
+  def setupContent(content: TooltipContent): Unit = {
     tooltipContent = Some(content)
   }
 }

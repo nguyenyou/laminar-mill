@@ -11,13 +11,12 @@ import scala.util.Failure
 import scala.util.Success
 import scala.scalajs.js
 
-class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
+class TooltipContent(val content: HtmlElement, val className: String, val root: TooltipRoot) {
   private var mounted = false
 
   val portal = div(
     dataAttr("slot") := "tooltip-content-portal",
-    position.absolute,
-    width := "max-content",
+    cls := "absolute w-max",
     top.px(0),
     left.px(0),
     content
@@ -31,44 +30,76 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
     //     hide()
     //   }
     // },
-    root.targetSignal --> Observer[Option[HtmlElement]] { targetOpt =>
-      targetOpt.foreach { target =>
-        computePosition(
-          reference = target.ref,
-          floating = portal.ref,
-          options = ComputePositionConfig(
-            placement = "top",
-            middleware = js.Array(
-              offset(6),
-              flip(),
-              shift(
-                ShiftOptions(
-                  padding = 8
+    onMountBind { ctx =>
+      root.targetSignal --> Observer[Option[HtmlElement]] { targetOpt =>
+        targetOpt.foreach { target =>
+          computePosition(
+            reference = target.ref,
+            floating = ctx.thisNode.ref,
+            options = ComputePositionConfig(
+              placement = "top",
+              middleware = js.Array(
+                offset(6),
+                flip(),
+                shift(
+                  ShiftOptions(
+                    padding = 8
+                  )
                 )
               )
             )
-          )
-        ).onComplete {
-          case Failure(exception) => println(exception)
-          case Success(result) =>
-            println(s"x: ${result.x}, y: ${result.y}")
-            portal.ref.style.left = s"${result.x}px"
-            portal.ref.style.top = s"${result.y}px"
-            portal.ref.style.display = "block"
+          ).onComplete {
+            case Failure(exception) => println(exception)
+            case Success(result) =>
+              println(s"x: ${result.x}, y: ${result.y}")
+              portal.ref.style.left = s"${result.x}px"
+              portal.ref.style.top = s"${result.y}px"
+              portal.ref.style.display = "block"
+          }
         }
       }
-      // target.foreach { target =>
-      //   portal.amend(
-      //     top := target.ref.offsetTop,
-      //     left := target.ref.offsetLeft
-      //   )
-      // }
+    },
+    onMountCallback { ctx =>
+      println("portal mounted")
     }
+    // root.targetSignal --> Observer[Option[HtmlElement]] { targetOpt =>
+    //   targetOpt.foreach { target =>
+    //     computePosition(
+    //       reference = target.ref,
+    //       floating = portal.ref,
+    //       options = ComputePositionConfig(
+    //         placement = "top",
+    //         middleware = js.Array(
+    //           offset(6),
+    //           flip(),
+    //           shift(
+    //             ShiftOptions(
+    //               padding = 8
+    //             )
+    //           )
+    //         )
+    //       )
+    //     ).onComplete {
+    //       case Failure(exception) => println(exception)
+    //       case Success(result) =>
+    //         println(s"x: ${result.x}, y: ${result.y}")
+    //         portal.ref.style.left = s"${result.x}px"
+    //         portal.ref.style.top = s"${result.y}px"
+    //         portal.ref.style.display = "block"
+    //     }
+    //   }
+    //   // target.foreach { target =>
+    //   //   portal.amend(
+    //   //     top := target.ref.offsetTop,
+    //   //     left := target.ref.offsetLeft
+    //   //   )
+    //   // }
+    // }
   )
 
   private val portalRoot: DetachedRoot[Div] = renderDetached(
     portal,
-    activateNow = false
+    activateNow = true
   )
 
   def show() = {

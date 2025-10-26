@@ -16,7 +16,7 @@ object TooltipTrigger {
 }
 
 object TooltipContent {
-  def apply()(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
-    TooltipPrimitive.content()(content)
+  def apply(className: String)(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
+    TooltipPrimitive.content(className = className)(content)
   }
 }

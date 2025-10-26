@@ -9,7 +9,7 @@ class PopoverRoot(val store: PopoverStore) {
   val targetVar = Var[Option[HtmlElement]](None)
   val targetSignal = targetVar.signal
 
-  def setupTrigger(trigger: HtmlElement) = {
+  def setupTrigger(trigger: HtmlElement): Unit = {
     trigger.amend(
       onClick(_.sample(store.openSignal)) --> Observer[Boolean] { open =>
         store.onOpenChange.onNext(!open)
@@ -21,7 +21,7 @@ class PopoverRoot(val store: PopoverStore) {
     targetVar.set(Some(trigger))
     popoverContent.foreach(_.mount())
   }
-  def setupRenderPropTrigger(renderProps: PopoverStore => HtmlElement) = {
+  def setupRenderPropTrigger(renderProps: PopoverStore => HtmlElement): Unit = {
     val trigger = renderProps(store)
     trigger.amend(
       store.openSignal --> Observer[Boolean] { isOpen =>
@@ -32,7 +32,7 @@ class PopoverRoot(val store: PopoverStore) {
     popoverContent.foreach(_.unmount())
   }
 
-  def setupContent(content: PopoverContent) = {
+  def setupContent(content: PopoverContent): Unit = {
     popoverContent = Some(content)
   }
 }

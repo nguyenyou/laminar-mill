@@ -19,8 +19,8 @@ object Tooltip {
     root.setupTrigger(button(cls(className), text))
   }
 
-  def content()(content: HtmlElement)(using root: TooltipRoot) = {
-    val tooltipContent: TooltipContent = new TooltipContent(content, root)
+  def content(className: String)(content: HtmlElement)(using root: TooltipRoot) = {
+    val tooltipContent: TooltipContent = new TooltipContent(content = content, root = root, className = className)
     root.setupContent(tooltipContent)
   }
 }
