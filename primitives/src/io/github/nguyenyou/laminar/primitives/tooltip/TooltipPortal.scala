@@ -43,20 +43,8 @@ class TooltipPortal(
   }
 }
 
-object TooltipPortal {
-  object ClassNameProp extends ComponentProp[String, TooltipPortal] {
-    private[primitives] def setProp(component: TooltipPortal, value: String): Unit = {
-      component.setClassName(value)
-    }
-
-    private[primitives] def updateProp(component: TooltipPortal, values: Source[String]): Unit = {
-      component.updateClassName(values)
-    }
-  }
-
-  object Props {
-    type Selector = Props.type => ComponentModifier[TooltipPortal]
-
+object TooltipPortal extends HasClassNameProp[TooltipPortal] {
+  object Props extends PropSelector[TooltipPortal] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 

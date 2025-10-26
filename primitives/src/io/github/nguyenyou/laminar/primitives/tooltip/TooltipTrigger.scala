@@ -5,23 +5,9 @@ import io.github.nguyenyou.laminar.modifiers.RenderableNode
 import io.github.nguyenyou.laminar.nodes.ChildNode
 import io.github.nguyenyou.laminar.primitives.base.*
 
-class TooltipTrigger() {
-  lazy val element: HtmlElement = render()
-
+class TooltipTrigger() extends Component {
   def render(): HtmlElement = {
     button()
-  }
-
-  def setClassName(value: String) = {
-    element.amend(
-      cls := value
-    )
-  }
-
-  def updateClassName(values: Source[String]) = {
-    element.amend(
-      cls <-- values.toObservable
-    )
   }
 
   def setChild(child: ChildNode.Base) = {
@@ -31,22 +17,8 @@ class TooltipTrigger() {
   }
 }
 
-object TooltipTrigger {
-  implicit val renderable: RenderableNode[TooltipTrigger] = RenderableNode(_.element)
-
-  object ClassNameProp extends ComponentProp[String, TooltipTrigger] {
-    private[primitives] def setProp(component: TooltipTrigger, value: String): Unit = {
-      component.setClassName(value)
-    }
-
-    private[primitives] def updateProp(component: TooltipTrigger, values: Source[String]): Unit = {
-      component.updateClassName(values)
-    }
-  }
-
-  object Props {
-    type Selector = Props.type => ComponentModifier[TooltipTrigger]
-
+object TooltipTrigger extends HasClassNameProp[TooltipTrigger] {
+  object Props extends PropSelector[TooltipTrigger] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
@@ -57,7 +29,7 @@ object TooltipTrigger {
 
     tooltipTrigger.setChild(child)
 
-    root.setTrigger(tooltipTrigger.element)
+    root.setTrigger(tooltipTrigger)
 
     tooltipTrigger
   }

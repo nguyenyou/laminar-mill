@@ -59,7 +59,7 @@ class TooltipContent(
         }
 
         computePosition(
-          reference = trigger.ref,
+          reference = trigger.element.ref,
           floating = ctx.thisNode.ref,
           options = ComputePositionConfig(
             placement = "top",
@@ -205,7 +205,7 @@ object TooltipContent {
     // children
     tooltipContent.setChildren(children)
 
-    root.setupContent(tooltipContent)
+    root.setContent(tooltipContent)
 
     ()
   }

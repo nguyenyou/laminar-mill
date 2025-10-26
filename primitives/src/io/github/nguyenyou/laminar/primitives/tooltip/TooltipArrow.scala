@@ -20,7 +20,7 @@ object TooltipArrow extends HasClassNameProp[TooltipArrow] {
     val tooltipArrow = new TooltipArrow()
     resolvedMods.foreach(_(tooltipArrow))
 
-    root.setupArrow(tooltipArrow)
+    root.setArrow(tooltipArrow)
 
     tooltipArrow
   }

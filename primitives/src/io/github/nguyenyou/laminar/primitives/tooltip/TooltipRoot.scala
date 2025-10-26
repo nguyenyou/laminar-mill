@@ -4,12 +4,13 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.primitives.base.*
 
 class TooltipRoot(val store: TooltipStore) {
+  // parts
   private var tooltipContent: Option[TooltipContent] = None
   private var tooltipArrow: Option[TooltipArrow] = None
-  private var tooltipTrigger: Option[HtmlElement] = None
+  private var tooltipTrigger: Option[TooltipTrigger] = None
 
-  def setupTrigger(trigger: HtmlElement): Unit = {
-    trigger.amend(
+  def setupTrigger(trigger: TooltipTrigger): Unit = {
+    trigger.element.amend(
       onMouseEnter --> Observer { _ =>
         store.onHoverChange.onNext(true)
       },
@@ -23,22 +24,22 @@ class TooltipRoot(val store: TooltipStore) {
     tooltipContent.foreach(_.mount())
   }
 
-  def setupContent(content: TooltipContent): Unit = {
+  def setContent(content: TooltipContent): Unit = {
     tooltipContent = Some(content)
   }
 
-  def setupArrow(arrow: TooltipArrow): Unit = {
+  def setArrow(arrow: TooltipArrow): Unit = {
     tooltipArrow = Some(arrow)
   }
 
-  def setTrigger(trigger: HtmlElement): Unit = {
+  def setTrigger(trigger: TooltipTrigger): Unit = {
     tooltipTrigger = Some(trigger)
     setupTrigger(trigger)
   }
 
   def content: Option[TooltipContent] = tooltipContent
   def arrow: Option[TooltipArrow] = tooltipArrow
-  def trigger: Option[HtmlElement] = tooltipTrigger
+  def trigger: Option[TooltipTrigger] = tooltipTrigger
 }
 
 object TooltipRoot {
@@ -46,6 +47,6 @@ object TooltipRoot {
     val isHoveringVar = Var(true)
     given tooltipRoot: TooltipRoot = new TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     context
-    tooltipRoot.trigger
+    tooltipRoot.trigger.map(_.element)
   }
 }
