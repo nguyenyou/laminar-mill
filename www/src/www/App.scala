@@ -30,7 +30,7 @@ case class App() {
       //   "Set Bottom"
       // ),
       Tooltip() {
-        TooltipTrigger(className = "bg-gray-200")("Greennnn")
+        TooltipTrigger(className = "bg-gray-300")("Greennnn")
         TooltipContent()(
           div(
             width.percent(100),
