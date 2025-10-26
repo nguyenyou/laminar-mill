@@ -5,7 +5,7 @@ import io.github.nguyenyou.laminar.primitives.tooltip.Tooltip as TooltipPrimitiv
 
 object Tooltip {
   def apply()(init: TooltipPrimitive.Root ?=> Unit) = {
-    TooltipPrimitive.root(init)
+    TooltipPrimitive.Root()(init)
   }
 }
 

@@ -9,11 +9,4 @@ object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipTrigger as Trigger
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipContent as Content
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipArrow as Arrow
-
-  def root(init: TooltipRoot ?=> Unit): Option[HtmlElement] = {
-    val isHoveringVar = Var(true)
-    given tooltip: TooltipRoot = TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
-    init
-    tooltip.trigger
-  }
 }
