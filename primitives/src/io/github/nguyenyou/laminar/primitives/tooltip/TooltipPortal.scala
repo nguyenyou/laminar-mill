@@ -48,4 +48,10 @@ object TooltipPortal extends HasClassNameProp[TooltipPortal] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
+  def apply()(using root: TooltipRoot): TooltipPortal = {
+    val tooltipPortal = new TooltipPortal(root)
+    root.setPortal(tooltipPortal)
+    tooltipPortal
+  }
+
 }
