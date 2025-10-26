@@ -1,6 +1,7 @@
 package io.github.nguyenyou.laminar.primitives.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
+import io.github.nguyenyou.laminar.nodes.ChildNode
 
 object Tooltip {
   export io.github.nguyenyou.laminar.primitives.tooltip.TooltipRoot as Root
@@ -18,22 +19,5 @@ object Tooltip {
 
   def trigger(className: String)(text: String)(using root: TooltipRoot): Unit = {
     root.setupTrigger(button(cls(className), text))
-  }
-
-  def content(className: String)(content: HtmlElement, tooltipArrow: Option[TooltipArrow] = None)(using root: TooltipRoot): Unit = {
-    val x = TooltipContent(
-      _.className := className
-    )(content)
-    val tooltipContent: TooltipContent = new TooltipContent(
-      root = root,
-      tooltipArrow = tooltipArrow
-    )
-    /*
-    TooltipContent(
-
-    )
-
-     */
-    root.setupContent(tooltipContent)
   }
 }

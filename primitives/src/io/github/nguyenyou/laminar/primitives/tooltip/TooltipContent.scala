@@ -2,7 +2,7 @@ package io.github.nguyenyou.laminar.primitives.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.api.L
-import io.github.nguyenyou.laminar.nodes.DetachedRoot
+import io.github.nguyenyou.laminar.nodes.{ChildNode, DetachedRoot}
 import io.github.nguyenyou.laminar.modifiers.RenderableNode
 import org.scalajs.dom
 import io.github.nguyenyou.facades.floatingui.FloatingUIDOM.*
@@ -155,15 +155,15 @@ class TooltipContent(
     )
   }
 
-  def setContent(value: HtmlElement) = {
+  def setChildren(children: Seq[ChildNode.Base]) = {
     contentWrapper.amend(
-      value
+      children
     )
   }
 
-  def updateContent(values: Source[HtmlElement]) = {
+  def updateChildren(values: Source[Seq[ChildNode.Base]]) = {
     contentWrapper.amend(
-      child <-- values.toObservable
+      children <-- values.toObservable
     )
   }
 
@@ -181,13 +181,13 @@ object TooltipContent {
     }
   }
 
-  object ContentProp extends ComponentProp[HtmlElement, TooltipContent] {
-    private[primitives] def setProp(component: TooltipContent, value: HtmlElement): Unit = {
-      component.setContent(value)
+  object ChildrenProp extends ComponentProp[Seq[ChildNode.Base], TooltipContent] {
+    private[primitives] def setProp(component: TooltipContent, value: Seq[ChildNode.Base]): Unit = {
+      component.setChildren(value)
     }
 
-    private[primitives] def updateProp(component: TooltipContent, values: Source[HtmlElement]): Unit = {
-      component.updateContent(values)
+    private[primitives] def updateProp(component: TooltipContent, values: Source[Seq[ChildNode.Base]]): Unit = {
+      component.updateChildren(values)
     }
   }
 
@@ -195,16 +195,18 @@ object TooltipContent {
     type Selector = Props.type => ComponentModifier[TooltipContent]
 
     lazy val className: ClassNameProp.type = ClassNameProp
-    lazy val content: ContentProp.type = ContentProp
   }
 
-  def apply(mods: Props.Selector*)(children: HtmlElement)(using root: TooltipRoot): TooltipContent = {
+  def apply(mods: Props.Selector*)(children: ChildNode.Base*)(using root: TooltipRoot): Unit = {
     val resolvedMods: Seq[ComponentModifier[TooltipContent]] = mods.map(_(Props))
     val tooltipContent = new TooltipContent(root = root)
     resolvedMods.foreach(_(tooltipContent))
 
+    // children
+    tooltipContent.setChildren(children)
+
     root.setupContent(tooltipContent)
 
-    tooltipContent
+    ()
   }
 }
