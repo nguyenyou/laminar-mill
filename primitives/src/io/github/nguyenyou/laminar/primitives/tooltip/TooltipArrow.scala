@@ -4,29 +4,13 @@ import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.modifiers.RenderableNode
 import io.github.nguyenyou.laminar.primitives.base.*
 
-class TooltipArrow() {
-  lazy val element: HtmlElement = render()
-
+class TooltipArrow() extends Component {
   def render(): HtmlElement = {
     span()
-  }
-
-  def setClassName(value: String) = {
-    element.amend(
-      cls := value
-    )
-  }
-
-  def updateClassName(values: Source[String]) = {
-    element.amend(
-      cls <-- values.toObservable
-    )
   }
 }
 
 object TooltipArrow {
-  implicit val renderable: RenderableNode[TooltipArrow] = RenderableNode(_.element)
-
   object ClassNameProp extends ComponentProp[String, TooltipArrow] {
     private[primitives] def setProp(component: TooltipArrow, value: String): Unit = {
       component.setClassName(value)

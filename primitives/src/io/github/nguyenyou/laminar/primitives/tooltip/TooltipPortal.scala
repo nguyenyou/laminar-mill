@@ -5,20 +5,14 @@ import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.nodes.{ChildNode, DetachedRoot}
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.primitives.base.*
+import io.github.nguyenyou.laminar.nodes.ReactiveHtmlElement
 
 class TooltipPortal(
   val root: TooltipRoot
-) {
+) extends Component {
   private var mounted = false
 
-  val element: Div = div(
-    dataAttr("slot") := "tooltip-portal",
-    cls := "absolute w-max",
-    top.px(0),
-    left.px(0)
-  )
-
-  private val portalRoot: DetachedRoot[Div] = renderDetached(
+  private val portalRoot = renderDetached(
     element,
     activateNow = true
   )
@@ -39,15 +33,12 @@ class TooltipPortal(
     }
   }
 
-  def setClassName(value: String) = {
-    element.amend(
-      cls := value
-    )
-  }
-
-  def updateClassName(values: Source[String]) = {
-    element.amend(
-      cls <-- values.toObservable
+  def render(): HtmlElement = {
+    div(
+      dataAttr("slot") := "tooltip-portal",
+      cls := "absolute w-max",
+      top.px(0),
+      left.px(0)
     )
   }
 }
