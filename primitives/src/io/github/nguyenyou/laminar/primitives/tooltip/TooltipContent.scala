@@ -9,6 +9,7 @@ import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import scala.scalajs.js.Thenable.Implicits.thenable2future
 import scala.util.Failure
 import scala.util.Success
+import scala.scalajs.js
 
 class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
   private var mounted = false
@@ -36,7 +37,8 @@ class TooltipContent(val content: HtmlElement, val root: TooltipRoot) {
           reference = target.ref,
           floating = portal.ref,
           options = ComputePositionConfig(
-            placement = "right"
+            placement = "top",
+            middleware = js.Array(flip())
           )
         ).onComplete {
           case Failure(exception) => println(exception)

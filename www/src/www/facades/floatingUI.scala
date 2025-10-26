@@ -387,13 +387,11 @@ object FloatingUIDOM {
       crossAxis: js.UndefOr[Boolean] = js.undefined,
       limiter: js.UndefOr[js.Function1[MiddlewareState, Coords]] = js.undefined
     ): ShiftOptions = {
-      js.Dynamic
-        .literal(
-          mainAxis = mainAxis,
-          crossAxis = crossAxis,
-          limiter = limiter
-        )
-        .asInstanceOf[ShiftOptions]
+      val obj = js.Dynamic.literal()
+      if (mainAxis.isDefined) obj.mainAxis = mainAxis.get
+      if (crossAxis.isDefined) obj.crossAxis = crossAxis.get
+      if (limiter.isDefined) obj.limiter = limiter.get
+      obj.asInstanceOf[ShiftOptions]
     }
   }
 
