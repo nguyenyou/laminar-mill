@@ -10,8 +10,8 @@ object Tooltip {
 }
 
 object TooltipTrigger {
-  def apply()(text: String)(using root: TooltipPrimitive.Root) = {
-    TooltipPrimitive.trigger(text)
+  def apply(className: String)(text: String)(using root: TooltipPrimitive.Root) = {
+    TooltipPrimitive.trigger(className)(text)
   }
 }
 
