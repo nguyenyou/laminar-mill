@@ -157,214 +157,33 @@ def Flip() = {
         className := "scroll",
         dataAttr("x") := "",
         position := "relative",
-        onMountCallback { ctx =>
-          scrollContainerRef.set(Some(ctx.thisNode.ref))
-
-          // Center scroll position on mount
-          val scrollEl = ctx.thisNode.ref
-          val y = scrollEl.scrollHeight / 2 - scrollEl.offsetHeight / 2
-          val x = scrollEl.scrollWidth / 2 - scrollEl.offsetWidth / 2
-          scrollEl.scrollTop = y
-          scrollEl.scrollLeft = x
-
-          // Update position on mount
-          updatePosition()
-          updateIndicatorPosition()
-
-          // Listen to scroll events
-          ctx.thisNode.ref.addEventListener(
-            "scroll",
-            { (_: dom.Event) =>
-              scrollXVar.set(Some(scrollEl.scrollLeft))
-              scrollYVar.set(Some(scrollEl.scrollTop))
-              updatePosition()
-              updateIndicatorPosition()
-            }
-          )
-        },
-        // Scroll indicator
-        div(
-          className := "scroll-indicator",
-          position := "fixed",
-          left <-- indicatorXVar.signal.map(x => s"${x}px"),
-          top <-- indicatorYVar.signal.map(y => s"${y}px"),
-          child.text <-- scrollXVar.signal.combineWith(scrollYVar.signal).map {
-            case (Some(x), Some(y)) => s"x: ${x.toInt}, y: ${y.toInt}"
-            case _                  => "x: 0, y: 0"
-          }
-        ),
         // Reference element
         div(
           className := "reference",
-          "Reference"
+          "Reference",
+          onMountCallback { ctx =>
+            referenceRef.set(Some(ctx.thisNode.ref))
+          }
         ),
         // Floating element
         div(
           className := "floating",
-          "Floating"
-        )
+          "Floating",
+          position.absolute,
+          top.px <-- yVar.signal,
+          left.px <-- xVar.signal,
+          onMountCallback { ctx =>
+            floatingRef.set(Some(ctx.thisNode.ref))
+          }
+        ),
+        referenceRef.signal.combineWith(floatingRef.signal).map {
+          case (Some(reference), Some(floating)) =>
+            val result = computePosition(reference, floating)
+            xVar.set(result.x)
+            yVar.set(result.y)
+          case _ => None
+        } --> Observer.empty
       )
-    ),
-
-    // Placement controls
-    h2("placement"),
-    div(
-      className := "controls",
-      ALL_PLACEMENTS.map { localPlacement =>
-        controlButton(
-          localPlacement,
-          placementVar,
-          s"placement-$localPlacement",
-          localPlacement
-        )
-      }
-    ),
-
-    // Main axis controls
-    h2("mainAxis"),
-    div(
-      className := "controls",
-      BOOLS.map { bool =>
-        controlButton(
-          bool,
-          mainAxisVar,
-          s"mainAxis-$bool",
-          bool.toString
-        )
-      }
-    ),
-
-    // Cross axis controls
-    h2("crossAxis"),
-    div(
-      className := "controls",
-      (BOOLS :+ "alignment").map { value =>
-        val crossAxisValue: FlipCrossAxis = value match {
-          case b: Boolean => b
-          case s: String  => s
-        }
-        button(
-          dataAttr("testid") := s"crossAxis-$value",
-          value.toString,
-          onClick --> Observer[dom.MouseEvent] { _ =>
-            crossAxisVar.set(crossAxisValue)
-            updatePosition()
-          },
-          backgroundColor <-- crossAxisVar.signal.map { current =>
-            val matches = (current, value) match {
-              case (b1: Boolean, b2: Boolean) => b1 == b2
-              case (s1: String, s2: String)   => s1 == s2
-              case _                          => false
-            }
-            if (matches) "black" else ""
-          },
-          color <-- crossAxisVar.signal.map { current =>
-            val matches = (current, value) match {
-              case (b1: Boolean, b2: Boolean) => b1 == b2
-              case (s1: String, s2: String)   => s1 == s2
-              case _                          => false
-            }
-            if (matches) "white" else ""
-          }
-        )
-      }
-    ),
-
-    // Fallback placements controls
-    h2("fallbackPlacements"),
-    div(
-      className := "controls",
-      Seq(
-        ("undefined", None),
-        ("[]", Some(Seq.empty[Placement])),
-        ("all", Some(ALL_PLACEMENTS))
-      ).map { case (label, value) =>
-        button(
-          dataAttr("testid") := s"fallbackPlacements-$label",
-          label match {
-            case "undefined" => "undefined"
-            case "[]"        => "[]"
-            case "all"       => s"[${ALL_PLACEMENTS.mkString(", ")}]"
-            case _           => label
-          },
-          onClick --> Observer[dom.MouseEvent] { _ =>
-            fallbackPlacementsVar.set(value)
-            updatePosition()
-          },
-          backgroundColor <-- fallbackPlacementsVar.signal.map { current =>
-            val matches = (current, value) match {
-              case (None, None)                               => true
-              case (Some(c), Some(v)) if c.length == v.length => true
-              case _                                          => false
-            }
-            if (matches) "black" else ""
-          },
-          color <-- fallbackPlacementsVar.signal.map { current =>
-            val matches = (current, value) match {
-              case (None, None)                               => true
-              case (Some(c), Some(v)) if c.length == v.length => true
-              case _                                          => false
-            }
-            if (matches) "white" else ""
-          }
-        )
-      }
-    ),
-
-    // Fallback strategy controls
-    h2("fallbackStrategy"),
-    div(
-      className := "controls",
-      FALLBACK_STRATEGIES.map { strategy =>
-        controlButton(
-          strategy,
-          fallbackStrategyVar,
-          s"fallbackStrategy-$strategy",
-          strategy
-        )
-      }
-    ),
-
-    // Flip alignment controls
-    h2("flipAlignment"),
-    div(
-      className := "controls",
-      BOOLS.map { bool =>
-        controlButton(
-          bool,
-          flipAlignmentVar,
-          s"flipAlignment-$bool",
-          bool.toString
-        )
-      }
-    ),
-
-    // Add shift controls
-    h2("Add shift"),
-    div(
-      className := "controls",
-      BOOLS.map { bool =>
-        controlButton(
-          bool,
-          addShiftVar,
-          s"shift-$bool",
-          bool.toString
-        )
-      }
-    ),
-
-    // Fallback axis side direction controls
-    h2("fallbackAxisSideDirection"),
-    div(
-      className := "controls",
-      Seq("start", "end", "none").map { value =>
-        controlButton(
-          value,
-          fallbackAxisSideDirectionVar,
-          s"fallbackAxisSideDirection-$value",
-          value
-        )
-      }
     )
   )
 }
