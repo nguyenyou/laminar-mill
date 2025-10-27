@@ -3,6 +3,15 @@ package www.floating
 import io.github.nguyenyou.laminar.api.L.*
 
 def Flip() = {
+  val referenceEle = div(
+    className("reference"),
+    "Reference"
+  )
+  val floatingEle = div(
+    className("floating"),
+    "Floating"
+  )
+
   div(
     h1("Flip"),
     p(),
@@ -11,14 +20,8 @@ def Flip() = {
       div(
         className("scroll"),
         position.relative,
-        div(
-          className("reference"),
-          "Reference"
-        ),
-        div(
-          className("floating"),
-          "Floating"
-        )
+        referenceEle,
+        floatingEle
       )
     )
   )
