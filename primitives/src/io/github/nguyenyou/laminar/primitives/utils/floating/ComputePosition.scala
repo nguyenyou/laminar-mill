@@ -5,30 +5,33 @@ import ComputeCoordsFromPlacement.*
 import org.scalajs.dom
 
 /** Main computePosition function for floating element positioning.
-  * 
+  *
   * Ported from @floating-ui/core/src/computePosition.ts
   */
 object ComputePosition {
-  
+
   def computePosition(
     reference: dom.Element,
     floating: dom.HTMLElement,
     config: ComputePositionConfig
   ): ComputePositionReturn = {
     val validMiddleware = config.middleware.filter(_ != null)
-    
-    val rects = config.platform.getElementRects(reference, floating, config.strategy)
-    var coords = computeCoordsFromPlacement(rects, config.placement, rtl = false)
+
+    // Check RTL direction from the floating element
+    val rtl = config.platform.isRTL(floating)
+
+    var rects = config.platform.getElementRects(reference, floating, config.strategy)
+    var coords = computeCoordsFromPlacement(rects, config.placement, rtl)
     var statefulPlacement = config.placement
     var middlewareData = MiddlewareData()
     var resetCount = 0
-    
+
     val elements = Elements(reference, floating)
-    
+
     var i = 0
     while (i < validMiddleware.length && resetCount <= 50) {
       val middleware = validMiddleware(i)
-      
+
       val state = MiddlewareState(
         x = coords.x,
         y = coords.y,
@@ -40,14 +43,14 @@ object ComputePosition {
         rects = rects,
         platform = config.platform
       )
-      
+
       val result = middleware.fn(state)
-      
+
       coords = Coords(
         x = result.x.getOrElse(coords.x),
         y = result.y.getOrElse(coords.y)
       )
-      
+
       // Update middleware data
       result.data.foreach { data =>
         middlewareData = middleware.name match {
@@ -81,25 +84,38 @@ object ComputePosition {
             middlewareData
         }
       }
-      
+
       // Handle reset
       result.reset.foreach { reset =>
         resetCount += 1
-        
+
         reset.placement.foreach { newPlacement =>
           statefulPlacement = newPlacement
         }
-        
-        // Recalculate coordinates with new placement
-        coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl = false)
-        
+
+        // Recalculate rects if requested
+        reset.rects.foreach {
+          case Left(true) =>
+            // Recalculate rects from platform
+            rects = config.platform.getElementRects(reference, floating, config.strategy)
+          case Right(newRects) =>
+            // Use provided rects
+            rects = newRects
+          case Left(false) =>
+            // Don't recalculate rects
+            ()
+        }
+
+        // Recalculate coordinates with new placement and/or rects
+        coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
+
         // Restart middleware loop
         i = -1
       }
-      
+
       i += 1
     }
-    
+
     ComputePositionReturn(
       x = coords.x,
       y = coords.y,
@@ -109,4 +125,3 @@ object ComputePosition {
     )
   }
 }
-

@@ -39,7 +39,8 @@ object ComputeCoordsFromPlacement {
         Coords(x = reference.x + reference.width, y = commonY)
       case "left" =>
         Coords(x = reference.x - floating.width, y = commonY)
-      case null =>
+      case _ =>
+        // Default case for any other placement (shouldn't happen in practice)
         Coords(x = reference.x, y = reference.y)
     }
 

@@ -58,9 +58,12 @@ object AutoUpdate {
     val scrollHandler: js.Function1[dom.Event, Unit] = (_: dom.Event) => update()
     val resizeHandler: js.Function1[dom.Event, Unit] = (_: dom.Event) => update()
 
+    // Create options for passive scroll listeners (improves performance)
+    val scrollOptions = js.Dynamic.literal("passive" -> true).asInstanceOf[dom.EventListenerOptions]
+
     ancestors.foreach { ancestor =>
       if (options.ancestorScroll) {
-        ancestor.addEventListener("scroll", scrollHandler, useCapture = false)
+        ancestor.addEventListener("scroll", scrollHandler, scrollOptions)
       }
       if (options.ancestorResize) {
         ancestor.addEventListener("resize", resizeHandler, useCapture = false)
@@ -131,7 +134,7 @@ object AutoUpdate {
       // Remove scroll and resize listeners
       ancestors.foreach { ancestor =>
         if (options.ancestorScroll) {
-          ancestor.removeEventListener("scroll", scrollHandler, useCapture = false)
+          ancestor.removeEventListener("scroll", scrollHandler, scrollOptions)
         }
         if (options.ancestorResize) {
           ancestor.removeEventListener("resize", resizeHandler, useCapture = false)
