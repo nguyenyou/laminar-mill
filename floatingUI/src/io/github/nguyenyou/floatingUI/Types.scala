@@ -197,6 +197,9 @@ object Types {
       val computedStyle = dom.window.getComputedStyle(element)
       computedStyle.direction == "rtl"
     }
+
+    /** Get client rects for an element (for inline elements). */
+    def getClientRects(element: dom.Element): Seq[ClientRectObject]
   }
 
   // ============================================================================

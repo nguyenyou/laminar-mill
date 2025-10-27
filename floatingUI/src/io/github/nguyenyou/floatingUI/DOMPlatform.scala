@@ -44,4 +44,21 @@ object DOMPlatform extends Platform {
   ): Rect = {
     DOMUtils.getClippingRect(element, boundary, rootBoundary, strategy)
   }
+
+  override def getClientRects(element: dom.Element): Seq[ClientRectObject] = {
+    val rects = element.getClientRects()
+    (0 until rects.length).map { i =>
+      val rect = rects(i)
+      ClientRectObject(
+        x = rect.left,
+        y = rect.top,
+        width = rect.width,
+        height = rect.height,
+        top = rect.top,
+        right = rect.right,
+        bottom = rect.bottom,
+        left = rect.left
+      )
+    }
+  }
 }
