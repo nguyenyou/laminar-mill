@@ -118,7 +118,7 @@ def Flip() = {
         reference, // Use reference as placeholder
         placement = "top",
         strategy = "fixed",
-        middleware = Seq(ShiftMiddleware.shift(ShiftOptions(crossAxis = true, padding = Left(10))))
+        middleware = Seq(ShiftMiddleware.shift(Left(ShiftOptions(crossAxis = true, padding = Left(10)))))
       )
       indicatorXVar.set(indicatorResult.x)
       indicatorYVar.set(indicatorResult.y)

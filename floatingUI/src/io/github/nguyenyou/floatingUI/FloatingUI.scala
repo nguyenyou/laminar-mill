@@ -83,11 +83,11 @@ object FloatingUI {
   /** Shift middleware - shifts the floating element to keep it in view.
     *
     * @param options
-    *   Shift configuration
+    *   Shift configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def shift(options: ShiftOptions = ShiftOptions()): Middleware = {
+  def shift(options: Derivable[ShiftOptions] = Left(ShiftOptions())): Middleware = {
     ShiftMiddleware.shift(options)
   }
 
@@ -177,7 +177,7 @@ object FloatingUI {
     * @return
     *   Limiter object
     */
-  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): ShiftMiddleware.Limiter = {
+  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): Limiter = {
     ShiftMiddleware.limitShift(options)
   }
 

@@ -18,7 +18,7 @@ class TooltipRoot(val store: TooltipStore) {
   private val middlewares = ArrayBuffer[Middleware](
     FloatingUI.offset(6),
     FloatingUI.flip(),
-    FloatingUI.shift(ShiftOptions(padding = Left(8)))
+    FloatingUI.shift(Left(ShiftOptions(padding = Left(8))))
   )
 
   // Store the cleanup function from autoUpdate

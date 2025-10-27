@@ -10,27 +10,50 @@ import io.github.nguyenyou.floatingUI.DetectOverflow.*
   */
 object ShiftMiddleware {
 
-  def shift(options: ShiftOptions = ShiftOptions()): Middleware = new Middleware {
+  def shift(options: Derivable[ShiftOptions] = Left(ShiftOptions())): Middleware = new Middleware {
     override def name: String = "shift"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
-      val coords = Coords(state.x, state.y)
+      val x = state.x
+      val y = state.y
+      val placement = state.placement
 
-      // Evaluate derivable padding
-      val padding = evaluate(options.padding, state)
+      // Evaluate derivable options
+      val evaluatedOptions = evaluate(options, state)
 
-      val overflow = detectOverflow(
-        state,
-        Left(DetectOverflowOptions(padding = padding))
+      // Extract shift-specific options with defaults
+      val checkMainAxis = evaluatedOptions.mainAxis
+      val checkCrossAxis = evaluatedOptions.crossAxis
+      val limiter = evaluatedOptions.limiter.getOrElse(
+        // Default limiter: identity function
+        Limiter(
+          options = (),
+          fn = (s: MiddlewareState) => Coords(s.x, s.y)
+        )
       )
 
-      val crossAxis = getSideAxis(getSide(state.placement))
+      // Evaluate derivable padding
+      val padding = evaluate(evaluatedOptions.padding, state)
+
+      // Build DetectOverflowOptions from all the options
+      val detectOverflowOptions = DetectOverflowOptions(
+        boundary = evaluatedOptions.boundary,
+        rootBoundary = evaluatedOptions.rootBoundary,
+        elementContext = evaluatedOptions.elementContext,
+        altBoundary = evaluatedOptions.altBoundary,
+        padding = padding
+      )
+
+      val overflow = detectOverflow(state, Left(detectOverflowOptions))
+
+      val crossAxis = getSideAxis(getSide(placement))
       val mainAxis = getOppositeAxis(crossAxis)
 
+      val coords = Coords(x, y)
       var mainAxisCoord = if (mainAxis == "x") coords.x else coords.y
       var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
 
-      if (options.mainAxis) {
+      if (checkMainAxis) {
         val minSide = if (mainAxis == "y") "top" else "left"
         val maxSide = if (mainAxis == "y") "bottom" else "right"
 
@@ -43,7 +66,7 @@ object ShiftMiddleware {
         mainAxisCoord = clamp(min, mainAxisCoord, max)
       }
 
-      if (options.crossAxis) {
+      if (checkCrossAxis) {
         val minSide = if (crossAxis == "y") "top" else "left"
         val maxSide = if (crossAxis == "y") "bottom" else "right"
 
@@ -56,34 +79,30 @@ object ShiftMiddleware {
         crossAxisCoord = clamp(min, crossAxisCoord, max)
       }
 
-      val limitedCoords = if (mainAxis == "x") {
-        Coords(x = mainAxisCoord, y = crossAxisCoord)
-      } else {
-        Coords(x = crossAxisCoord, y = mainAxisCoord)
-      }
+      // Apply limiter function with updated coordinates
+      val updatedState = state.copy(
+        x = if (mainAxis == "x") mainAxisCoord else crossAxisCoord,
+        y = if (mainAxis == "y") mainAxisCoord else crossAxisCoord
+      )
+      val limitedCoords = limiter.fn(updatedState)
 
       MiddlewareReturn(
         x = Some(limitedCoords.x),
         y = Some(limitedCoords.y),
         data = Some(
           Map(
-            "x" -> (limitedCoords.x - state.x),
-            "y" -> (limitedCoords.y - state.y),
+            "x" -> (limitedCoords.x - x),
+            "y" -> (limitedCoords.y - y),
             "enabled" -> Map(
-              mainAxis -> options.mainAxis,
-              crossAxis -> options.crossAxis
+              mainAxis -> checkMainAxis,
+              crossAxis -> checkCrossAxis
             )
           )
-        )
+        ),
+        reset = None
       )
     }
   }
-
-  /** Limiter function type for shift middleware. */
-  case class Limiter(
-    options: Any,
-    fn: MiddlewareState => Coords
-  )
 
   /** Built-in limiter that will stop shift() at a certain point. */
   def limitShift(options: LimitShiftOptions = LimitShiftOptions()): Limiter = {
@@ -95,19 +114,16 @@ object ShiftMiddleware {
         val rects = state.rects
         val middlewareData = state.middlewareData
 
-        // Get offset value
-        val rawOffset = options.offset match {
-          case Left(num)   => num
-          case Right(opts) => 0.0 // Will be expanded below
-        }
-
         // Evaluate derivable offset
-        val offsetValue = evaluate(options.offset, state)
+        val rawOffset = evaluate(options.offset, state)
 
-        val computedOffset = offsetValue match {
+        // Convert to offset values with defaults
+        val computedOffset = rawOffset match {
           case Left(num) =>
+            // If it's a number, use it for mainAxis and 0 for crossAxis
             LimitShiftOffsetValues(mainAxis = num, crossAxis = 0.0)
           case Right(opts) =>
+            // If it's an object, merge with defaults (mainAxis: 0, crossAxis: 0)
             LimitShiftOffsetValues(
               mainAxis = opts.mainAxis,
               crossAxis = opts.crossAxis

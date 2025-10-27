@@ -271,11 +271,27 @@ object Types {
     alignmentAxis: Option[Derivable[Double]] = None
   )
 
-  /** Options for shift middleware. */
+  /** Options for shift middleware.
+    *
+    * Extends DetectOverflowOptions to include all boundary detection options.
+    */
   case class ShiftOptions(
+    // Shift-specific options
     mainAxis: Boolean = true,
     crossAxis: Boolean = false,
+    limiter: Option[Limiter] = None,
+    // DetectOverflowOptions fields
+    boundary: String = "clippingAncestors",
+    rootBoundary: String = "viewport",
+    elementContext: String = "floating",
+    altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
+  )
+
+  /** Limiter for shift middleware. */
+  case class Limiter(
+    options: Any = (),
+    fn: MiddlewareState => Coords
   )
 
   /** Cross-axis option for flip middleware - can be Boolean or "alignment". */
