@@ -297,14 +297,23 @@ object Types {
   /** Cross-axis option for flip middleware - can be Boolean or "alignment". */
   type FlipCrossAxis = Boolean | String
 
-  /** Options for flip middleware. */
+  /** Options for flip middleware.
+    *
+    * Extends DetectOverflowOptions to include all boundary detection options.
+    */
   case class FlipOptions(
+    // Flip-specific options
     mainAxis: Boolean = true,
     crossAxis: FlipCrossAxis = true,
     fallbackPlacements: Option[Seq[Placement]] = None,
     fallbackStrategy: String = "bestFit",
     fallbackAxisSideDirection: String = "none",
     flipAlignment: Boolean = true,
+    // DetectOverflowOptions fields
+    boundary: String = "clippingAncestors",
+    rootBoundary: String = "viewport",
+    elementContext: String = "floating",
+    altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
   )
 

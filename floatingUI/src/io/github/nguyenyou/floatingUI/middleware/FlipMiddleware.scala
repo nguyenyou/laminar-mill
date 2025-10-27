@@ -10,14 +10,17 @@ import io.github.nguyenyou.floatingUI.DetectOverflow.*
   */
 object FlipMiddleware {
 
-  def flip(options: FlipOptions = FlipOptions()): Middleware = new Middleware {
+  def flip(options: Derivable[FlipOptions] = Left(FlipOptions())): Middleware = new Middleware {
     override def name: String = "flip"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
+      // Evaluate derivable options
+      val evaluatedOptions = evaluate(options, state)
+
       // If arrow caused an alignment offset, skip flip logic
       // https://github.com/floating-ui/floating-ui/issues/2549#issuecomment-1719601643
       if (state.middlewareData.arrow.flatMap(_.alignmentOffset).isDefined) {
-        return MiddlewareReturn()
+        return MiddlewareReturn(reset = None)
       }
 
       val side = getSide(state.placement)
@@ -26,13 +29,13 @@ object FlipMiddleware {
       val rtl = state.platform.isRTL(state.elements.floating)
 
       // Determine checkMainAxis and checkCrossAxis
-      val checkMainAxis = options.mainAxis
-      val checkCrossAxis = options.crossAxis
+      val checkMainAxis = evaluatedOptions.mainAxis
+      val checkCrossAxis = evaluatedOptions.crossAxis
 
       // Build fallback placements
-      val specifiedFallbackPlacements = options.fallbackPlacements
+      val specifiedFallbackPlacements = evaluatedOptions.fallbackPlacements
       val fallbackPlacements = specifiedFallbackPlacements.getOrElse {
-        if (isBasePlacement || !options.flipAlignment) {
+        if (isBasePlacement || !evaluatedOptions.flipAlignment) {
           Seq(getOppositePlacement(state.initialPlacement))
         } else {
           getExpandedPlacements(state.initialPlacement)
@@ -40,12 +43,12 @@ object FlipMiddleware {
       }
 
       // Add opposite axis placements if fallbackAxisSideDirection is set
-      val hasFallbackAxisSideDirection = options.fallbackAxisSideDirection != "none"
+      val hasFallbackAxisSideDirection = evaluatedOptions.fallbackAxisSideDirection != "none"
       val allFallbackPlacements = if (specifiedFallbackPlacements.isEmpty && hasFallbackAxisSideDirection) {
         fallbackPlacements ++ getOppositeAxisPlacements(
           state.initialPlacement,
-          options.flipAlignment,
-          options.fallbackAxisSideDirection,
+          evaluatedOptions.flipAlignment,
+          evaluatedOptions.fallbackAxisSideDirection,
           rtl
         )
       } else {
@@ -55,13 +58,19 @@ object FlipMiddleware {
       val placements = state.initialPlacement +: allFallbackPlacements
 
       // Evaluate derivable padding
-      val padding = evaluate(options.padding, state)
+      val padding = evaluate(evaluatedOptions.padding, state)
+
+      // Build DetectOverflowOptions from all the options
+      val detectOverflowOptions = DetectOverflowOptions(
+        boundary = evaluatedOptions.boundary,
+        rootBoundary = evaluatedOptions.rootBoundary,
+        elementContext = evaluatedOptions.elementContext,
+        altBoundary = evaluatedOptions.altBoundary,
+        padding = padding
+      )
 
       // Detect overflow
-      val overflow = detectOverflow(
-        state,
-        Left(DetectOverflowOptions(padding = padding))
-      )
+      val overflow = detectOverflow(state, Left(detectOverflowOptions))
 
       // Build overflows array
       val overflows = scala.collection.mutable.ArrayBuffer[Double]()
@@ -80,7 +89,6 @@ object FlipMiddleware {
       val shouldCheckCrossAxis = checkCrossAxis match {
         case b: Boolean => b
         case s: String  => true // "alignment" or any string means true
-        case _          => true
       }
 
       if (shouldCheckCrossAxis) {
@@ -159,7 +167,7 @@ object FlipMiddleware {
 
         // If no placement fits on main axis, use fallback strategy
         if (resetPlacement.isEmpty) {
-          options.fallbackStrategy match {
+          evaluatedOptions.fallbackStrategy match {
             case "bestFit" =>
               // Calculate total positive overflow for each placement
               val placementWithOverflow = overflowsData
@@ -200,7 +208,8 @@ object FlipMiddleware {
 
       // No overflow or same placement - return empty with overflow data
       MiddlewareReturn(
-        data = if (overflowsData.nonEmpty) Some(Map("overflows" -> overflowsData)) else None
+        data = if (overflowsData.nonEmpty) Some(Map("overflows" -> overflowsData)) else None,
+        reset = None
       )
     }
   }

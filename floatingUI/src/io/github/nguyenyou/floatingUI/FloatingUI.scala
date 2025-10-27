@@ -94,11 +94,11 @@ object FloatingUI {
   /** Flip middleware - flips the placement to keep it in view.
     *
     * @param options
-    *   Flip configuration
+    *   Flip configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def flip(options: FlipOptions = FlipOptions()): Middleware = {
+  def flip(options: Derivable[FlipOptions] = Left(FlipOptions())): Middleware = {
     FlipMiddleware.flip(options)
   }
 

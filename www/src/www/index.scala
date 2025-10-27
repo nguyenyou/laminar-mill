@@ -2,7 +2,7 @@ package www
 
 import org.scalajs.dom
 import io.github.nguyenyou.laminar.api.L.*
-import www.examples.floatingui.*
+// import www.examples.floatingui.*
 
 @main def main(): Unit = {
 

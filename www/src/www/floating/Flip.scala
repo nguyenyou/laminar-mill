@@ -85,9 +85,9 @@ def Flip() = {
       )
 
       val middleware = if (addShiftVar.now()) {
-        Seq(FlipMiddleware.flip(flipOptions), ShiftMiddleware.shift())
+        Seq(FlipMiddleware.flip(Left(flipOptions)), ShiftMiddleware.shift())
       } else {
-        Seq(FlipMiddleware.flip(flipOptions))
+        Seq(FlipMiddleware.flip(Left(flipOptions)))
       }
 
       val result = computePosition(
