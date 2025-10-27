@@ -1,0 +1,130 @@
+/* Visual test styles for Flip component
+ * Ported from floating-ui/packages/dom/test/visual/index.css
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+  padding-bottom: 200px;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+main {
+  padding-left: 2rem;
+  max-width: 800px;
+}
+
+.reference {
+  display: grid;
+  place-items: center;
+  font: inherit;
+  width: 160px;
+  height: 160px;
+  background: #ed4f73;
+  color: white;
+}
+
+.floating {
+  display: grid;
+  place-items: center;
+  background: turquoise;
+  width: 80px;
+  height: 80px;
+  outline: none;
+}
+
+.container {
+  border: 1px solid black;
+  display: grid;
+  place-items: center;
+  width: 700px;
+  height: 500px;
+  margin-bottom: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  background: #edeff7;
+  padding: 16px;
+  margin-bottom: 1rem;
+}
+
+.controls button {
+  all: unset;
+  text-align: center;
+  background: royalblue;
+  padding: 8px;
+  color: white;
+  font-size: 1.125rem;
+  border-radius: 4px;
+  width: 200px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: navy;
+}
+
+.controls button:focus-visible {
+  outline: 2px solid black;
+}
+
+.scroll {
+  display: grid;
+  place-items: center;
+  overflow: scroll;
+  background: #edeff7;
+  border: 1px solid;
+  width: 450px;
+  height: 450px;
+}
+
+.scroll::before {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 750px;
+}
+
+.scroll::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 750px;
+}
+
+.scroll[data-x]::before,
+.scroll[data-x]::after {
+  width: 1500px;
+}
+
+.scroll-indicator {
+  background: rgba(237, 239, 247, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: fit-content;
+  padding: 5px;
+  border-radius: 5px;
+  pointer-events: none;
+  display: block;
+  font-size: 0.875rem;
+}
+
