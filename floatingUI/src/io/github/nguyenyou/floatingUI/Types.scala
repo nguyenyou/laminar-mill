@@ -179,8 +179,45 @@ object Types {
     def fn(state: MiddlewareState): MiddlewareReturn
   }
 
+  // ============================================================================
+  // Virtual Elements
+  // ============================================================================
+
+  /** Virtual element for custom positioning reference.
+    *
+    * Allows positioning relative to arbitrary coordinates (e.g., mouse position, custom objects).
+    * @see
+    *   https://floating-ui.com/docs/virtual-elements
+    */
+  trait VirtualElement {
+
+    /** Returns the bounding client rect for this virtual element. */
+    def getBoundingClientRect(): ClientRectObject
+
+    /** Optionally returns multiple client rects (for inline elements). */
+    def getClientRects(): Option[Seq[ClientRectObject]] = None
+
+    /** Optional context element for determining containing block, etc. */
+    def contextElement: Option[dom.Element] = None
+  }
+
+  /** Reference element type - can be either a DOM element or a virtual element. */
+  type ReferenceElement = dom.Element | VirtualElement
+
+  // ============================================================================
+  // Derivable Values
+  // ============================================================================
+
+  /** Derivable value type - can be either a static value or a function that computes the value from middleware state.
+    *
+    * This allows middleware options to be computed dynamically based on the current positioning state.
+    * @see
+    *   https://floating-ui.com/docs/middleware#options
+    */
+  type Derivable[T] = Either[T, MiddlewareState => T]
+
   /** Elements object containing reference and floating elements. */
-  case class Elements(reference: dom.Element, floating: dom.HTMLElement)
+  case class Elements(reference: ReferenceElement, floating: dom.HTMLElement)
 
   // ============================================================================
   // Platform Interface
@@ -188,9 +225,9 @@ object Types {
 
   /** Platform interface for DOM operations. */
   trait Platform {
-    def getElementRects(reference: dom.Element, floating: dom.HTMLElement, strategy: Strategy): ElementRects
+    def getElementRects(reference: ReferenceElement, floating: dom.HTMLElement, strategy: Strategy): ElementRects
     def getDimensions(element: dom.Element): Dimensions
-    def getClippingRect(element: dom.Element, boundary: String, rootBoundary: String, strategy: Strategy): Rect
+    def getClippingRect(element: ReferenceElement, boundary: String, rootBoundary: String, strategy: Strategy): Rect
 
     /** Check if the element uses right-to-left text direction. */
     def isRTL(element: dom.Element): Boolean = {
@@ -199,7 +236,7 @@ object Types {
     }
 
     /** Get client rects for an element (for inline elements). */
-    def getClientRects(element: dom.Element): Seq[ClientRectObject]
+    def getClientRects(element: ReferenceElement): Seq[ClientRectObject]
   }
 
   // ============================================================================
@@ -229,16 +266,16 @@ object Types {
 
   /** Options for offset middleware. */
   case class OffsetOptions(
-    mainAxis: Double = 0,
-    crossAxis: Double = 0,
-    alignmentAxis: Option[Double] = None
+    mainAxis: Derivable[Double] = Left(0),
+    crossAxis: Derivable[Double] = Left(0),
+    alignmentAxis: Option[Derivable[Double]] = None
   )
 
   /** Options for shift middleware. */
   case class ShiftOptions(
     mainAxis: Boolean = true,
     crossAxis: Boolean = false,
-    padding: Padding = 0
+    padding: Derivable[Padding] = Left(0)
   )
 
   /** Cross-axis option for flip middleware - can be Boolean or "alignment". */
@@ -252,13 +289,13 @@ object Types {
     fallbackStrategy: String = "bestFit",
     fallbackAxisSideDirection: String = "none",
     flipAlignment: Boolean = true,
-    padding: Padding = 0
+    padding: Derivable[Padding] = Left(0)
   )
 
   /** Options for arrow middleware. */
   case class ArrowOptions(
     element: dom.HTMLElement,
-    padding: Padding = 0
+    padding: Derivable[Padding] = Left(0)
   )
 
   /** Options for autoPlacement middleware. */
@@ -266,7 +303,7 @@ object Types {
     alignment: Option[Alignment] = None,
     allowedPlacements: Seq[Placement] = Seq.empty,
     autoAlignment: Boolean = true,
-    padding: Padding = 0,
+    padding: Derivable[Padding] = Left(0),
     boundary: String = "clippingAncestors",
     rootBoundary: String = "viewport"
   )
@@ -274,14 +311,14 @@ object Types {
   /** Options for hide middleware. */
   case class HideOptions(
     strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
-    padding: Padding = 0,
+    padding: Derivable[Padding] = Left(0),
     boundary: String = "clippingAncestors",
     rootBoundary: String = "viewport"
   )
 
   /** Options for size middleware. */
   case class SizeOptions(
-    padding: Padding = 0,
+    padding: Derivable[Padding] = Left(0),
     boundary: String = "clippingAncestors",
     rootBoundary: String = "viewport",
     apply: Option[(MiddlewareState, Double, Double) => Unit] = None
@@ -289,14 +326,14 @@ object Types {
 
   /** Options for inline middleware. */
   case class InlineOptions(
-    x: Option[Double] = None,
-    y: Option[Double] = None,
-    padding: Padding = 0
+    x: Option[Derivable[Double]] = None,
+    y: Option[Derivable[Double]] = None,
+    padding: Derivable[Padding] = Left(0)
   )
 
   /** Options for limitShift. */
   case class LimitShiftOptions(
-    offset: Either[Double, LimitShiftOffsetOptions] = Left(0),
+    offset: Derivable[Either[Double, LimitShiftOffsetOptions]] = Left(Left(0)),
     mainAxis: Boolean = true,
     crossAxis: Boolean = true
   )

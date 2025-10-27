@@ -14,7 +14,9 @@ object ArrowMiddleware {
     override def name: String = "arrow"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
-      val paddingObject = getPaddingObject(options.padding)
+      // Evaluate derivable padding
+      val padding = evaluate(options.padding, state)
+      val paddingObject = getPaddingObject(padding)
       val coords = Coords(state.x, state.y)
       val axis = getAlignmentAxis(state.placement)
       val length = getAxisLength(axis)

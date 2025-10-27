@@ -203,6 +203,53 @@ object Utils {
   }
 
   // ============================================================================
+  // Virtual Element Utilities
+  // ============================================================================
+
+  /** Check if a reference element is a virtual element. */
+  def isVirtualElement(element: ReferenceElement): Boolean = {
+    element.isInstanceOf[VirtualElement]
+  }
+
+  /** Check if a reference element is a DOM element. */
+  def isDOMElement(element: ReferenceElement): Boolean = {
+    element.isInstanceOf[dom.Element]
+  }
+
+  /** Unwrap a reference element to get the context element for DOM operations.
+    *
+    * For virtual elements, returns the contextElement if available, otherwise null. For DOM elements, returns the element itself.
+    */
+  def unwrapElement(element: ReferenceElement): dom.Element = {
+    element match {
+      case ve: VirtualElement =>
+        ve.contextElement.getOrElse(null)
+      case e: dom.Element =>
+        e
+    }
+  }
+
+  // ============================================================================
+  // Derivable Utilities
+  // ============================================================================
+
+  /** Evaluate a derivable value.
+    *
+    * If the value is static (Left), returns it directly. If the value is a function (Right), calls it with the middleware state.
+    *
+    * @param derivable
+    *   The derivable value to evaluate
+    * @param state
+    *   The current middleware state
+    * @return
+    *   The evaluated value
+    */
+  def evaluate[T](derivable: Derivable[T], state: MiddlewareState): T = derivable match {
+    case Left(value) => value
+    case Right(fn)   => fn(state)
+  }
+
+  // ============================================================================
   // Rect Access Helpers
   // ============================================================================
 

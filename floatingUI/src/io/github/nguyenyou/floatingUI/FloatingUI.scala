@@ -26,7 +26,7 @@ object FloatingUI {
   /** Computes the position of a floating element relative to a reference element.
     *
     * @param reference
-    *   The reference element
+    *   The reference element (can be a DOM element or a VirtualElement)
     * @param floating
     *   The floating element to position
     * @param placement
@@ -39,7 +39,7 @@ object FloatingUI {
     *   The computed position
     */
   def computePosition(
-    reference: dom.Element,
+    reference: ReferenceElement,
     floating: dom.HTMLElement,
     placement: Placement = "bottom",
     strategy: Strategy = "absolute",
@@ -66,7 +66,7 @@ object FloatingUI {
     *   Middleware object
     */
   def offset(value: Double = 0): Middleware = {
-    OffsetMiddleware.offset(OffsetOptions(mainAxis = value))
+    OffsetMiddleware.offset(OffsetOptions(mainAxis = Left(value)))
   }
 
   /** Offset middleware with detailed options.
@@ -112,7 +112,7 @@ object FloatingUI {
     *   Middleware object
     */
   def arrow(element: dom.HTMLElement, padding: Double = 0): Middleware = {
-    ArrowMiddleware.arrow(ArrowOptions(element = element, padding = padding))
+    ArrowMiddleware.arrow(ArrowOptions(element = element, padding = Left(padding)))
   }
 
   /** Arrow middleware with detailed options.
@@ -190,7 +190,7 @@ object FloatingUI {
     * Should only be called when the floating element is mounted on the DOM or visible on the screen.
     *
     * @param reference
-    *   The reference element
+    *   The reference element (can be a DOM element or a VirtualElement)
     * @param floating
     *   The floating element
     * @param update
@@ -201,11 +201,46 @@ object FloatingUI {
     *   Cleanup function that should be invoked when the floating element is removed from the DOM or hidden from the screen
     */
   def autoUpdate(
-    reference: dom.Element,
+    reference: ReferenceElement,
     floating: dom.HTMLElement,
     update: () => Unit,
     options: AutoUpdateOptions = AutoUpdateOptions()
   ): () => Unit = {
     AutoUpdate.autoUpdate(reference, floating, update, options)
+  }
+
+  // ============================================================================
+  // Utility Functions
+  // ============================================================================
+
+  /** Get all overflow ancestors for a node.
+    *
+    * Returns all ancestor elements that can cause overflow (scrollable containers, etc.).
+    *
+    * @param node
+    *   The node to get overflow ancestors for
+    * @return
+    *   Sequence of overflow ancestor elements
+    */
+  def getOverflowAncestors(node: dom.Node): Seq[dom.EventTarget] = {
+    Utils.getOverflowAncestors(node)
+  }
+
+  /** Detect overflow of the floating element relative to its clipping boundary.
+    *
+    * Returns the overflow amount on each side of the floating element.
+    *
+    * @param state
+    *   The current middleware state
+    * @param options
+    *   Detection options (boundary, padding, etc.)
+    * @return
+    *   SideObject containing overflow amounts for each side
+    */
+  def detectOverflow(
+    state: MiddlewareState,
+    options: DetectOverflowOptions = DetectOverflowOptions()
+  ): SideObject = {
+    DetectOverflow.detectOverflow(state, options)
   }
 }

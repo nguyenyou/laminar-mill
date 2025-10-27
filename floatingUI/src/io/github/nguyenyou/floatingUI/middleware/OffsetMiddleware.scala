@@ -49,9 +49,10 @@ object OffsetMiddleware {
     val mainAxisMulti = if (originSides.contains(side)) -1 else 1
     val crossAxisMulti = if (rtl && isVertical) -1 else 1
 
-    var mainAxis = options.mainAxis
-    var crossAxis = options.crossAxis
-    val alignmentAxis = options.alignmentAxis
+    // Evaluate derivable values
+    var mainAxis = evaluate(options.mainAxis, state)
+    var crossAxis = evaluate(options.crossAxis, state)
+    val alignmentAxis = options.alignmentAxis.map(evaluate(_, state))
 
     if (alignment.isDefined && alignmentAxis.isDefined) {
       crossAxis = if (alignment.get == "end") alignmentAxis.get * -1 else alignmentAxis.get

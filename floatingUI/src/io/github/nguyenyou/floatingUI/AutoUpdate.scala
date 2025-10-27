@@ -3,7 +3,7 @@ package io.github.nguyenyou.floatingUI
 import org.scalajs.dom
 import scala.scalajs.js
 import Utils.*
-import Types.ClientRectObject
+import Types.{ClientRectObject, ReferenceElement}
 
 /** AutoUpdate functionality for floating elements.
   *
@@ -30,7 +30,7 @@ object AutoUpdate {
     * Should only be called when the floating element is mounted on the DOM or visible on the screen.
     *
     * @param reference
-    *   The reference element
+    *   The reference element (can be a DOM element or a VirtualElement)
     * @param floating
     *   The floating element
     * @param update
@@ -41,15 +41,23 @@ object AutoUpdate {
     *   Cleanup function that should be invoked when the floating element is removed from the DOM or hidden from the screen
     */
   def autoUpdate(
-    reference: dom.Element,
+    reference: ReferenceElement,
     floating: dom.HTMLElement,
     update: () => Unit,
     options: AutoUpdateOptions = AutoUpdateOptions()
   ): CleanupFn = {
 
+    // For virtual elements, use the context element for ancestor tracking
+    val referenceElement = unwrapElement(reference)
+
     // Collect all ancestor elements that can affect positioning
     val ancestors = if (options.ancestorScroll || options.ancestorResize) {
-      getOverflowAncestors(reference) ++ getOverflowAncestors(floating)
+      val refAncestors = if (referenceElement != null) {
+        getOverflowAncestors(referenceElement)
+      } else {
+        Seq.empty
+      }
+      refAncestors ++ getOverflowAncestors(floating)
     } else {
       Seq.empty
     }
@@ -91,8 +99,8 @@ object AutoUpdate {
 
       val observer = new dom.ResizeObserver(resizeCallback)
 
-      if (!options.animationFrame) {
-        observer.observe(reference)
+      if (!options.animationFrame && referenceElement != null) {
+        observer.observe(referenceElement)
       }
       observer.observe(floating)
       resizeObserver = Some(observer)
@@ -101,8 +109,8 @@ object AutoUpdate {
     // Set up IntersectionObserver for layout shift detection
     var cleanupIo: Option[CleanupFn] = None
 
-    if (options.layoutShift && js.typeOf(js.Dynamic.global.IntersectionObserver) != "undefined") {
-      cleanupIo = Some(observeMove(reference, update))
+    if (options.layoutShift && referenceElement != null && js.typeOf(js.Dynamic.global.IntersectionObserver) != "undefined") {
+      cleanupIo = Some(observeMove(referenceElement, update))
     }
 
     // Set up animation frame loop for continuous tracking
@@ -110,10 +118,17 @@ object AutoUpdate {
     var prevRefRect: Option[ClientRectObject] = None
 
     if (options.animationFrame) {
-      prevRefRect = Some(getBoundingClientRect(reference))
+      // For virtual elements, use getBoundingClientRect directly
+      prevRefRect = Some(reference match {
+        case ve: Types.VirtualElement => ve.getBoundingClientRect()
+        case e: dom.Element           => getBoundingClientRect(e)
+      })
 
       def frameLoop(): Unit = {
-        val nextRefRect = getBoundingClientRect(reference)
+        val nextRefRect = reference match {
+          case ve: Types.VirtualElement => ve.getBoundingClientRect()
+          case e: dom.Element           => getBoundingClientRect(e)
+        }
 
         if (prevRefRect.exists(prev => !rectsAreEqual(prev, nextRefRect))) {
           update()

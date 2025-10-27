@@ -20,10 +20,13 @@ object SizeMiddleware {
       val platform = state.platform
       val elements = state.elements
 
+      // Evaluate derivable padding
+      val padding = evaluate(options.padding, state)
+
       val detectOverflowOptions = DetectOverflowOptions(
         boundary = options.boundary,
         rootBoundary = options.rootBoundary,
-        padding = options.padding
+        padding = padding
       )
 
       val overflow = DetectOverflow.detectOverflow(state, detectOverflowOptions)

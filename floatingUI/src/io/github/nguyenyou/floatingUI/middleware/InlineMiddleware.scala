@@ -77,11 +77,14 @@ object InlineMiddleware {
       val strategy = state.strategy
 
       // Default padding is 2 pixels (handles MouseEvent client coords being up to 2px off)
-      val padding = options.padding match {
+      // Evaluate derivable values
+      val padding = evaluate(options.padding, state) match {
         case p: Double => p
         case _         => 2.0
       }
       val paddingObject = getPaddingObject(padding)
+      val x = options.x.map(evaluate(_, state))
+      val y = options.y.map(evaluate(_, state))
 
       // Get client rects for the reference element
       val nativeClientRects = state.platform.getClientRects(elements.reference)
@@ -94,18 +97,18 @@ object InlineMiddleware {
         if (
           clientRects.length == 2 &&
           clientRects(0).left > clientRects(1).right &&
-          options.x.isDefined && options.y.isDefined
+          x.isDefined && y.isDefined
         ) {
-          val x = options.x.get
-          val y = options.y.get
+          val xVal = x.get
+          val yVal = y.get
 
           // Find rect that contains the point
           clientRects
             .find { rect =>
-              x > rect.left - paddingObject.left &&
-              x < rect.right + paddingObject.right &&
-              y > rect.top - paddingObject.top &&
-              y < rect.bottom + paddingObject.bottom
+              xVal > rect.left - paddingObject.left &&
+              xVal < rect.right + paddingObject.right &&
+              yVal > rect.top - paddingObject.top &&
+              yVal < rect.bottom + paddingObject.bottom
             }
             .getOrElse(fallback)
         }

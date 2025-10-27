@@ -2,6 +2,7 @@ package io.github.nguyenyou.floatingUI.middleware
 
 import io.github.nguyenyou.floatingUI.Types.*
 import io.github.nguyenyou.floatingUI.DetectOverflow
+import io.github.nguyenyou.floatingUI.Utils.evaluate
 
 /** Hide middleware - provides data to hide floating element when clipped.
   *
@@ -29,6 +30,9 @@ object HideMiddleware {
     override def name: String = "hide"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
+      // Evaluate derivable padding
+      val padding = evaluate(options.padding, state)
+
       val strategy = options.strategy
 
       strategy match {
@@ -36,7 +40,7 @@ object HideMiddleware {
           val detectOverflowOptions = DetectOverflowOptions(
             boundary = options.boundary,
             rootBoundary = options.rootBoundary,
-            padding = options.padding,
+            padding = padding,
             elementContext = "reference"
           )
 
@@ -56,7 +60,7 @@ object HideMiddleware {
           val detectOverflowOptions = DetectOverflowOptions(
             boundary = options.boundary,
             rootBoundary = options.rootBoundary,
-            padding = options.padding,
+            padding = padding,
             altBoundary = true
           )
 

@@ -54,10 +54,13 @@ object FlipMiddleware {
 
       val placements = state.initialPlacement +: allFallbackPlacements
 
+      // Evaluate derivable padding
+      val padding = evaluate(options.padding, state)
+
       // Detect overflow
       val overflow = detectOverflow(
         state,
-        DetectOverflowOptions(padding = options.padding)
+        DetectOverflowOptions(padding = padding)
       )
 
       // Build overflows array

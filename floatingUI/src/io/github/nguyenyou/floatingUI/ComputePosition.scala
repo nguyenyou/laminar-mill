@@ -11,7 +11,7 @@ import org.scalajs.dom
 object ComputePosition {
 
   def computePosition(
-    reference: dom.Element,
+    reference: ReferenceElement,
     floating: dom.HTMLElement,
     config: ComputePositionConfig
   ): ComputePositionReturn = {

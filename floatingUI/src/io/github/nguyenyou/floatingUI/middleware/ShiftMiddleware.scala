@@ -15,9 +15,13 @@ object ShiftMiddleware {
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
       val coords = Coords(state.x, state.y)
+
+      // Evaluate derivable padding
+      val padding = evaluate(options.padding, state)
+
       val overflow = detectOverflow(
         state,
-        DetectOverflowOptions(padding = options.padding)
+        DetectOverflowOptions(padding = padding)
       )
 
       val crossAxis = getSideAxis(getSide(state.placement))
@@ -97,7 +101,10 @@ object ShiftMiddleware {
           case Right(opts) => 0.0 // Will be expanded below
         }
 
-        val computedOffset = options.offset match {
+        // Evaluate derivable offset
+        val offsetValue = evaluate(options.offset, state)
+
+        val computedOffset = offsetValue match {
           case Left(num) =>
             LimitShiftOffsetValues(mainAxis = num, crossAxis = 0.0)
           case Right(opts) =>
