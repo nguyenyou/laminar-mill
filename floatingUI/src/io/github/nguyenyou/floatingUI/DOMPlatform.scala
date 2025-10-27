@@ -3,6 +3,7 @@ package io.github.nguyenyou.floatingUI
 import Types.*
 import org.scalajs.dom
 import scala.scalajs.js
+import DOMUtils.*
 
 /** DOM platform implementation for floating element positioning.
   *
@@ -16,7 +17,8 @@ object DOMPlatform extends Platform {
     strategy: Strategy
   ): ElementRects = {
     val floatingRect = floating.getBoundingClientRect()
-    val referenceRect = getRectRelativeToOffsetParent(reference, getOffsetParent(floating), strategy)
+    val offsetParent = getOffsetParent(floating)
+    val referenceRect = getRectRelativeToOffsetParent(reference, offsetParent, strategy)
 
     ElementRects(
       reference = referenceRect,
@@ -30,8 +32,8 @@ object DOMPlatform extends Platform {
   }
 
   override def getDimensions(element: dom.Element): Dimensions = {
-    val rect = element.getBoundingClientRect()
-    Dimensions(width = rect.width, height = rect.height)
+    val (width, height, _) = getCssDimensions(element)
+    Dimensions(width = width, height = height)
   }
 
   override def getClippingRect(
@@ -40,67 +42,6 @@ object DOMPlatform extends Platform {
     rootBoundary: String,
     strategy: Strategy
   ): Rect = {
-    // Simplified implementation - returns viewport rect
-    // Full implementation would handle clipping ancestors
-    if (rootBoundary == "viewport") {
-      val win = dom.window
-      Rect(
-        x = 0,
-        y = 0,
-        width = win.innerWidth,
-        height = win.innerHeight
-      )
-    } else {
-      val doc = dom.document.documentElement
-      Rect(
-        x = 0,
-        y = 0,
-        width = doc.scrollWidth,
-        height = doc.scrollHeight
-      )
-    }
-  }
-
-  // ============================================================================
-  // Helper Functions
-  // ============================================================================
-
-  private def getOffsetParent(element: dom.HTMLElement): dom.Element = {
-    var offsetParent = element.offsetParent
-
-    // Handle null offsetParent (e.g., fixed positioned elements)
-    if (offsetParent == null) {
-      return dom.document.documentElement
-    }
-
-    offsetParent
-  }
-
-  private def getRectRelativeToOffsetParent(
-    reference: dom.Element,
-    offsetParent: dom.Element,
-    strategy: Strategy
-  ): Rect = {
-    val referenceRect = reference.getBoundingClientRect()
-
-    if (strategy == "fixed") {
-      // For fixed strategy, use viewport-relative coordinates
-      Rect(
-        x = referenceRect.left,
-        y = referenceRect.top,
-        width = referenceRect.width,
-        height = referenceRect.height
-      )
-    } else {
-      // For absolute strategy, calculate relative to offset parent
-      val offsetParentRect = offsetParent.getBoundingClientRect()
-
-      Rect(
-        x = referenceRect.left - offsetParentRect.left,
-        y = referenceRect.top - offsetParentRect.top,
-        width = referenceRect.width,
-        height = referenceRect.height
-      )
-    }
+    DOMUtils.getClippingRect(element, boundary, rootBoundary, strategy)
   }
 }

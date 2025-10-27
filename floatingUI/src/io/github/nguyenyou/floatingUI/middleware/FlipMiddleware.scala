@@ -76,7 +76,7 @@ object FlipMiddleware {
       // Handle crossAxis - can be Boolean or "alignment"
       val shouldCheckCrossAxis = checkCrossAxis match {
         case b: Boolean => b
-        case s: String  => s == "alignment" || s.toBoolean
+        case s: String  => true // "alignment" or any string means true
         case _          => true
       }
 

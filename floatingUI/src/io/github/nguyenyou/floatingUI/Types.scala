@@ -77,12 +77,21 @@ object Types {
   // Middleware Types
   // ============================================================================
 
-  /** Middleware data returned from middleware functions. */
+  /** Middleware data returned from middleware functions.
+    *
+    * Supports both typed data for known middleware and arbitrary data for custom middleware.
+    */
   case class MiddlewareData(
     arrow: Option[ArrowData] = None,
     offset: Option[OffsetData] = None,
     shift: Option[ShiftData] = None,
-    flip: Option[FlipData] = None
+    flip: Option[FlipData] = None,
+    autoPlacement: Option[AutoPlacementData] = None,
+    hide: Option[HideData] = None,
+    size: Option[SizeData] = None,
+    inline: Option[InlineData] = None,
+    // Extensible storage for custom middleware data
+    custom: Map[String, Any] = Map.empty
   )
 
   /** Arrow middleware data. */
@@ -109,6 +118,32 @@ object Types {
   case class PlacementOverflow(
     placement: Placement,
     overflows: Seq[Double]
+  )
+
+  /** AutoPlacement middleware data. */
+  case class AutoPlacementData(
+    index: Option[Int] = None,
+    overflows: Seq[PlacementOverflow] = Seq.empty
+  )
+
+  /** Hide middleware data. */
+  case class HideData(
+    referenceHidden: Option[Boolean] = None,
+    escaped: Option[Boolean] = None,
+    referenceHiddenOffsets: Option[SideObject] = None,
+    escapedOffsets: Option[SideObject] = None
+  )
+
+  /** Size middleware data. */
+  case class SizeData(
+    availableWidth: Double,
+    availableHeight: Double
+  )
+
+  /** Inline middleware data. */
+  case class InlineData(
+    x: Option[Double] = None,
+    y: Option[Double] = None
   )
 
   /** Middleware state passed to middleware functions. */
@@ -221,6 +256,52 @@ object Types {
   case class ArrowOptions(
     element: dom.HTMLElement,
     padding: Padding = 0
+  )
+
+  /** Options for autoPlacement middleware. */
+  case class AutoPlacementOptions(
+    alignment: Option[Alignment] = None,
+    allowedPlacements: Seq[Placement] = Seq.empty,
+    autoAlignment: Boolean = true,
+    padding: Padding = 0,
+    boundary: String = "clippingAncestors",
+    rootBoundary: String = "viewport"
+  )
+
+  /** Options for hide middleware. */
+  case class HideOptions(
+    strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
+    padding: Padding = 0,
+    boundary: String = "clippingAncestors",
+    rootBoundary: String = "viewport"
+  )
+
+  /** Options for size middleware. */
+  case class SizeOptions(
+    padding: Padding = 0,
+    boundary: String = "clippingAncestors",
+    rootBoundary: String = "viewport",
+    apply: Option[(MiddlewareState, Double, Double) => Unit] = None
+  )
+
+  /** Options for inline middleware. */
+  case class InlineOptions(
+    x: Option[Double] = None,
+    y: Option[Double] = None,
+    padding: Padding = 0
+  )
+
+  /** Options for limitShift. */
+  case class LimitShiftOptions(
+    offset: Either[Double, LimitShiftOffsetOptions] = Left(0),
+    mainAxis: Boolean = true,
+    crossAxis: Boolean = true
+  )
+
+  /** Offset options for limitShift. */
+  case class LimitShiftOffsetOptions(
+    mainAxis: Double = 0,
+    crossAxis: Double = 0
   )
 
   /** Detect overflow options. */
