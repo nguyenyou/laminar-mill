@@ -1,4 +1,4 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating
+package io.github.nguyenyou.floatingUI
 
 import scala.scalajs.js
 import org.scalajs.dom

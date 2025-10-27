@@ -1,14 +1,14 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating
+package io.github.nguyenyou.floatingUI
 
 import Types.*
 import Utils.*
 
 /** Detects overflow of floating element relative to boundaries.
-  * 
+  *
   * Ported from @floating-ui/core/src/detectOverflow.ts
   */
 object DetectOverflow {
-  
+
   def detectOverflow(
     state: MiddlewareState,
     options: DetectOverflowOptions = DetectOverflowOptions()
@@ -20,7 +20,7 @@ object DetectOverflow {
     } else {
       if (options.elementContext == "floating") state.elements.floating else state.elements.reference
     }
-    
+
     val clippingClientRect = rectToClientRect(
       state.platform.getClippingRect(
         element,
@@ -29,7 +29,7 @@ object DetectOverflow {
         state.strategy
       )
     )
-    
+
     val rect = if (options.elementContext == "floating") {
       Rect(
         x = state.x,
@@ -40,9 +40,9 @@ object DetectOverflow {
     } else {
       state.rects.reference
     }
-    
+
     val elementClientRect = rectToClientRect(rect)
-    
+
     SideObject(
       top = (clippingClientRect.top - elementClientRect.top + paddingObject.top),
       bottom = (elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom),
@@ -51,4 +51,3 @@ object DetectOverflow {
     )
   }
 }
-

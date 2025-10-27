@@ -1,7 +1,7 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating.middleware
+package io.github.nguyenyou.floatingUI.middleware
 
-import io.github.nguyenyou.laminar.primitives.utils.floating.Types.*
-import io.github.nguyenyou.laminar.primitives.utils.floating.Utils.*
+import io.github.nguyenyou.floatingUI.Types.*
+import io.github.nguyenyou.floatingUI.Utils.*
 
 /** Offset middleware - shifts the floating element from its reference element.
   *

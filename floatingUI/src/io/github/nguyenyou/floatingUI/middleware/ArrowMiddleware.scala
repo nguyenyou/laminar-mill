@@ -1,7 +1,7 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating.middleware
+package io.github.nguyenyou.floatingUI.middleware
 
-import io.github.nguyenyou.laminar.primitives.utils.floating.Types.*
-import io.github.nguyenyou.laminar.primitives.utils.floating.Utils.*
+import io.github.nguyenyou.floatingUI.Types.*
+import io.github.nguyenyou.floatingUI.Utils.*
 import scala.math.min as mathMin
 
 /** Arrow middleware - positions an arrow element.

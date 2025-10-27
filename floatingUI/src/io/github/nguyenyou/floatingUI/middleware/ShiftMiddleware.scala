@@ -1,8 +1,8 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating.middleware
+package io.github.nguyenyou.floatingUI.middleware
 
-import io.github.nguyenyou.laminar.primitives.utils.floating.Types.*
-import io.github.nguyenyou.laminar.primitives.utils.floating.Utils.*
-import io.github.nguyenyou.laminar.primitives.utils.floating.DetectOverflow.*
+import io.github.nguyenyou.floatingUI.Types.*
+import io.github.nguyenyou.floatingUI.Utils.*
+import io.github.nguyenyou.floatingUI.DetectOverflow.*
 
 /** Shift middleware - shifts the floating element to keep it in view.
   *

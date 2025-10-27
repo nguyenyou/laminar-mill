@@ -2,8 +2,8 @@ package io.github.nguyenyou.laminar.primitives.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
 import io.github.nguyenyou.laminar.primitives.base.*
-import io.github.nguyenyou.laminar.primitives.utils.floating.FloatingUI
-import io.github.nguyenyou.laminar.primitives.utils.floating.FloatingUI.*
+import io.github.nguyenyou.floatingUI.FloatingUI
+import io.github.nguyenyou.floatingUI.FloatingUI.*
 
 import scala.collection.mutable.ArrayBuffer
 

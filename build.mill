@@ -72,7 +72,7 @@ object facades extends WebModule {
 }
 
 object primitives extends WebModule {
-  def moduleDeps = Seq(laminar, facades)
+  def moduleDeps = Seq(laminar, facades, floatingUI)
 }
 
 
@@ -86,3 +86,5 @@ object laminar extends WebModule {
 }
 
 object ew extends WebModule
+
+object floatingUI extends WebModule

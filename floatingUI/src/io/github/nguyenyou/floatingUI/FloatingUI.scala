@@ -1,4 +1,4 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating
+package io.github.nguyenyou.floatingUI
 
 import org.scalajs.dom
 import Types.*

@@ -1,15 +1,15 @@
-package io.github.nguyenyou.laminar.primitives.utils.floating
+package io.github.nguyenyou.floatingUI
 
 import Types.*
 import org.scalajs.dom
 import scala.scalajs.js
 
 /** DOM platform implementation for floating element positioning.
-  * 
+  *
   * Ported from @floating-ui/dom/src/platform
   */
 object DOMPlatform extends Platform {
-  
+
   override def getElementRects(
     reference: dom.Element,
     floating: dom.HTMLElement,
@@ -17,7 +17,7 @@ object DOMPlatform extends Platform {
   ): ElementRects = {
     val floatingRect = floating.getBoundingClientRect()
     val referenceRect = getRectRelativeToOffsetParent(reference, getOffsetParent(floating), strategy)
-    
+
     ElementRects(
       reference = referenceRect,
       floating = Rect(
@@ -28,12 +28,12 @@ object DOMPlatform extends Platform {
       )
     )
   }
-  
+
   override def getDimensions(element: dom.Element): Dimensions = {
     val rect = element.getBoundingClientRect()
     Dimensions(width = rect.width, height = rect.height)
   }
-  
+
   override def getClippingRect(
     element: dom.Element,
     boundary: String,
@@ -60,29 +60,29 @@ object DOMPlatform extends Platform {
       )
     }
   }
-  
+
   // ============================================================================
   // Helper Functions
   // ============================================================================
-  
+
   private def getOffsetParent(element: dom.HTMLElement): dom.Element = {
     var offsetParent = element.offsetParent
-    
+
     // Handle null offsetParent (e.g., fixed positioned elements)
     if (offsetParent == null) {
       return dom.document.documentElement
     }
-    
+
     offsetParent
   }
-  
+
   private def getRectRelativeToOffsetParent(
     reference: dom.Element,
     offsetParent: dom.Element,
     strategy: Strategy
   ): Rect = {
     val referenceRect = reference.getBoundingClientRect()
-    
+
     if (strategy == "fixed") {
       // For fixed strategy, use viewport-relative coordinates
       Rect(
@@ -94,7 +94,7 @@ object DOMPlatform extends Platform {
     } else {
       // For absolute strategy, calculate relative to offset parent
       val offsetParentRect = offsetParent.getBoundingClientRect()
-      
+
       Rect(
         x = referenceRect.left - offsetParentRect.left,
         y = referenceRect.top - offsetParentRect.top,
@@ -104,4 +104,3 @@ object DOMPlatform extends Platform {
     }
   }
 }
-
