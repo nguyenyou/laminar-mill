@@ -74,4 +74,102 @@ object ShiftMiddleware {
       )
     }
   }
+
+  /** Limiter function type for shift middleware. */
+  case class Limiter(
+    options: Any,
+    fn: MiddlewareState => Coords
+  )
+
+  /** Built-in limiter that will stop shift() at a certain point. */
+  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): Limiter = {
+    Limiter(
+      options = options,
+      fn = (state: MiddlewareState) => {
+        val coords = Coords(state.x, state.y)
+        val placement = state.placement
+        val rects = state.rects
+        val middlewareData = state.middlewareData
+
+        // Get offset value
+        val rawOffset = options.offset match {
+          case Left(num)   => num
+          case Right(opts) => 0.0 // Will be expanded below
+        }
+
+        val computedOffset = options.offset match {
+          case Left(num) =>
+            LimitShiftOffsetValues(mainAxis = num, crossAxis = 0.0)
+          case Right(opts) =>
+            LimitShiftOffsetValues(
+              mainAxis = opts.mainAxis,
+              crossAxis = opts.crossAxis
+            )
+        }
+
+        val crossAxis = getSideAxis(placement)
+        val mainAxis = getOppositeAxis(crossAxis)
+
+        var mainAxisCoord = if (mainAxis == "x") coords.x else coords.y
+        var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
+
+        if (options.mainAxis) {
+          val len = if (mainAxis == "y") "height" else "width"
+          val refMainAxis = if (mainAxis == "x") rects.reference.x else rects.reference.y
+          val floatingLen = if (len == "width") rects.floating.width else rects.floating.height
+          val refLen = if (len == "width") rects.reference.width else rects.reference.height
+
+          val limitMin = refMainAxis - floatingLen + computedOffset.mainAxis
+          val limitMax = refMainAxis + refLen - computedOffset.mainAxis
+
+          if (mainAxisCoord < limitMin) {
+            mainAxisCoord = limitMin
+          } else if (mainAxisCoord > limitMax) {
+            mainAxisCoord = limitMax
+          }
+        }
+
+        if (options.crossAxis) {
+          val len = if (mainAxis == "y") "width" else "height"
+          val isOriginSide = originSides.contains(getSide(placement))
+          val refCrossAxis = if (crossAxis == "x") rects.reference.x else rects.reference.y
+          val floatingLen = if (len == "width") rects.floating.width else rects.floating.height
+          val refLen = if (len == "width") rects.reference.width else rects.reference.height
+
+          // Get offset from middleware data if available
+          val offsetValue = middlewareData.offset
+            .flatMap { offsetData =>
+              if (crossAxis == "x") Some(offsetData.x) else Some(offsetData.y)
+            }
+            .getOrElse(0.0)
+
+          val limitMin = refCrossAxis - floatingLen +
+            (if (isOriginSide) offsetValue else 0.0) +
+            (if (isOriginSide) 0.0 else computedOffset.crossAxis)
+
+          val limitMax = refCrossAxis + refLen +
+            (if (isOriginSide) 0.0 else offsetValue) -
+            (if (isOriginSide) computedOffset.crossAxis else 0.0)
+
+          if (crossAxisCoord < limitMin) {
+            crossAxisCoord = limitMin
+          } else if (crossAxisCoord > limitMax) {
+            crossAxisCoord = limitMax
+          }
+        }
+
+        if (mainAxis == "x") {
+          Coords(x = mainAxisCoord, y = crossAxisCoord)
+        } else {
+          Coords(x = crossAxisCoord, y = mainAxisCoord)
+        }
+      }
+    )
+  }
+
+  /** Helper case class for limit shift offset values. */
+  private case class LimitShiftOffsetValues(
+    mainAxis: Double,
+    crossAxis: Double
+  )
 }

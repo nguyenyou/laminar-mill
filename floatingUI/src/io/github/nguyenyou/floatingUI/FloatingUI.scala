@@ -126,6 +126,61 @@ object FloatingUI {
     ArrowMiddleware.arrow(options)
   }
 
+  /** AutoPlacement middleware - automatically chooses best placement based on available space.
+    *
+    * @param options
+    *   AutoPlacement configuration
+    * @return
+    *   Middleware object
+    */
+  def autoPlacement(options: AutoPlacementOptions = AutoPlacementOptions()): Middleware = {
+    AutoPlacementMiddleware.autoPlacement(options)
+  }
+
+  /** Hide middleware - provides data to hide floating element when clipped.
+    *
+    * @param options
+    *   Hide configuration
+    * @return
+    *   Middleware object
+    */
+  def hide(options: HideOptions = HideOptions()): Middleware = {
+    HideMiddleware.hide(options)
+  }
+
+  /** Size middleware - allows resizing floating element based on available space.
+    *
+    * @param options
+    *   Size configuration
+    * @return
+    *   Middleware object
+    */
+  def size(options: SizeOptions = SizeOptions()): Middleware = {
+    SizeMiddleware.size(options)
+  }
+
+  /** Inline middleware - improved positioning for inline elements.
+    *
+    * @param options
+    *   Inline configuration
+    * @return
+    *   Middleware object
+    */
+  def inline(options: InlineOptions = InlineOptions()): Middleware = {
+    InlineMiddleware.inline(options)
+  }
+
+  /** LimitShift - built-in limiter that will stop shift() at a certain point.
+    *
+    * @param options
+    *   LimitShift configuration
+    * @return
+    *   Limiter object
+    */
+  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): ShiftMiddleware.Limiter = {
+    ShiftMiddleware.limitShift(options)
+  }
+
   // ============================================================================
   // Auto Update
   // ============================================================================
