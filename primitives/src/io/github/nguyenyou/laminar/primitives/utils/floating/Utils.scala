@@ -116,6 +116,55 @@ object Utils {
     (mainAlignmentSide, getOppositePlacement(mainAlignmentSide).asInstanceOf[Side])
   }
 
+  /** Get placements on the opposite axis.
+    *
+    * Used for fallbackAxisSideDirection in flip middleware.
+    */
+  def getOppositeAxisPlacements(
+    placement: Placement,
+    flipAlignment: Boolean,
+    direction: String,
+    rtl: Boolean = false
+  ): Seq[Placement] = {
+    val alignment = getAlignment(placement)
+    val side = getSide(placement)
+
+    // Get the list of sides on the perpendicular axis
+    val sideList = getSideList(side, direction == "start", rtl)
+
+    // If there's an alignment, add it to each side
+    val list = alignment match {
+      case Some(align) =>
+        val withAlignment = sideList.map(s => s"$s-$align")
+        if (flipAlignment) {
+          // Also include opposite alignment variants
+          withAlignment ++ withAlignment.map(getOppositeAlignmentPlacement)
+        } else {
+          withAlignment
+        }
+      case None =>
+        sideList
+    }
+
+    list
+  }
+
+  /** Helper to get the list of sides for opposite axis placements. */
+  private def getSideList(side: Side, isStart: Boolean, rtl: Boolean): Seq[Placement] = {
+    side match {
+      case "top" | "bottom" =>
+        if (rtl) {
+          if (isStart) Seq("right", "left") else Seq("left", "right")
+        } else {
+          if (isStart) Seq("left", "right") else Seq("right", "left")
+        }
+      case "left" | "right" =>
+        if (isStart) Seq("top", "bottom") else Seq("bottom", "top")
+      case _ =>
+        Seq.empty
+    }
+  }
+
   // ============================================================================
   // Padding Utilities
   // ============================================================================

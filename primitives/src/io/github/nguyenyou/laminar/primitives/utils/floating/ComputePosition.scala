@@ -77,7 +77,11 @@ object ComputePosition {
             middlewareData.copy(shift = Some(shiftData))
           case "flip" =>
             val flipData = FlipData(
-              index = data.get("index").map(_.asInstanceOf[Int])
+              index = data.get("index").map(_.asInstanceOf[Int]),
+              overflows = data
+                .get("overflows")
+                .map(_.asInstanceOf[Seq[PlacementOverflow]])
+                .getOrElse(Seq.empty)
             )
             middlewareData.copy(flip = Some(flipData))
           case _ =>

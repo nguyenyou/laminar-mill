@@ -100,7 +100,16 @@ object Types {
   case class ShiftData(x: Double, y: Double)
 
   /** Flip middleware data. */
-  case class FlipData(index: Option[Int] = None)
+  case class FlipData(
+    index: Option[Int] = None,
+    overflows: Seq[PlacementOverflow] = Seq.empty
+  )
+
+  /** Overflow data for a specific placement. */
+  case class PlacementOverflow(
+    placement: Placement,
+    overflows: Seq[Double]
+  )
 
   /** Middleware state passed to middleware functions. */
   case class MiddlewareState(
@@ -194,12 +203,17 @@ object Types {
     padding: Padding = 0
   )
 
+  /** Cross-axis option for flip middleware - can be Boolean or "alignment". */
+  type FlipCrossAxis = Boolean | String
+
   /** Options for flip middleware. */
   case class FlipOptions(
     mainAxis: Boolean = true,
-    crossAxis: Boolean = true,
+    crossAxis: FlipCrossAxis = true,
     fallbackPlacements: Option[Seq[Placement]] = None,
     fallbackStrategy: String = "bestFit",
+    fallbackAxisSideDirection: String = "none",
+    flipAlignment: Boolean = true,
     padding: Padding = 0
   )
 
