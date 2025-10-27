@@ -7,6 +7,7 @@ import io.github.nguyenyou.laminar.primitives.base.*
 class TooltipArrow() extends Component {
   def render(): HtmlElement = {
     span(
+      dataAttr("slot") := "tooltip-arrow",
       onMountCallback { ctx =>
         println("MOUNTED > ARROW")
       }

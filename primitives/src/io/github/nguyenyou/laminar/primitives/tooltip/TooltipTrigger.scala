@@ -8,6 +8,7 @@ import io.github.nguyenyou.laminar.primitives.base.*
 class TooltipTrigger() extends Component {
   def render(): HtmlElement = {
     button(
+      dataAttr("slot") := "tooltip-trigger",
       onMountCallback { ctx =>
         println("MOUNTED > TRIGGER")
       }
@@ -26,6 +27,7 @@ object TooltipTrigger extends HasClassNameProp[TooltipTrigger] {
     lazy val className: ClassNameProp.type = ClassNameProp
   }
 
+  // Using context value given from parent
   def apply(mods: Props.Selector*)(child: ChildNode.Base)(using root: TooltipRoot): TooltipTrigger = {
     val resolvedMods: Seq[ComponentModifier[TooltipTrigger]] = mods.map(_(Props))
     val tooltipTrigger = new TooltipTrigger()

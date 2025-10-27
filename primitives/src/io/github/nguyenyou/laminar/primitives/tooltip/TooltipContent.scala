@@ -13,6 +13,7 @@ class TooltipContent(
   private var mounted = false
 
   def render() = div(
+    dataAttr("slot") := "tooltip-content",
     onMountCallback { ctx =>
       println("MOUNTED > CONTENT")
     }

@@ -7,6 +7,7 @@ import io.github.nguyenyou.laminar.primitives.utils.floating.FloatingUI.*
 
 import scala.collection.mutable.ArrayBuffer
 
+// Context Value of Tooltip Context
 class TooltipRoot(val store: TooltipStore) {
   // parts
   private var tooltipContent: Option[TooltipContent] = None
@@ -168,6 +169,7 @@ class TooltipRoot(val store: TooltipStore) {
 object TooltipRoot {
   def apply()(context: TooltipContext): Option[TooltipTrigger] = {
     val isHoveringVar = Var(false)
+    // Context Value is given
     given tooltipRoot: TooltipRoot = new TooltipRoot(TooltipStore(isHoveringVar.signal, isHoveringVar.writer))
     context
     tooltipRoot.trigger

@@ -17,6 +17,7 @@ case class App() {
 
   def apply() = {
     div(
+      className := "block",
       // button(
       //   onClick --> Observer { _ =>
       //     sideVar.set(PopoverContent.Side.Top)

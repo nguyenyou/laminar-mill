@@ -1,16 +1,16 @@
 package www.components.tooltip
 
 import io.github.nguyenyou.laminar.api.L.*
-import io.github.nguyenyou.laminar.primitives.tooltip.Tooltip as TooltipPrimitive
+import io.github.nguyenyou.laminar.primitives.tooltip.{TooltipPortal, TooltipTrigger, Tooltip as TooltipPrimitive}
 
 object Tooltip {
-  def apply()(context: TooltipPrimitive.Context) = {
+  def apply()(context: TooltipPrimitive.Context): Option[TooltipTrigger] = {
     TooltipPrimitive.Root()(context)
   }
 }
 
 object TooltipTrigger {
-  def apply(mods: TooltipPrimitive.Trigger.Props.Selector*)(text: String)(using root: TooltipPrimitive.Root) = {
+  def apply(mods: TooltipPrimitive.Trigger.Props.Selector*)(text: String)(using root: TooltipPrimitive.Root): TooltipTrigger = {
     TooltipPrimitive.Trigger(
       mods*
     )(text)
@@ -18,7 +18,7 @@ object TooltipTrigger {
 }
 
 object TooltipContent {
-  def apply(mods: TooltipPrimitive.Content.Props.Selector*)(content: HtmlElement)(using root: TooltipPrimitive.Root) = {
+  def apply(mods: TooltipPrimitive.Content.Props.Selector*)(content: HtmlElement)(using root: TooltipPrimitive.Root): TooltipPortal = {
     TooltipPrimitive.Portal() {
       TooltipPrimitive.Content(
         mods*
