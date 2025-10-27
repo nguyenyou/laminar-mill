@@ -51,70 +51,175 @@ object ComputePosition {
         y = result.y.getOrElse(coords.y)
       )
 
-      // Update middleware data
+      // Update middleware data - merge with existing data instead of replacing
       result.data.foreach { data =>
         middlewareData = middleware.name match {
           case "arrow" =>
-            val arrowData = ArrowData(
-              x = data.get("x").map(_.asInstanceOf[Double]),
-              y = data.get("y").map(_.asInstanceOf[Double]),
-              centerOffset = data.getOrElse("centerOffset", 0.0).asInstanceOf[Double],
-              alignmentOffset = data.get("alignmentOffset").map(_.asInstanceOf[Double])
+            // Merge new arrow data with existing arrow data
+            val existingArrow = middlewareData.arrow
+            val newArrowData = ArrowData(
+              x = data.get("x").map(_.asInstanceOf[Double]).orElse(existingArrow.flatMap(_.x)),
+              y = data.get("y").map(_.asInstanceOf[Double]).orElse(existingArrow.flatMap(_.y)),
+              centerOffset = data
+                .get("centerOffset")
+                .map(_.asInstanceOf[Double])
+                .getOrElse(existingArrow.map(_.centerOffset).getOrElse(0.0)),
+              alignmentOffset = data
+                .get("alignmentOffset")
+                .map(_.asInstanceOf[Double])
+                .orElse(existingArrow.flatMap(_.alignmentOffset))
             )
-            middlewareData.copy(arrow = Some(arrowData))
+            middlewareData.copy(arrow = Some(newArrowData))
+
           case "offset" =>
-            val offsetData = OffsetData(
-              x = data.getOrElse("x", 0.0).asInstanceOf[Double],
-              y = data.getOrElse("y", 0.0).asInstanceOf[Double],
-              placement = data.getOrElse("placement", statefulPlacement).asInstanceOf[Placement]
+            // Merge new offset data with existing offset data
+            val existingOffset = middlewareData.offset
+            val newOffsetData = OffsetData(
+              x = data.get("x").map(_.asInstanceOf[Double]).getOrElse(existingOffset.map(_.x).getOrElse(0.0)),
+              y = data.get("y").map(_.asInstanceOf[Double]).getOrElse(existingOffset.map(_.y).getOrElse(0.0)),
+              placement = data
+                .get("placement")
+                .map(_.asInstanceOf[Placement])
+                .getOrElse(existingOffset.map(_.placement).getOrElse(statefulPlacement))
             )
-            middlewareData.copy(offset = Some(offsetData))
+            middlewareData.copy(offset = Some(newOffsetData))
+
           case "shift" =>
-            val shiftData = ShiftData(
-              x = data.getOrElse("x", 0.0).asInstanceOf[Double],
-              y = data.getOrElse("y", 0.0).asInstanceOf[Double]
+            // Merge new shift data with existing shift data
+            val existingShift = middlewareData.shift
+            val newShiftData = ShiftData(
+              x = data.get("x").map(_.asInstanceOf[Double]).getOrElse(existingShift.map(_.x).getOrElse(0.0)),
+              y = data.get("y").map(_.asInstanceOf[Double]).getOrElse(existingShift.map(_.y).getOrElse(0.0))
             )
-            middlewareData.copy(shift = Some(shiftData))
+            middlewareData.copy(shift = Some(newShiftData))
+
           case "flip" =>
-            val flipData = FlipData(
-              index = data.get("index").map(_.asInstanceOf[Int]),
+            // Merge new flip data with existing flip data
+            val existingFlip = middlewareData.flip
+            val newFlipData = FlipData(
+              index = data.get("index").map(_.asInstanceOf[Int]).orElse(existingFlip.flatMap(_.index)),
               overflows = data
                 .get("overflows")
                 .map(_.asInstanceOf[Seq[PlacementOverflow]])
-                .getOrElse(Seq.empty)
+                .getOrElse(existingFlip.map(_.overflows).getOrElse(Seq.empty))
             )
-            middlewareData.copy(flip = Some(flipData))
-          case _ =>
-            middlewareData
+            middlewareData.copy(flip = Some(newFlipData))
+
+          case "autoPlacement" =>
+            // Merge new autoPlacement data with existing autoPlacement data
+            val existingAutoPlacement = middlewareData.autoPlacement
+            val newAutoPlacementData = AutoPlacementData(
+              index = data.get("index").map(_.asInstanceOf[Int]).orElse(existingAutoPlacement.flatMap(_.index)),
+              overflows = data
+                .get("overflows")
+                .map(_.asInstanceOf[Seq[PlacementOverflow]])
+                .getOrElse(existingAutoPlacement.map(_.overflows).getOrElse(Seq.empty))
+            )
+            middlewareData.copy(autoPlacement = Some(newAutoPlacementData))
+
+          case "hide" =>
+            // Merge new hide data with existing hide data
+            val existingHide = middlewareData.hide
+            val newHideData = HideData(
+              referenceHidden = data
+                .get("referenceHidden")
+                .map(_.asInstanceOf[Boolean])
+                .orElse(existingHide.flatMap(_.referenceHidden)),
+              escaped = data
+                .get("escaped")
+                .map(_.asInstanceOf[Boolean])
+                .orElse(existingHide.flatMap(_.escaped)),
+              referenceHiddenOffsets = data
+                .get("referenceHiddenOffsets")
+                .map(_.asInstanceOf[SideObject])
+                .orElse(existingHide.flatMap(_.referenceHiddenOffsets)),
+              escapedOffsets = data
+                .get("escapedOffsets")
+                .map(_.asInstanceOf[SideObject])
+                .orElse(existingHide.flatMap(_.escapedOffsets))
+            )
+            middlewareData.copy(hide = Some(newHideData))
+
+          case "size" =>
+            // Merge new size data with existing size data
+            val existingSizeData = middlewareData.size
+            val newSizeData = SizeData(
+              availableWidth = data
+                .get("availableWidth")
+                .map(_.asInstanceOf[Double])
+                .getOrElse(existingSizeData.map(_.availableWidth).getOrElse(0.0)),
+              availableHeight = data
+                .get("availableHeight")
+                .map(_.asInstanceOf[Double])
+                .getOrElse(existingSizeData.map(_.availableHeight).getOrElse(0.0))
+            )
+            middlewareData.copy(size = Some(newSizeData))
+
+          case "inline" =>
+            // Merge new inline data with existing inline data
+            val existingInline = middlewareData.inline
+            val newInlineData = InlineData(
+              x = data.get("x").map(_.asInstanceOf[Double]).orElse(existingInline.flatMap(_.x)),
+              y = data.get("y").map(_.asInstanceOf[Double]).orElse(existingInline.flatMap(_.y))
+            )
+            middlewareData.copy(inline = Some(newInlineData))
+
+          case customName =>
+            // For custom middleware, merge the data into the custom map
+            val existingCustomData = middlewareData.custom.getOrElse(customName, Map.empty[String, Any])
+            val mergedCustomData = existingCustomData match {
+              case existingMap: Map[_, _] =>
+                existingMap.asInstanceOf[Map[String, Any]] ++ data
+              case _ =>
+                data
+            }
+            middlewareData.copy(custom = middlewareData.custom + (customName -> mergedCustomData))
         }
       }
 
-      // Handle reset
+      // Handle reset - support both boolean true and ResetValue object
       result.reset.foreach { reset =>
-        resetCount += 1
+        // Check reset count limit BEFORE processing (matching TypeScript behavior)
+        if (resetCount <= 50) {
+          resetCount += 1
 
-        reset.placement.foreach { newPlacement =>
-          statefulPlacement = newPlacement
+          reset match {
+            case Left(true) =>
+              // Boolean true case: simple restart without changing placement or rects
+              // Just recalculate coords with current placement and rects
+              coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
+              i = -1
+
+            case Left(false) =>
+              // Boolean false case: no reset (shouldn't happen, but handle it)
+              ()
+
+            case Right(resetValue) =>
+              // Object case: handle placement and rects changes
+              resetValue.placement.foreach { newPlacement =>
+                statefulPlacement = newPlacement
+              }
+
+              // Recalculate rects if requested
+              resetValue.rects.foreach {
+                case Left(true) =>
+                  // Recalculate rects from platform
+                  rects = config.platform.getElementRects(reference, floating, config.strategy)
+                case Right(newRects) =>
+                  // Use provided rects
+                  rects = newRects
+                case Left(false) =>
+                  // Don't recalculate rects
+                  ()
+              }
+
+              // Recalculate coordinates with new placement and/or rects
+              coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
+
+              // Restart middleware loop
+              i = -1
+          }
         }
-
-        // Recalculate rects if requested
-        reset.rects.foreach {
-          case Left(true) =>
-            // Recalculate rects from platform
-            rects = config.platform.getElementRects(reference, floating, config.strategy)
-          case Right(newRects) =>
-            // Use provided rects
-            rects = newRects
-          case Left(false) =>
-            // Don't recalculate rects
-            ()
-        }
-
-        // Recalculate coordinates with new placement and/or rects
-        coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
-
-        // Restart middleware loop
-        i = -1
       }
 
       i += 1

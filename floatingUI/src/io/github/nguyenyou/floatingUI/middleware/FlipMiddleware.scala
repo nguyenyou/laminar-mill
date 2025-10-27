@@ -144,7 +144,7 @@ object FlipMiddleware {
                   "overflows" -> overflowsData
                 )
               ),
-              reset = Some(ResetValue(placement = nextPlacement))
+              reset = Some(Right(ResetValue(placement = nextPlacement)))
             )
           }
         }
@@ -193,7 +193,7 @@ object FlipMiddleware {
         if (resetPlacement.isDefined && state.placement != resetPlacement.get) {
           return MiddlewareReturn(
             data = Some(Map("overflows" -> overflowsData)),
-            reset = Some(ResetValue(placement = resetPlacement))
+            reset = Some(Right(ResetValue(placement = resetPlacement)))
           )
         }
       }

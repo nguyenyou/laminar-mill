@@ -186,8 +186,10 @@ object InlineMiddleware {
 
         MiddlewareReturn(
           reset = Some(
-            ResetValue(
-              rects = Some(Right(newRects))
+            Right(
+              ResetValue(
+                rects = Some(Right(newRects))
+              )
             )
           )
         )

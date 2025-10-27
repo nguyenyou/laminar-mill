@@ -103,7 +103,7 @@ object AutoPlacementMiddleware {
           // Make computeCoords start from the right place
           if (state.placement != current) {
             return MiddlewareReturn(
-              reset = Some(ResetValue(placement = Some(placements.head)))
+              reset = Some(Right(ResetValue(placement = Some(placements.head))))
             )
           }
 
@@ -155,7 +155,7 @@ object AutoPlacementMiddleware {
                     "overflows" -> allOverflows
                   )
                 ),
-                reset = Some(ResetValue(placement = Some(next)))
+                reset = Some(Right(ResetValue(placement = Some(next))))
               )
 
             case None =>
@@ -191,7 +191,7 @@ object AutoPlacementMiddleware {
                       "overflows" -> allOverflows
                     )
                   ),
-                  reset = Some(ResetValue(placement = Some(resetPlacement)))
+                  reset = Some(Right(ResetValue(placement = Some(resetPlacement))))
                 )
               } else {
                 MiddlewareReturn()

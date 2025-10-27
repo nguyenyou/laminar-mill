@@ -164,7 +164,7 @@ object Types {
     x: Option[Double] = None,
     y: Option[Double] = None,
     data: Option[Map[String, Any]] = None,
-    reset: Option[ResetValue] = None
+    reset: Option[Either[Boolean, ResetValue]] = None
   )
 
   /** Reset value for middleware. */

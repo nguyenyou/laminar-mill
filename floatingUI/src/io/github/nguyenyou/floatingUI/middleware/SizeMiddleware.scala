@@ -130,12 +130,13 @@ object SizeMiddleware {
 
       // If dimensions changed, trigger a reset to recalculate
       if (width != nextDimensions.width || height != nextDimensions.height) {
-        MiddlewareReturn(
-          reset = Some(
-            ResetValue(
-              rects = Some(Left(true))
-            )
+        val resetValue: Either[Boolean, ResetValue] = Right(
+          ResetValue(
+            rects = Some(Left(true))
           )
+        )
+        MiddlewareReturn(
+          reset = Some(resetValue)
         )
       } else {
         MiddlewareReturn()

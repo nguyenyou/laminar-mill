@@ -88,7 +88,7 @@ object ArrowMiddleware {
         x = Some(newCoords.x),
         y = Some(newCoords.y),
         data = Some(arrowData),
-        reset = if (shouldAddOffset) Some(ResetValue(rects = Some(Left(true)))) else None
+        reset = if (shouldAddOffset) Some(Right(ResetValue(rects = Some(Left(true))))) else None
       )
     }
   }
