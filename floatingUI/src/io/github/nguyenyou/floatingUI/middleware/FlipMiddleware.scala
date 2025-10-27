@@ -60,7 +60,7 @@ object FlipMiddleware {
       // Detect overflow
       val overflow = detectOverflow(
         state,
-        DetectOverflowOptions(padding = padding)
+        Left(DetectOverflowOptions(padding = padding))
       )
 
       // Build overflows array

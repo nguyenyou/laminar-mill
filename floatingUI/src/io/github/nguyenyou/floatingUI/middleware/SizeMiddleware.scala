@@ -29,7 +29,7 @@ object SizeMiddleware {
         padding = padding
       )
 
-      val overflow = DetectOverflow.detectOverflow(state, detectOverflowOptions)
+      val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
       val side = getSide(placement)
       val alignment = getAlignment(placement)
       val isYAxis = getSideAxis(placement) == "y"

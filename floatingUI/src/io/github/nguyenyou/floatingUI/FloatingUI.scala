@@ -241,6 +241,6 @@ object FloatingUI {
     state: MiddlewareState,
     options: DetectOverflowOptions = DetectOverflowOptions()
   ): SideObject = {
-    DetectOverflow.detectOverflow(state, options)
+    DetectOverflow.detectOverflow(state, Left(options))
   }
 }

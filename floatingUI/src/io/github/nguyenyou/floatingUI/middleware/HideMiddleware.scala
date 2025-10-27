@@ -44,7 +44,7 @@ object HideMiddleware {
             elementContext = "reference"
           )
 
-          val overflow = DetectOverflow.detectOverflow(state, detectOverflowOptions)
+          val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
           val offsets = getSideOffsets(overflow, state.rects.reference)
 
           MiddlewareReturn(
@@ -64,7 +64,7 @@ object HideMiddleware {
             altBoundary = true
           )
 
-          val overflow = DetectOverflow.detectOverflow(state, detectOverflowOptions)
+          val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
           val offsets = getSideOffsets(overflow, state.rects.floating)
 
           MiddlewareReturn(

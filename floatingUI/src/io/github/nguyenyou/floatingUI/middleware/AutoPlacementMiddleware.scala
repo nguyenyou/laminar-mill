@@ -82,7 +82,7 @@ object AutoPlacementMiddleware {
         padding = padding
       )
 
-      val overflow = DetectOverflow.detectOverflow(state, detectOverflowOptions)
+      val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
 
       val currentIndex = state.middlewareData.autoPlacement.flatMap(_.index).getOrElse(0)
       val currentPlacement = if (currentIndex < placements.length) {
