@@ -95,8 +95,8 @@ class TooltipRoot(val store: TooltipStore) {
         options = AutoUpdateOptions(
           ancestorScroll = true,
           ancestorResize = true,
-          elementResize = true,
-          layoutShift = true,
+          elementResize = Some(true), // Explicitly enable
+          layoutShift = Some(true), // Explicitly enable
           animationFrame = false
         )
       )

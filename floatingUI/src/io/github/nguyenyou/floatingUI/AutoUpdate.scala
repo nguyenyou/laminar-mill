@@ -13,12 +13,16 @@ import Types.{ClientRectObject, ReferenceElement}
   */
 object AutoUpdate {
 
-  /** Options for autoUpdate configuration. */
+  /** Options for autoUpdate configuration.
+    *
+    * Note: The defaults for elementResize and layoutShift are set in the autoUpdate function based on API availability, matching the
+    * TypeScript implementation.
+    */
   case class AutoUpdateOptions(
     ancestorScroll: Boolean = true,
     ancestorResize: Boolean = true,
-    elementResize: Boolean = true,
-    layoutShift: Boolean = true,
+    elementResize: Option[Boolean] = None, // Default determined by ResizeObserver availability
+    layoutShift: Option[Boolean] = None, // Default determined by IntersectionObserver availability
     animationFrame: Boolean = false
   )
 
@@ -47,11 +51,22 @@ object AutoUpdate {
     options: AutoUpdateOptions = AutoUpdateOptions()
   ): CleanupFn = {
 
+    // Apply conditional defaults based on API availability (matching TypeScript)
+    val ancestorScroll = options.ancestorScroll
+    val ancestorResize = options.ancestorResize
+    val elementResize = options.elementResize.getOrElse(
+      js.typeOf(js.Dynamic.global.ResizeObserver) == "function"
+    )
+    val layoutShift = options.layoutShift.getOrElse(
+      js.typeOf(js.Dynamic.global.IntersectionObserver) == "function"
+    )
+    val animationFrame = options.animationFrame
+
     // For virtual elements, use the context element for ancestor tracking
     val referenceElement = unwrapElement(reference)
 
     // Collect all ancestor elements that can affect positioning
-    val ancestors = if (options.ancestorScroll || options.ancestorResize) {
+    val ancestors = if (ancestorScroll || ancestorResize) {
       val refAncestors = if (referenceElement != null) {
         getOverflowAncestors(referenceElement)
       } else {
@@ -70,10 +85,10 @@ object AutoUpdate {
     val scrollOptions = js.Dynamic.literal("passive" -> true).asInstanceOf[dom.EventListenerOptions]
 
     ancestors.foreach { ancestor =>
-      if (options.ancestorScroll) {
+      if (ancestorScroll) {
         ancestor.addEventListener("scroll", scrollHandler, scrollOptions)
       }
-      if (options.ancestorResize) {
+      if (ancestorResize) {
         ancestor.addEventListener("resize", resizeHandler, useCapture = false)
       }
     }
@@ -82,11 +97,12 @@ object AutoUpdate {
     var resizeObserver: Option[dom.ResizeObserver] = None
     var reobserveFrame: Int = -1
 
-    if (options.elementResize && js.typeOf(js.Dynamic.global.ResizeObserver) != "undefined") {
+    if (elementResize) {
       val resizeCallback: js.Function2[js.Array[dom.ResizeObserverEntry], dom.ResizeObserver, Unit] =
         (entries: js.Array[dom.ResizeObserverEntry], _: dom.ResizeObserver) => {
           val firstEntry = entries(0)
-          if (firstEntry != null && firstEntry.target == reference && resizeObserver.isDefined) {
+          // Compare with referenceElement (unwrapped DOM element), not reference
+          if (firstEntry != null && firstEntry.target == referenceElement && resizeObserver.isDefined) {
             // Prevent update loops when using the size middleware
             resizeObserver.foreach(_.unobserve(floating))
             dom.window.cancelAnimationFrame(reobserveFrame)
@@ -99,7 +115,7 @@ object AutoUpdate {
 
       val observer = new dom.ResizeObserver(resizeCallback)
 
-      if (!options.animationFrame && referenceElement != null) {
+      if (!animationFrame && referenceElement != null) {
         observer.observe(referenceElement)
       }
       observer.observe(floating)
@@ -109,7 +125,7 @@ object AutoUpdate {
     // Set up IntersectionObserver for layout shift detection
     var cleanupIo: Option[CleanupFn] = None
 
-    if (options.layoutShift && referenceElement != null && js.typeOf(js.Dynamic.global.IntersectionObserver) != "undefined") {
+    if (layoutShift && referenceElement != null) {
       cleanupIo = Some(observeMove(referenceElement, update))
     }
 
@@ -117,7 +133,7 @@ object AutoUpdate {
     var frameId: Int = -1
     var prevRefRect: Option[ClientRectObject] = None
 
-    if (options.animationFrame) {
+    if (animationFrame) {
       // For virtual elements, use getBoundingClientRect directly
       prevRefRect = Some(reference match {
         case ve: Types.VirtualElement => ve.getBoundingClientRect()
@@ -148,10 +164,10 @@ object AutoUpdate {
     () => {
       // Remove scroll and resize listeners
       ancestors.foreach { ancestor =>
-        if (options.ancestorScroll) {
+        if (ancestorScroll) {
           ancestor.removeEventListener("scroll", scrollHandler, scrollOptions)
         }
-        if (options.ancestorResize) {
+        if (ancestorResize) {
           ancestor.removeEventListener("resize", resizeHandler, useCapture = false)
         }
       }
@@ -164,7 +180,7 @@ object AutoUpdate {
       resizeObserver = None
 
       // Cancel animation frame
-      if (options.animationFrame && frameId != -1) {
+      if (animationFrame && frameId != -1) {
         dom.window.cancelAnimationFrame(frameId)
       }
     }
@@ -199,18 +215,19 @@ object AutoUpdate {
     def refresh(skip: Boolean = false, threshold: Double = 1.0): Unit = {
       cleanup()
 
-      val domRect = element.getBoundingClientRect()
+      // Get bounding rect once (not twice!)
       val elementRectForRootMargin = getBoundingClientRect(element)
-      val left = domRect.left
-      val top = domRect.top
-      val width = domRect.width
-      val height = domRect.height
+      val left = elementRectForRootMargin.left
+      val top = elementRectForRootMargin.top
+      val width = elementRectForRootMargin.width
+      val height = elementRectForRootMargin.height
 
       if (!skip) {
         onMove()
       }
 
-      if (width == 0 || height == 0) {
+      // Check for falsy values (0, NaN, etc.) matching TypeScript's !width || !height
+      if (width == 0 || height == 0 || width.isNaN || height.isNaN) {
         return
       }
 
@@ -220,7 +237,11 @@ object AutoUpdate {
       val insetLeft = math.floor(left).toInt
       val rootMargin = s"${-insetTop}px ${-insetRight}px ${-insetBottom}px ${-insetLeft}px"
 
-      val clampedThreshold = math.max(0, math.min(1, threshold))
+      // Clamp threshold and use || 1 to handle edge cases
+      val clampedThreshold = {
+        val clamped = math.max(0, math.min(1, threshold))
+        if (clamped == 0 && threshold != 0) 1.0 else clamped
+      }
 
       var isFirstUpdate = true
 
@@ -255,7 +276,7 @@ object AutoUpdate {
       val options = js.Dynamic
         .literal(
           "rootMargin" -> rootMargin,
-          "threshold" -> js.Array(clampedThreshold)
+          "threshold" -> clampedThreshold // Single number, not array
         )
         .asInstanceOf[dom.IntersectionObserverInit]
 
@@ -264,7 +285,7 @@ object AutoUpdate {
         val optionsWithRoot = js.Dynamic
           .literal(
             "rootMargin" -> rootMargin,
-            "threshold" -> js.Array(clampedThreshold),
+            "threshold" -> clampedThreshold, // Single number, not array
             "root" -> root.ownerDocument
           )
           .asInstanceOf[dom.IntersectionObserverInit]
