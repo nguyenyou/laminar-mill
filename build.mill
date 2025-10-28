@@ -87,4 +87,54 @@ object laminar extends WebModule {
 
 object ew extends WebModule
 
-object floatingUI extends WebModule
+// FloatingUI module with Playwright browser testing
+// Note: Does not extend WebModule to allow custom test configuration
+object floatingUI extends ScalaJSModule {
+  def scalaVersion = Versions.scala3
+  def scalaJSVersion = Versions.sjs
+
+  // Enable ES module support (required for Playwright)
+  def moduleKind = ModuleKind.ESModule
+
+  def scalacOptions = Seq(
+    "-rewrite",
+    "-source", "3.7-migration",
+    "-feature",
+    "-language:implicitConversions"
+  )
+
+  def mvnDeps = Seq(
+    mvn"org.scala-js::scalajs-dom::${Versions.sjsdom}",
+    mvn"app.tulz::tuplez-full-light::${Versions.tuplez}",
+    mvn"org.scala-js::scala-js-macrotask-executor::${Versions.macrotask}"
+  )
+
+  // Playwright-based integration tests for browser positioning
+  object test extends ScalaJSTests with TestModule.ScalaTest {
+    def scalaTestVersion = Versions.scalatest
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"com.raquo::domtestutils::${Versions.scaladomtestutils}",
+    )
+
+    def scalacOptions = Seq(
+      "-rewrite",
+      "-source", "3.7-migration",
+      "-feature",
+      "-language:implicitConversions"
+    )
+
+    // Use Playwright for real browser testing with layout engine
+    // This enables testing actual positioning calculations that require getBoundingClientRect
+    override def jsEnvConfig = Task {
+      JsEnvConfig.Playwright.chrome(
+        headless = true,      // Run in headless mode for CI/CD
+        showLogs = false,     // Set to true for debugging
+        debug = false         // Set to true to see browser version and debug info
+      )
+    }
+
+    // Playwright requires ESModule
+    override def moduleKind = ModuleKind.ESModule
+  }
+}
