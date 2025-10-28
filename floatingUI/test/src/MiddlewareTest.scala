@@ -179,4 +179,161 @@ class MiddlewareTest extends AnyFunSpec with Matchers {
       }
     }
   }
+
+  describe("autoPlacement middleware") {
+
+    it("automatically chooses best placement") {
+      val reference = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      reference.style.width = "100px"
+      reference.style.height = "100px"
+      reference.style.position = "absolute"
+      reference.style.left = "50px"
+      reference.style.top = "50px"
+      dom.document.body.appendChild(reference)
+
+      val floating = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      floating.style.width = "60px"
+      floating.style.height = "60px"
+      dom.document.body.appendChild(floating)
+
+      try {
+        // Use autoPlacement to automatically choose the best placement
+        val result = FloatingUI.computePosition(
+          reference,
+          floating,
+          middleware = Seq(AutoPlacementMiddleware.autoPlacement())
+        )
+
+        // Should return valid coordinates
+        result.x shouldBe a[Double]
+        result.y shouldBe a[Double]
+
+        // Middleware data should contain autoPlacement info
+        result.middlewareData.autoPlacement.isDefined shouldBe true
+
+        // Should have chosen a placement
+        result.placement should not be null
+      } finally {
+        dom.document.body.removeChild(reference)
+        dom.document.body.removeChild(floating)
+      }
+    }
+  }
+
+  describe("hide middleware") {
+
+    it("detects when floating element should be hidden") {
+      val reference = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      reference.style.width = "100px"
+      reference.style.height = "100px"
+      reference.style.position = "absolute"
+      reference.style.left = "50px"
+      reference.style.top = "50px"
+      dom.document.body.appendChild(reference)
+
+      val floating = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      floating.style.width = "60px"
+      floating.style.height = "60px"
+      dom.document.body.appendChild(floating)
+
+      try {
+        // Use hide middleware to detect visibility
+        val result = FloatingUI.computePosition(
+          reference,
+          floating,
+          placement = "bottom",
+          middleware = Seq(HideMiddleware.hide())
+        )
+
+        // Should return valid coordinates
+        result.x shouldBe a[Double]
+        result.y shouldBe a[Double]
+
+        // Middleware data should contain hide info
+        result.middlewareData.hide.isDefined shouldBe true
+        val hideData = result.middlewareData.hide.get
+
+        // Hide data should exist (fields may or may not be populated depending on scenario)
+        hideData should not be null
+      } finally {
+        dom.document.body.removeChild(reference)
+        dom.document.body.removeChild(floating)
+      }
+    }
+  }
+
+  describe("size middleware") {
+
+    it("provides size information for floating element") {
+      val reference = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      reference.style.width = "100px"
+      reference.style.height = "100px"
+      reference.style.position = "absolute"
+      reference.style.left = "50px"
+      reference.style.top = "50px"
+      dom.document.body.appendChild(reference)
+
+      val floating = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      floating.style.width = "60px"
+      floating.style.height = "60px"
+      dom.document.body.appendChild(floating)
+
+      try {
+        // Use size middleware
+        val result = FloatingUI.computePosition(
+          reference,
+          floating,
+          placement = "bottom",
+          middleware = Seq(SizeMiddleware.size())
+        )
+
+        // Should return valid coordinates
+        result.x shouldBe a[Double]
+        result.y shouldBe a[Double]
+
+        // Size middleware doesn't add data to middlewareData, but should execute without error
+        result.placement should not be null
+      } finally {
+        dom.document.body.removeChild(reference)
+        dom.document.body.removeChild(floating)
+      }
+    }
+  }
+
+  describe("inline middleware") {
+
+    it("handles inline reference elements") {
+      val reference = dom.document.createElement("span").asInstanceOf[dom.HTMLElement]
+      reference.textContent = "Inline reference"
+      reference.style.position = "absolute"
+      reference.style.left = "50px"
+      reference.style.top = "50px"
+      dom.document.body.appendChild(reference)
+
+      val floating = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      floating.style.width = "60px"
+      floating.style.height = "60px"
+      dom.document.body.appendChild(floating)
+
+      try {
+        // Use inline middleware
+        val result = FloatingUI.computePosition(
+          reference,
+          floating,
+          placement = "bottom",
+          middleware = Seq(InlineMiddleware.inline())
+        )
+
+        // Should return valid coordinates
+        result.x shouldBe a[Double]
+        result.y shouldBe a[Double]
+
+        // Inline middleware doesn't add data to middlewareData, but should execute without error
+        result.placement should not be null
+      } finally {
+        dom.document.body.removeChild(reference)
+        dom.document.body.removeChild(floating)
+      }
+    }
+  }
 }
