@@ -33,7 +33,7 @@ object InlineMiddleware {
   }
 
   /** Group rects by line. */
-  private def getRectsByLine(rects: Seq[ClientRectObject]): Seq[ClientRectObject] = {
+  def getRectsByLine(rects: Seq[ClientRectObject]): Seq[ClientRectObject] = {
     if (rects.isEmpty) return Seq.empty
 
     val sortedRects = rects.sortBy(_.y)
