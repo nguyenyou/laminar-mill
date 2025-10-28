@@ -105,8 +105,11 @@ object Types {
   /** Offset middleware data. */
   case class OffsetData(x: Double, y: Double, placement: Placement)
 
+  /** Axis enabled flags for shift middleware. */
+  case class AxisEnabled(x: Boolean, y: Boolean)
+
   /** Shift middleware data. */
-  case class ShiftData(x: Double, y: Double)
+  case class ShiftData(x: Double, y: Double, enabled: AxisEnabled)
 
   /** Flip middleware data. */
   case class FlipData(
@@ -136,6 +139,24 @@ object Types {
 
   /** Size middleware data. */
   case class SizeData(
+    availableWidth: Double,
+    availableHeight: Double
+  )
+
+  /** State object passed to the size middleware's apply function.
+    *
+    * Contains all MiddlewareState fields plus availableWidth and availableHeight.
+    */
+  case class ApplyState(
+    x: Double,
+    y: Double,
+    initialPlacement: Placement,
+    placement: Placement,
+    strategy: Strategy,
+    middlewareData: MiddlewareData,
+    rects: ElementRects,
+    platform: Platform,
+    elements: Elements,
     availableWidth: Double,
     availableHeight: Double
   )
@@ -378,12 +399,19 @@ object Types {
     rootBoundary: String = "viewport"
   )
 
-  /** Options for size middleware. */
+  /** Options for size middleware.
+    *
+    * Extends DetectOverflowOptions to include all boundary detection options.
+    */
   case class SizeOptions(
-    padding: Derivable[Padding] = Left(0),
+    // DetectOverflowOptions fields
     boundary: String = "clippingAncestors",
     rootBoundary: String = "viewport",
-    apply: Option[(MiddlewareState, Double, Double) => Unit] = None
+    elementContext: String = "floating",
+    altBoundary: Boolean = false,
+    padding: Derivable[Padding] = Left(0),
+    // Size-specific option
+    apply: Option[ApplyState => Unit] = None
   )
 
   /** Options for inline middleware. */

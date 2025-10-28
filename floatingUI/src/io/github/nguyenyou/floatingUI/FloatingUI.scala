@@ -127,11 +127,11 @@ object FloatingUI {
   /** Size middleware - allows resizing floating element based on available space.
     *
     * @param options
-    *   Size configuration
+    *   Size configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def size(options: SizeOptions = SizeOptions()): Middleware = {
+  def size(options: Derivable[SizeOptions] = Left(SizeOptions())): Middleware = {
     SizeMiddleware.size(options)
   }
 

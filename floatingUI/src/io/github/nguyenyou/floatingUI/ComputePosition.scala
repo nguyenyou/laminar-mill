@@ -89,7 +89,15 @@ object ComputePosition {
             val existingShift = middlewareData.shift
             val newShiftData = ShiftData(
               x = data.get("x").map(_.asInstanceOf[Double]).getOrElse(existingShift.map(_.x).getOrElse(0.0)),
-              y = data.get("y").map(_.asInstanceOf[Double]).getOrElse(existingShift.map(_.y).getOrElse(0.0))
+              y = data.get("y").map(_.asInstanceOf[Double]).getOrElse(existingShift.map(_.y).getOrElse(0.0)),
+              enabled = data.get("enabled") match {
+                case Some(enabledMap: Map[_, _]) =>
+                  AxisEnabled(
+                    x = enabledMap.asInstanceOf[Map[String, Any]].get("x").map(_.asInstanceOf[Boolean]).getOrElse(false),
+                    y = enabledMap.asInstanceOf[Map[String, Any]].get("y").map(_.asInstanceOf[Boolean]).getOrElse(false)
+                  )
+                case _ => existingShift.map(_.enabled).getOrElse(AxisEnabled(x = false, y = false))
+              }
             )
             middlewareData.copy(shift = Some(newShiftData))
 

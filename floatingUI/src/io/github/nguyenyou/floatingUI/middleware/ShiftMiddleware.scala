@@ -94,8 +94,8 @@ object ShiftMiddleware {
             "x" -> (limitedCoords.x - x),
             "y" -> (limitedCoords.y - y),
             "enabled" -> Map(
-              mainAxis -> checkMainAxis,
-              crossAxis -> checkCrossAxis
+              "x" -> (if (mainAxis == "x") checkMainAxis else checkCrossAxis),
+              "y" -> (if (mainAxis == "y") checkMainAxis else checkCrossAxis)
             )
           )
         ),
