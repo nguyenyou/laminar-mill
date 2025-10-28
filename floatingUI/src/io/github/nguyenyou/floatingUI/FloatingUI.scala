@@ -116,11 +116,11 @@ object FloatingUI {
   /** Hide middleware - provides data to hide floating element when clipped.
     *
     * @param options
-    *   Hide configuration
+    *   Hide configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def hide(options: HideOptions = HideOptions()): Middleware = {
+  def hide(options: Derivable[HideOptions] = Left(HideOptions())): Middleware = {
     HideMiddleware.hide(options)
   }
 

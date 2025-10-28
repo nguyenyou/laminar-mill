@@ -26,22 +26,25 @@ object HideMiddleware {
   }
 
   /** Create hide middleware. */
-  def hide(options: HideOptions = HideOptions()): Middleware = new Middleware {
+  def hide(options: Derivable[HideOptions] = Left(HideOptions())): Middleware = new Middleware {
     override def name: String = "hide"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
-      // Evaluate derivable padding
-      val padding = evaluate(options.padding, state)
+      // Evaluate derivable options
+      val evaluatedOptions = evaluate(options, state)
 
-      val strategy = options.strategy
+      // Extract strategy and detect overflow options
+      val strategy = evaluatedOptions.strategy
 
       strategy match {
         case "referenceHidden" =>
+          // Spread all DetectOverflowOptions and override elementContext
           val detectOverflowOptions = DetectOverflowOptions(
-            boundary = options.boundary,
-            rootBoundary = options.rootBoundary,
-            padding = padding,
-            elementContext = "reference"
+            boundary = evaluatedOptions.boundary,
+            rootBoundary = evaluatedOptions.rootBoundary,
+            elementContext = "reference", // Override to "reference"
+            altBoundary = evaluatedOptions.altBoundary,
+            padding = evaluatedOptions.padding
           )
 
           val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
@@ -53,15 +56,18 @@ object HideMiddleware {
                 "referenceHiddenOffsets" -> offsets,
                 "referenceHidden" -> isAnySideFullyClipped(offsets)
               )
-            )
+            ),
+            reset = None
           )
 
         case "escaped" =>
+          // Spread all DetectOverflowOptions and override altBoundary
           val detectOverflowOptions = DetectOverflowOptions(
-            boundary = options.boundary,
-            rootBoundary = options.rootBoundary,
-            padding = padding,
-            altBoundary = true
+            boundary = evaluatedOptions.boundary,
+            rootBoundary = evaluatedOptions.rootBoundary,
+            elementContext = evaluatedOptions.elementContext,
+            altBoundary = true, // Override to true
+            padding = evaluatedOptions.padding
           )
 
           val overflow = DetectOverflow.detectOverflow(state, Left(detectOverflowOptions))
@@ -73,11 +79,12 @@ object HideMiddleware {
                 "escapedOffsets" -> offsets,
                 "escaped" -> isAnySideFullyClipped(offsets)
               )
-            )
+            ),
+            reset = None
           )
 
         case _ =>
-          MiddlewareReturn()
+          MiddlewareReturn(reset = None)
       }
     }
   }

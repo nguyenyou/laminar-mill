@@ -391,12 +391,19 @@ object Types {
     padding: Derivable[Padding] = Left(0)
   )
 
-  /** Options for hide middleware. */
+  /** Options for hide middleware.
+    *
+    * Extends DetectOverflowOptions to include all boundary detection options.
+    */
   case class HideOptions(
+    // Hide-specific option
     strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
-    padding: Derivable[Padding] = Left(0),
+    // DetectOverflowOptions fields
     boundary: String = "clippingAncestors",
-    rootBoundary: String = "viewport"
+    rootBoundary: String = "viewport",
+    elementContext: String = "floating",
+    altBoundary: Boolean = false,
+    padding: Padding = 0
   )
 
   /** Options for size middleware.
