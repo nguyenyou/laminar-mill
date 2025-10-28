@@ -108,6 +108,53 @@ class ComputePositionTest extends AnyFunSpec with Matchers {
       // The TypeScript version stores it as middlewareData.custom = {property: true}
       // We need to check how our implementation handles custom middleware data
     }
+
+    it("middleware") {
+      // Mock elements
+      val reference = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+      val floating = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
+
+      // Mock platform with predefined rects
+      val referenceRect = Rect(x = 0, y = 0, width = 100, height = 100)
+      val floatingRect = Rect(x = 0, y = 0, width = 50, height = 50)
+      val platform = new MockPlatform(referenceRect, floatingRect)
+
+      // First computation: without middleware (baseline)
+      val config1 = ComputePositionConfig(
+        placement = "bottom",
+        strategy = "absolute",
+        middleware = Seq.empty,
+        platform = platform
+      )
+      val result1 = ComputePosition.computePosition(reference, floating, config1)
+      val x = result1.x
+      val y = result1.y
+
+      // Second computation: with middleware that adds 1 to x and y
+      val testMiddleware = new Middleware {
+        val name = "test"
+        def fn(state: MiddlewareState): MiddlewareReturn = {
+          MiddlewareReturn(
+            x = Some(state.x + 1),
+            y = Some(state.y + 1)
+          )
+        }
+      }
+
+      val config2 = ComputePositionConfig(
+        placement = "bottom",
+        strategy = "absolute",
+        middleware = Seq(testMiddleware),
+        platform = platform
+      )
+      val result2 = ComputePosition.computePosition(reference, floating, config2)
+      val x2 = result2.x
+      val y2 = result2.y
+
+      // Verify that middleware modified the coordinates
+      x2 `shouldBe` (x + 1)
+      y2 `shouldBe` (y + 1)
+    }
   }
 
   // ============================================================================
