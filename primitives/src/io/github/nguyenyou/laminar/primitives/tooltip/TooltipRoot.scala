@@ -146,7 +146,7 @@ class TooltipRoot(val store: TooltipStore) {
   def setArrow(arrow: TooltipArrow): Unit = {
     tooltipArrow = Some(arrow)
     println("SET > ARROW")
-    middlewares += FloatingUI.arrow(arrow.element.ref)
+    middlewares += FloatingUI.arrow(Left(ArrowOptions(element = arrow.element.ref)))
   }
 
   def setTrigger(trigger: TooltipTrigger): Unit = {

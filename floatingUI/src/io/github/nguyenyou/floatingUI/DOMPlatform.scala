@@ -17,7 +17,7 @@ object DOMPlatform extends Platform {
     strategy: Strategy
   ): ElementRects = {
     val floatingRect = floating.getBoundingClientRect()
-    val offsetParent = getOffsetParent(floating)
+    val offsetParent = DOMUtils.getOffsetParent(floating)
 
     // Get reference rect - handle both DOM elements and virtual elements
     val referenceRect = reference match {
@@ -39,6 +39,10 @@ object DOMPlatform extends Platform {
         height = floatingRect.height
       )
     )
+  }
+
+  override def getOffsetParent(element: dom.Element): Option[dom.EventTarget] = {
+    Some(DOMUtils.getOffsetParent(element))
   }
 
   override def getDimensions(element: dom.Element): Dimensions = {

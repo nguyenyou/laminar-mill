@@ -237,6 +237,18 @@ object Types {
 
     /** Get client rects for an element (for inline elements). */
     def getClientRects(element: ReferenceElement): Seq[ClientRectObject]
+
+    /** Get the offset parent of an element.
+      *
+      * Optional method - returns the closest positioned ancestor element.
+      */
+    def getOffsetParent(element: dom.Element): Option[dom.EventTarget] = None
+
+    /** Check if a value is a DOM element.
+      *
+      * Optional method - returns true if the value is an Element.
+      */
+    def isElement(value: Any): Boolean = value.isInstanceOf[dom.Element]
   }
 
   // ============================================================================
@@ -330,7 +342,11 @@ object Types {
     padding: Derivable[Padding] = Left(0)
   )
 
-  /** Options for arrow middleware. */
+  /** Options for arrow middleware.
+    *
+    * Note: In TypeScript, the type is `ArrowOptions | Derivable<ArrowOptions>`, but we handle this at the function signature level by
+    * accepting `Derivable[ArrowOptions]`.
+    */
   case class ArrowOptions(
     element: dom.HTMLElement,
     padding: Derivable[Padding] = Left(0)

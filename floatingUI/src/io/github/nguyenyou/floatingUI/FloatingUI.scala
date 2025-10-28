@@ -93,25 +93,12 @@ object FloatingUI {
 
   /** Arrow middleware - positions an arrow element.
     *
-    * @param element
-    *   The arrow element
-    * @param padding
-    *   Padding around the arrow (default: 0)
-    * @return
-    *   Middleware object
-    */
-  def arrow(element: dom.HTMLElement, padding: Double = 0): Middleware = {
-    ArrowMiddleware.arrow(ArrowOptions(element = element, padding = Left(padding)))
-  }
-
-  /** Arrow middleware with detailed options.
-    *
     * @param options
-    *   Arrow configuration
+    *   Arrow configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def arrow(options: ArrowOptions): Middleware = {
+  def arrow(options: Derivable[ArrowOptions]): Middleware = {
     ArrowMiddleware.arrow(options)
   }
 
