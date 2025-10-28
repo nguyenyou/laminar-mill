@@ -2,14 +2,37 @@ package io.github.nguyenyou.floatingUI
 
 import org.scalajs.dom
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import io.github.nguyenyou.floatingUI.Types.*
 import io.github.nguyenyou.floatingUI.DOMUtils.*
 
 /** Tests for clipping rect calculation.
   *
-  * Verifies that the Scala.js implementation matches the TypeScript behavior.
+  * IMPORTANT: These tests run in jsdom, which has NO layout engine.
+  *
+  * What jsdom CANNOT do:
+  *   - Calculate element positions or dimensions (getBoundingClientRect always returns zeros)
+  *   - Perform layout calculations (offsetWidth, offsetHeight, clientWidth, etc. are 0 or undefined)
+  *   - Compute viewport dimensions that affect layout
+  *
+  * What these tests DO validate:
+  *   - Functions execute without crashing
+  *   - Return values have correct structure and types
+  *   - Cache behavior works correctly
+  *   - Error handling for edge cases (invalid selectors, etc.)
+  *
+  * What these tests DO NOT validate:
+  *   - Actual positioning calculations (requires real browser)
+  *   - Clipping rect dimensions match expected values
+  *   - Layout-dependent behavior
+  *
+  * For real positioning tests, use browser-based integration tests (Playwright/Puppeteer).
+  *
+  * References:
+  *   - jsdom issue #135: https://github.com/jsdom/jsdom/issues/135
+  *   - jsdom issue #1590: https://github.com/jsdom/jsdom/issues/1590
   */
-class ClippingRectTest extends AnyFunSuite {
+class ClippingRectTest extends AnyFunSuite with Matchers {
 
   test("getClippingRect with viewport rootBoundary") {
     val element = dom.document.createElement("div").asInstanceOf[dom.HTMLElement]
@@ -24,12 +47,15 @@ class ClippingRectTest extends AnyFunSuite {
         None
       )
 
-      // In jsdom environment, viewport dimensions might be 0
-      // Just verify the function doesn't crash and returns a rect
-      assert(result.width >= 0, s"Viewport width should be non-negative, got ${result.width}")
-      assert(result.height >= 0, s"Viewport height should be non-negative, got ${result.height}")
-      assert(result.x >= 0, "Viewport x should be non-negative")
-      assert(result.y >= 0, "Viewport y should be non-negative")
+      // jsdom has no layout engine - getBoundingClientRect always returns zeros
+      // This test validates structure and error-free execution, NOT positioning behavior
+      assert(result.width == 0, "jsdom always returns 0 for width (no layout engine)")
+      assert(result.height == 0, "jsdom always returns 0 for height (no layout engine)")
+      assert(result.x == 0, "jsdom always returns 0 for x")
+      assert(result.y == 0, "jsdom always returns 0 for y")
+
+      // Verify the function returns a valid Rect structure
+      result shouldBe a[Rect]
     } finally {
       dom.document.body.removeChild(element)
     }
@@ -48,10 +74,11 @@ class ClippingRectTest extends AnyFunSuite {
         None
       )
 
-      // In jsdom environment, document dimensions might be 0
-      // Just verify the function doesn't crash and returns a rect
-      assert(result.width >= 0, s"Document width should be non-negative, got ${result.width}")
-      assert(result.height >= 0, s"Document height should be non-negative, got ${result.height}")
+      // jsdom has no layout engine - dimensions are always 0
+      // This validates the function executes without error and returns correct structure
+      assert(result.width == 0, "jsdom always returns 0 for width (no layout engine)")
+      assert(result.height == 0, "jsdom always returns 0 for height (no layout engine)")
+      result shouldBe a[Rect]
     } finally {
       dom.document.body.removeChild(element)
     }
@@ -70,9 +97,11 @@ class ClippingRectTest extends AnyFunSuite {
         None
       )
 
-      // Should return a valid rect (non-negative dimensions)
-      assert(result.width >= 0, s"Clipping rect width should be non-negative, got ${result.width}")
-      assert(result.height >= 0, s"Clipping rect height should be non-negative, got ${result.height}")
+      // jsdom has no layout engine - dimensions are always 0
+      // This validates the function executes without error and returns correct structure
+      assert(result.width == 0, "jsdom always returns 0 for width (no layout engine)")
+      assert(result.height == 0, "jsdom always returns 0 for height (no layout engine)")
+      result shouldBe a[Rect]
     } finally {
       dom.document.body.removeChild(element)
     }
@@ -106,7 +135,7 @@ class ClippingRectTest extends AnyFunSuite {
     dom.document.body.appendChild(element)
 
     try {
-      // Use an invalid CSS selector
+      // Use an invalid CSS selector - should fall back to rootBoundary
       val result = getClippingRect(
         element,
         "#nonexistent-element-12345",
@@ -115,10 +144,11 @@ class ClippingRectTest extends AnyFunSuite {
         None
       )
 
-      // Should still return a valid rect (using only rootBoundary)
-      // In jsdom, dimensions might be 0, but should not crash
-      assert(result.width >= 0, s"Should return non-negative width, got ${result.width}")
-      assert(result.height >= 0, s"Should return non-negative height, got ${result.height}")
+      // Should not crash when selector doesn't match any element
+      // This validates error handling, not positioning (jsdom has no layout engine)
+      assert(result.width == 0, "jsdom always returns 0 for width")
+      assert(result.height == 0, "jsdom always returns 0 for height")
+      result shouldBe a[Rect]
     } finally {
       dom.document.body.removeChild(element)
     }
@@ -182,10 +212,15 @@ class ClippingRectTest extends AnyFunSuite {
         Some(cache)
       )
 
-      // Should find clipping ancestors (may be empty in jsdom)
-      // Just verify the function doesn't crash
-      assert(result.width >= 0, s"Clipping rect should have non-negative width, got ${result.width}")
-      assert(result.height >= 0, s"Clipping rect should have non-negative height, got ${result.height}")
+      // This validates the algorithm for finding clipping ancestors executes without error
+      // jsdom has no layout engine, so dimensions are always 0
+      // In a real browser, this would test that nested overflow containers are properly detected
+      assert(result.width == 0, "jsdom always returns 0 for width (no layout engine)")
+      assert(result.height == 0, "jsdom always returns 0 for height (no layout engine)")
+      result shouldBe a[Rect]
+
+      // Verify cache was populated (validates ancestor detection logic)
+      assert(cache.nonEmpty, "Cache should contain clipping ancestor entries")
     } finally {
       dom.document.body.removeChild(outer)
     }
