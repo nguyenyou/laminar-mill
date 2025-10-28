@@ -105,11 +105,11 @@ object FloatingUI {
   /** AutoPlacement middleware - automatically chooses best placement based on available space.
     *
     * @param options
-    *   AutoPlacement configuration
+    *   AutoPlacement configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def autoPlacement(options: AutoPlacementOptions = AutoPlacementOptions()): Middleware = {
+  def autoPlacement(options: Derivable[AutoPlacementOptions] = Left(AutoPlacementOptions())): Middleware = {
     AutoPlacementMiddleware.autoPlacement(options)
   }
 

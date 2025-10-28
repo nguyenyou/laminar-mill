@@ -54,18 +54,22 @@ object AutoPlacementMiddleware {
   }
 
   /** Create autoPlacement middleware. */
-  def autoPlacement(options: AutoPlacementOptions = AutoPlacementOptions()): Middleware = new Middleware {
+  def autoPlacement(options: Derivable[AutoPlacementOptions] = Left(AutoPlacementOptions())): Middleware = new Middleware {
     override def name: String = "autoPlacement"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
-      val crossAxis = false // Default value
-      val alignment = options.alignment
-      val allowedPlacements = if (options.allowedPlacements.isEmpty) {
+      // Evaluate derivable options
+      val evaluatedOptions = evaluate(options, state)
+
+      // Extract options
+      val crossAxis = evaluatedOptions.crossAxis
+      val alignment = evaluatedOptions.alignment
+      val allowedPlacements = if (evaluatedOptions.allowedPlacements.isEmpty) {
         allPlacements
       } else {
-        options.allowedPlacements
+        evaluatedOptions.allowedPlacements
       }
-      val autoAlignment = options.autoAlignment
+      val autoAlignment = evaluatedOptions.autoAlignment
 
       val placements = if (alignment.isDefined || allowedPlacements == allPlacements) {
         getPlacementList(alignment, autoAlignment, allowedPlacements)
@@ -74,11 +78,13 @@ object AutoPlacementMiddleware {
       }
 
       // Evaluate derivable padding
-      val padding = evaluate(options.padding, state)
+      val padding = evaluate(evaluatedOptions.padding, state)
 
       val detectOverflowOptions = DetectOverflowOptions(
-        boundary = options.boundary,
-        rootBoundary = options.rootBoundary,
+        boundary = evaluatedOptions.boundary,
+        rootBoundary = evaluatedOptions.rootBoundary,
+        elementContext = evaluatedOptions.elementContext,
+        altBoundary = evaluatedOptions.altBoundary,
         padding = padding
       )
 
@@ -92,7 +98,7 @@ object AutoPlacementMiddleware {
       }
 
       currentPlacement match {
-        case None => MiddlewareReturn()
+        case None => MiddlewareReturn(reset = None)
         case Some(current) =>
           val alignmentSides = getAlignmentSides(
             current,
@@ -194,7 +200,7 @@ object AutoPlacementMiddleware {
                   reset = Some(Right(ResetValue(placement = Some(resetPlacement))))
                 )
               } else {
-                MiddlewareReturn()
+                MiddlewareReturn(reset = None)
               }
           }
       }

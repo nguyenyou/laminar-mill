@@ -352,14 +352,22 @@ object Types {
     padding: Derivable[Padding] = Left(0)
   )
 
-  /** Options for autoPlacement middleware. */
+  /** Options for autoPlacement middleware.
+    *
+    * Extends DetectOverflowOptions to include all boundary detection options.
+    */
   case class AutoPlacementOptions(
+    // AutoPlacement-specific options
+    crossAxis: Boolean = false,
     alignment: Option[Alignment] = None,
     allowedPlacements: Seq[Placement] = Seq.empty,
     autoAlignment: Boolean = true,
-    padding: Derivable[Padding] = Left(0),
+    // DetectOverflowOptions fields
     boundary: String = "clippingAncestors",
-    rootBoundary: String = "viewport"
+    rootBoundary: String = "viewport",
+    elementContext: String = "floating",
+    altBoundary: Boolean = false,
+    padding: Derivable[Padding] = Left(0)
   )
 
   /** Options for hide middleware. */
