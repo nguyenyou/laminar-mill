@@ -431,9 +431,12 @@ object Types {
     padding: Padding = 2
   )
 
-  /** Options for limitShift. */
+  /** Options for limitShift.
+    *
+    * Note: Since the entire LimitShiftOptions can be derivable, individual fields are not Derivable.
+    */
   case class LimitShiftOptions(
-    offset: Derivable[Either[Double, LimitShiftOffsetOptions]] = Left(Left(0)),
+    offset: Either[Double, LimitShiftOffsetOptions] = Left(0),
     mainAxis: Boolean = true,
     crossAxis: Boolean = true
   )

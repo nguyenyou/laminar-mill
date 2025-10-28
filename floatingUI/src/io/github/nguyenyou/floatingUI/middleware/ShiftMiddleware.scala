@@ -105,17 +105,20 @@ object ShiftMiddleware {
   }
 
   /** Built-in limiter that will stop shift() at a certain point. */
-  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): Limiter = {
+  def limitShift(options: Derivable[LimitShiftOptions] = Left(LimitShiftOptions())): Limiter = {
     Limiter(
-      options = options,
+      options = options, // Store original unevaluated options
       fn = (state: MiddlewareState) => {
+        // Evaluate derivable options inside fn
+        val evaluatedOptions = evaluate(options, state)
+
         val coords = Coords(state.x, state.y)
         val placement = state.placement
         val rects = state.rects
         val middlewareData = state.middlewareData
 
-        // Evaluate derivable offset
-        val rawOffset = evaluate(options.offset, state)
+        // Extract offset from evaluated options (already plain type, not Derivable)
+        val rawOffset = evaluatedOptions.offset
 
         // Convert to offset values with defaults
         val computedOffset = rawOffset match {
@@ -136,7 +139,7 @@ object ShiftMiddleware {
         var mainAxisCoord = if (mainAxis == "x") coords.x else coords.y
         var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
 
-        if (options.mainAxis) {
+        if (evaluatedOptions.mainAxis) {
           val len = if (mainAxis == "y") "height" else "width"
           val refMainAxis = if (mainAxis == "x") rects.reference.x else rects.reference.y
           val floatingLen = if (len == "width") rects.floating.width else rects.floating.height
@@ -152,7 +155,7 @@ object ShiftMiddleware {
           }
         }
 
-        if (options.crossAxis) {
+        if (evaluatedOptions.crossAxis) {
           val len = if (mainAxis == "y") "width" else "height"
           val isOriginSide = originSides.contains(getSide(placement))
           val refCrossAxis = if (crossAxis == "x") rects.reference.x else rects.reference.y

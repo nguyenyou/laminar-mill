@@ -149,11 +149,11 @@ object FloatingUI {
   /** LimitShift - built-in limiter that will stop shift() at a certain point.
     *
     * @param options
-    *   LimitShift configuration
+    *   LimitShift configuration (can be static or derivable from state)
     * @return
     *   Limiter object
     */
-  def limitShift(options: LimitShiftOptions = LimitShiftOptions()): Limiter = {
+  def limitShift(options: Derivable[LimitShiftOptions] = Left(LimitShiftOptions())): Limiter = {
     ShiftMiddleware.limitShift(options)
   }
 
