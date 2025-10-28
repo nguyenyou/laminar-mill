@@ -67,7 +67,7 @@ object InlineMiddleware {
   }
 
   /** Create inline middleware. */
-  def inline(options: InlineOptions = InlineOptions()): Middleware = new Middleware {
+  def inline(options: Derivable[InlineOptions] = Left(InlineOptions())): Middleware = new Middleware {
     override def name: String = "inline"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
@@ -76,15 +76,14 @@ object InlineMiddleware {
       val rects = state.rects
       val strategy = state.strategy
 
-      // Default padding is 2 pixels (handles MouseEvent client coords being up to 2px off)
-      // Evaluate derivable values
-      val padding = evaluate(options.padding, state) match {
-        case p: Double => p
-        case _         => 2.0
-      }
+      // Evaluate derivable options
+      val evaluatedOptions = evaluate(options, state)
+
+      // Extract options (padding defaults to 2 pixels - handles MouseEvent client coords being up to 2px off)
+      val padding = evaluatedOptions.padding
       val paddingObject = getPaddingObject(padding)
-      val x = options.x.map(evaluate(_, state))
-      val y = options.y.map(evaluate(_, state))
+      val x = evaluatedOptions.x
+      val y = evaluatedOptions.y
 
       // Get client rects for the reference element
       val nativeClientRects = state.platform.getClientRects(elements.reference)
@@ -167,34 +166,37 @@ object InlineMiddleware {
         }
       }
 
-      // Convert to Rect
-      val newReferenceRect = Rect(bestRect.x, bestRect.y, bestRect.width, bestRect.height)
+      // Create a virtual reference element with the best rect
+      val virtualReference = new VirtualElement {
+        override def getBoundingClientRect(): ClientRectObject = bestRect
+      }
+
+      // Get element rects using the virtual reference
+      val resetRects = state.platform.getElementRects(
+        reference = virtualReference,
+        floating = elements.floating,
+        strategy = strategy
+      )
 
       // Check if the reference rect has changed
       if (
-        rects.reference.x != newReferenceRect.x ||
-        rects.reference.y != newReferenceRect.y ||
-        rects.reference.width != newReferenceRect.width ||
-        rects.reference.height != newReferenceRect.height
+        rects.reference.x != resetRects.reference.x ||
+        rects.reference.y != resetRects.reference.y ||
+        rects.reference.width != resetRects.reference.width ||
+        rects.reference.height != resetRects.reference.height
       ) {
-
         // Return reset with new rects
-        val newRects = ElementRects(
-          reference = newReferenceRect,
-          floating = rects.floating
-        )
-
         MiddlewareReturn(
           reset = Some(
             Right(
               ResetValue(
-                rects = Some(Right(newRects))
+                rects = Some(Right(resetRects))
               )
             )
           )
         )
       } else {
-        MiddlewareReturn()
+        MiddlewareReturn(reset = None)
       }
     }
   }

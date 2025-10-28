@@ -414,11 +414,14 @@ object Types {
     apply: Option[ApplyState => Unit] = None
   )
 
-  /** Options for inline middleware. */
+  /** Options for inline middleware.
+    *
+    * Note: padding defaults to 2 to handle MouseEvent client coords being up to 2px off ClientRect bounds.
+    */
   case class InlineOptions(
-    x: Option[Derivable[Double]] = None,
-    y: Option[Derivable[Double]] = None,
-    padding: Derivable[Padding] = Left(0)
+    x: Option[Double] = None,
+    y: Option[Double] = None,
+    padding: Padding = 2
   )
 
   /** Options for limitShift. */

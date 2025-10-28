@@ -138,11 +138,11 @@ object FloatingUI {
   /** Inline middleware - improved positioning for inline elements.
     *
     * @param options
-    *   Inline configuration
+    *   Inline configuration (can be static or derivable from state)
     * @return
     *   Middleware object
     */
-  def inline(options: InlineOptions = InlineOptions()): Middleware = {
+  def inline(options: Derivable[InlineOptions] = Left(InlineOptions())): Middleware = {
     InlineMiddleware.inline(options)
   }
 
