@@ -209,14 +209,14 @@ object FloatingUI {
     * @param state
     *   The current middleware state
     * @param options
-    *   Detection options (boundary, padding, etc.)
+    *   Detection options (can be static or derivable from state)
     * @return
     *   SideObject containing overflow amounts for each side
     */
   def detectOverflow(
     state: MiddlewareState,
-    options: DetectOverflowOptions = DetectOverflowOptions()
+    options: Derivable[DetectOverflowOptions] = Left(DetectOverflowOptions())
   ): SideObject = {
-    DetectOverflow.detectOverflow(state, Left(options))
+    DetectOverflow.detectOverflow(state, options)
   }
 }

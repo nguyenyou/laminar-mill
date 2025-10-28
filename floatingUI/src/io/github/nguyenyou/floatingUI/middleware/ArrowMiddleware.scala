@@ -63,7 +63,8 @@ object ArrowMiddleware {
 
       // DOM platform can return `window` as the `offsetParent`.
       // If clientSize is 0 or the offsetParent is not an element, use floating element's size
-      if (clientSize == 0 || !arrowOffsetParent.exists(state.platform.isElement)) {
+      val isOffsetParentElement = arrowOffsetParent.flatMap(state.platform.isElement).getOrElse(false)
+      if (clientSize == 0 || !isOffsetParentElement) {
         // state.elements.floating is always an HTMLElement
         if (clientProp == "clientHeight") {
           clientSize = state.elements.floating.clientHeight.toDouble

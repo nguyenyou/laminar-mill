@@ -41,6 +41,7 @@ object DetectOverflow {
     val strategy = state.strategy
 
     // Evaluate options (handle both static and function-based options)
+    // Matches TypeScript: evaluate(options, state)
     val evaluatedOptions = evaluate(options, state)
 
     val boundary = evaluatedOptions.boundary
@@ -53,6 +54,7 @@ object DetectOverflow {
     val altContext = if (elementContext == "floating") "reference" else "floating"
 
     // Determine which element to use based on altBoundary and elementContext
+    // Matches TypeScript: elements[altBoundary ? altContext : elementContext]
     val element = if (altBoundary) {
       if (altContext == "reference") elements.reference else elements.floating
     } else {
@@ -60,22 +62,24 @@ object DetectOverflow {
     }
 
     // Determine the actual element to use for clipping rect calculation
-    // Check if element is a valid DOM element, otherwise use fallbacks
-    val clippingElement: ReferenceElement = element match {
-      case ve: VirtualElement =>
-        // For virtual elements, check if isElement would return true
-        // If not, use contextElement or getDocumentElement as fallback
-        ve.contextElement match {
-          case Some(ctx) => ctx
-          case None      => getDocumentElement(elements.floating)
-        }
-      case e: dom.Element =>
-        // For DOM elements, check if it's a valid element
-        // In the synchronous version, we assume all DOM elements are valid
-        e
+    // Matches TypeScript: (await platform.isElement?.(element)) ?? true ? element : element.contextElement || (await
+    // platform.getDocumentElement?.(elements.floating))
+    val isElementResult = platform.isElement(element).getOrElse(true)
+    val clippingElement: Any = if (isElementResult) {
+      element
+    } else {
+      element match {
+        case ve: VirtualElement =>
+          ve.contextElement.getOrElse(
+            platform.getDocumentElement(elements.floating).getOrElse(elements.floating)
+          )
+        case _ =>
+          platform.getDocumentElement(elements.floating).getOrElse(elements.floating)
+      }
     }
 
     // Get the clipping rect
+    // Matches TypeScript: platform.getClippingRect({element, boundary, rootBoundary, strategy})
     val clippingClientRect = rectToClientRect(
       platform.getClippingRect(
         clippingElement,
@@ -86,6 +90,8 @@ object DetectOverflow {
     )
 
     // Determine the rect to use based on elementContext
+    // Matches TypeScript: elementContext === 'floating' ? {x, y, width: rects.floating.width, height: rects.floating.height} :
+    // rects.reference
     val rect = if (elementContext == "floating") {
       Rect(
         x = x,
@@ -98,36 +104,37 @@ object DetectOverflow {
     }
 
     // Get offset parent for scale calculations
-    val offsetParent = getOffsetParent(elements.floating)
+    // Matches TypeScript: await platform.getOffsetParent?.(elements.floating)
+    val offsetParent = platform.getOffsetParent(elements.floating).getOrElse(null)
 
     // Calculate offset scale
-    // Check if offsetParent is a DOM element to get its scale
-    val offsetScale = offsetParent match {
-      case elem: dom.Element =>
-        getScale(elem)
-      case _ =>
-        // If offsetParent is window or not an element, use default scale
+    // Matches TypeScript: (await platform.isElement?.(offsetParent)) ? (await platform.getScale?.(offsetParent)) || {x: 1, y: 1} : {x: 1, y:
+    // 1}
+    val offsetScale = {
+      val isOffsetParentElement = platform.isElement(offsetParent).getOrElse(false)
+      if (isOffsetParentElement) {
+        platform.getScale(offsetParent).getOrElse(Coords(1, 1))
+      } else {
         Coords(1, 1)
+      }
     }
 
-    // Convert rect using convertOffsetParentRelativeRectToViewportRelativeRect if needed
-    // In the synchronous Scala.js version, we use the DOMUtils implementation
-    val convertedRect = offsetParent match {
-      case elem: dom.Element =>
-        // Use the conversion function from DOMUtils
-        convertOffsetParentRelativeRectToViewportRelativeRect(
-          rect,
-          offsetParent,
-          strategy
-        )
-      case _ =>
-        // If offsetParent is window, no conversion needed
-        rect
-    }
+    // Convert rect using convertOffsetParentRelativeRectToViewportRelativeRect if available
+    // Matches TypeScript: platform.convertOffsetParentRelativeRectToViewportRelativeRect ? await
+    // platform.convertOffsetParentRelativeRectToViewportRelativeRect({elements, rect, offsetParent, strategy}) : rect
+    val convertedRect = platform
+      .convertOffsetParentRelativeRectToViewportRelativeRect(
+        Some(elements),
+        rect,
+        offsetParent,
+        strategy
+      )
+      .getOrElse(rect)
 
     val elementClientRect = rectToClientRect(convertedRect)
 
     // Calculate overflow with scale adjustments
+    // Matches TypeScript lines 101-118
     SideObject(
       top = (clippingClientRect.top - elementClientRect.top + paddingObject.top) / offsetScale.y,
       bottom = (elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom) / offsetScale.y,

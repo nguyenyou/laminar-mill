@@ -41,17 +41,13 @@ object DOMPlatform extends Platform {
     )
   }
 
-  override def getOffsetParent(element: dom.Element): Option[dom.EventTarget] = {
-    Some(DOMUtils.getOffsetParent(element))
-  }
-
   override def getDimensions(element: dom.Element): Dimensions = {
     val (width, height, _) = getCssDimensions(element)
     Dimensions(width = width, height = height)
   }
 
   override def getClippingRect(
-    element: ReferenceElement,
+    element: Any,
     boundary: String,
     rootBoundary: String,
     strategy: Strategy
@@ -63,8 +59,60 @@ object DOMPlatform extends Platform {
         ve.contextElement.getOrElse(dom.document.body)
       case e: dom.Element =>
         e
+      case _ =>
+        // Fallback for any other type
+        dom.document.body
     }
     DOMUtils.getClippingRect(domElement, boundary, rootBoundary, strategy)
+  }
+
+  // Optional platform methods
+
+  override def convertOffsetParentRelativeRectToViewportRelativeRect(
+    elements: Option[Elements],
+    rect: Rect,
+    offsetParent: Any,
+    strategy: Strategy
+  ): Option[Rect] = {
+    // Only convert if offsetParent is a DOM element
+    offsetParent match {
+      case elem: dom.Element =>
+        Some(DOMUtils.convertOffsetParentRelativeRectToViewportRelativeRect(rect, elem, strategy))
+      case _ =>
+        // If offsetParent is window or not an element, no conversion needed
+        None
+    }
+  }
+
+  override def getOffsetParent(element: Any): Option[Any] = {
+    element match {
+      case elem: dom.Element =>
+        Some(DOMUtils.getOffsetParent(elem))
+      case _ =>
+        None
+    }
+  }
+
+  override def isElement(value: Any): Option[Boolean] = {
+    Some(value.isInstanceOf[dom.Element])
+  }
+
+  override def getDocumentElement(element: Any): Option[Any] = {
+    element match {
+      case elem: dom.Node =>
+        Some(Utils.getDocumentElement(elem))
+      case _ =>
+        None
+    }
+  }
+
+  override def getScale(element: Any): Option[Coords] = {
+    element match {
+      case elem: dom.Element =>
+        Some(DOMUtils.getScale(elem))
+      case _ =>
+        None
+    }
   }
 
   override def getClientRects(element: ReferenceElement): Seq[ClientRectObject] = {

@@ -244,32 +244,68 @@ object Types {
   // Platform Interface
   // ============================================================================
 
-  /** Platform interface for DOM operations. */
+  /** Platform interface for DOM operations.
+    *
+    * Matches the TypeScript Platform interface from @floating-ui/core/src/types.ts All methods use object parameters to match the
+    * TypeScript signature.
+    */
   trait Platform {
+    // Required methods
     def getElementRects(reference: ReferenceElement, floating: dom.HTMLElement, strategy: Strategy): ElementRects
     def getDimensions(element: dom.Element): Dimensions
-    def getClippingRect(element: ReferenceElement, boundary: String, rootBoundary: String, strategy: Strategy): Rect
+    def getClippingRect(element: Any, boundary: String, rootBoundary: String, strategy: Strategy): Rect
 
-    /** Check if the element uses right-to-left text direction. */
-    def isRTL(element: dom.Element): Boolean = {
-      val computedStyle = dom.window.getComputedStyle(element)
-      computedStyle.direction == "rtl"
-    }
+    // Optional methods with default implementations
 
-    /** Get client rects for an element (for inline elements). */
-    def getClientRects(element: ReferenceElement): Seq[ClientRectObject]
+    /** Convert offset-parent-relative rect to viewport-relative rect.
+      *
+      * Optional method - converts coordinates from offset parent space to viewport space.
+      */
+    def convertOffsetParentRelativeRectToViewportRelativeRect(
+      elements: Option[Elements],
+      rect: Rect,
+      offsetParent: Any,
+      strategy: Strategy
+    ): Option[Rect] = None
 
     /** Get the offset parent of an element.
       *
       * Optional method - returns the closest positioned ancestor element.
       */
-    def getOffsetParent(element: dom.Element): Option[dom.EventTarget] = None
+    def getOffsetParent(element: Any): Option[Any] = None
 
     /** Check if a value is a DOM element.
       *
       * Optional method - returns true if the value is an Element.
       */
-    def isElement(value: Any): Boolean = value.isInstanceOf[dom.Element]
+    def isElement(value: Any): Option[Boolean] = None
+
+    /** Get the document element.
+      *
+      * Optional method - returns the document element (usually <html>).
+      */
+    def getDocumentElement(element: Any): Option[Any] = None
+
+    /** Get the scale of an element.
+      *
+      * Optional method - returns the x and y scale factors of an element.
+      */
+    def getScale(element: Any): Option[Coords] = None
+
+    /** Check if the element uses right-to-left text direction.
+      *
+      * Optional method - returns true if the element uses RTL text direction.
+      */
+    def isRTL(element: dom.Element): Boolean = {
+      val computedStyle = dom.window.getComputedStyle(element)
+      computedStyle.direction == "rtl"
+    }
+
+    /** Get client rects for an element (for inline elements).
+      *
+      * Optional method - returns an array of client rects for the element.
+      */
+    def getClientRects(element: ReferenceElement): Seq[ClientRectObject]
   }
 
   // ============================================================================
