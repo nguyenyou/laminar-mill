@@ -60,23 +60,12 @@ object FloatingUI {
 
   /** Offset middleware - shifts the floating element from its reference element.
     *
-    * @param value
-    *   The offset distance (default: 0)
-    * @return
-    *   Middleware object
-    */
-  def offset(value: Double = 0): Middleware = {
-    OffsetMiddleware.offset(OffsetOptions(mainAxis = Left(value)))
-  }
-
-  /** Offset middleware with detailed options.
-    *
     * @param options
-    *   Offset configuration
+    *   Offset configuration (can be a number, object, or derivable function). Default is 0.
     * @return
     *   Middleware object
     */
-  def offset(options: OffsetOptions): Middleware = {
+  def offset(options: OffsetOptions = Left(Left(0))): Middleware = {
     OffsetMiddleware.offset(options)
   }
 

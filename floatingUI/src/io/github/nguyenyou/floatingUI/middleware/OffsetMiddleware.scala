@@ -9,7 +9,7 @@ import io.github.nguyenyou.floatingUI.Utils.*
   */
 object OffsetMiddleware {
 
-  def offset(options: OffsetOptions = OffsetOptions()): Middleware = new Middleware {
+  def offset(options: OffsetOptions = Left(Left(0))): Middleware = new Middleware {
     override def name: String = "offset"
 
     override def fn(state: MiddlewareState): MiddlewareReturn = {
@@ -21,7 +21,7 @@ object OffsetMiddleware {
         state.middlewareData.arrow.flatMap(_.alignmentOffset).isDefined
 
       if (skipOffset) {
-        MiddlewareReturn()
+        MiddlewareReturn(reset = None)
       } else {
         MiddlewareReturn(
           x = Some(state.x + diffCoords.x),
@@ -32,7 +32,8 @@ object OffsetMiddleware {
               "y" -> diffCoords.y,
               "placement" -> state.placement
             )
-          )
+          ),
+          reset = None
         )
       }
     }
@@ -49,13 +50,25 @@ object OffsetMiddleware {
     val mainAxisMulti = if (originSides.contains(side)) -1 else 1
     val crossAxisMulti = if (rtl && isVertical) -1 else 1
 
-    // Evaluate derivable values
-    var mainAxis = evaluate(options.mainAxis, state)
-    var crossAxis = evaluate(options.crossAxis, state)
-    val alignmentAxis = options.alignmentAxis.map(evaluate(_, state))
+    // Evaluate derivable options to get the raw value (number or object)
+    val rawValue = evaluate(options, state)
 
-    if (alignment.isDefined && alignmentAxis.isDefined) {
-      crossAxis = if (alignment.get == "end") alignmentAxis.get * -1 else alignmentAxis.get
+    // Extract mainAxis, crossAxis, and alignmentAxis based on whether it's a number or object
+    val (mainAxisValue, crossAxisValue, alignmentAxisValue) = rawValue match {
+      case Left(number) =>
+        // Number shorthand - use as mainAxis, crossAxis = 0, alignmentAxis = None
+        (number, 0.0, None)
+      case Right(obj) =>
+        // Object form - extract fields
+        (obj.mainAxis, obj.crossAxis, obj.alignmentAxis)
+    }
+
+    // Apply alignment axis override if present
+    var mainAxis = mainAxisValue
+    var crossAxis = crossAxisValue
+
+    if (alignment.isDefined && alignmentAxisValue.isDefined) {
+      crossAxis = if (alignment.get == "end") alignmentAxisValue.get * -1 else alignmentAxisValue.get
     }
 
     if (isVertical) {

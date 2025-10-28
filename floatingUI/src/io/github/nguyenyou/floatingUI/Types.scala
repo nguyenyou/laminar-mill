@@ -264,12 +264,25 @@ object Types {
   // Middleware Options
   // ============================================================================
 
-  /** Options for offset middleware. */
-  case class OffsetOptions(
-    mainAxis: Derivable[Double] = Left(0),
-    crossAxis: Derivable[Double] = Left(0),
-    alignmentAxis: Option[Derivable[Double]] = None
+  /** Object form of offset options. */
+  case class OffsetOptionsObject(
+    mainAxis: Double = 0,
+    crossAxis: Double = 0,
+    alignmentAxis: Option[Double] = None
   )
+
+  /** Offset value - can be a number (shorthand for mainAxis) or an object with axis values.
+    *
+    * Matches TypeScript: type OffsetValue = number | { mainAxis?: number; crossAxis?: number; alignmentAxis?: number | null }
+    */
+  type OffsetValue = Either[Double, OffsetOptionsObject]
+
+  /** Options for offset middleware.
+    *
+    * Can be a static value or a function that computes the value from middleware state. Matches TypeScript: type OffsetOptions =
+    * OffsetValue | Derivable<OffsetValue>
+    */
+  type OffsetOptions = Derivable[OffsetValue]
 
   /** Options for shift middleware.
     *

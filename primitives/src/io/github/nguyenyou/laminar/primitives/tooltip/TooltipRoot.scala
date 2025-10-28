@@ -16,7 +16,7 @@ class TooltipRoot(val store: TooltipStore) {
   private var tooltipPortal: Option[TooltipPortal] = None
 
   private val middlewares = ArrayBuffer[Middleware](
-    FloatingUI.offset(6),
+    FloatingUI.offset(Left(Left(6))),
     FloatingUI.flip(),
     FloatingUI.shift(Left(ShiftOptions(padding = Left(8))))
   )
