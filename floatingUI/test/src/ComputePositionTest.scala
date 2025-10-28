@@ -102,11 +102,10 @@ class ComputePositionTest extends AnyFunSpec with Matchers {
       result.x `shouldBe` 25.0 // (100 - 50) / 2 = 25 (centered horizontally)
       result.y `shouldBe` -50.0 // -floatingRect.height (positioned above)
 
-      // Verify middleware data
+      // Verify middleware data is stored in the custom map
       result.middlewareData should not be null
-      // Note: Our implementation stores custom middleware data differently than TypeScript
-      // The TypeScript version stores it as middlewareData.custom = {property: true}
-      // We need to check how our implementation handles custom middleware data
+      result.middlewareData.custom should contain key "custom"
+      result.middlewareData.custom("custom") `shouldBe` Map("property" -> true)
     }
 
     it("middleware") {
@@ -185,10 +184,12 @@ class ComputePositionTest extends AnyFunSpec with Matchers {
 
       val result = ComputePosition.computePosition(reference, floating, config)
 
-      // Verify middleware data is stored
-      // Note: Our implementation may store custom middleware differently
-      // The TypeScript version expects middlewareData.test = {hello: true}
+      // Verify middleware data is stored in the custom map
+      // Our implementation stores custom middleware data in middlewareData.custom
+      // The TypeScript version stores it as middlewareData.test = {hello: true}
       result.middlewareData should not be null
+      result.middlewareData.custom should contain key "test"
+      result.middlewareData.custom("test") `shouldBe` Map("hello" -> true)
     }
   }
 
