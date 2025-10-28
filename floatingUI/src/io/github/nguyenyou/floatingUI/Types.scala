@@ -255,6 +255,10 @@ object Types {
     def getDimensions(element: dom.Element): Dimensions
     def getClippingRect(element: Any, boundary: String, rootBoundary: String, strategy: Strategy): Rect
 
+    // Cache for expensive operations (e.g., getClippingElementAncestors)
+    // This is injected by computePosition and used by platform methods
+    var _c: Option[scala.collection.mutable.Map[ReferenceElement, Seq[dom.Element]]] = None
+
     // Optional methods with default implementations
 
     /** Convert offset-parent-relative rect to viewport-relative rect.

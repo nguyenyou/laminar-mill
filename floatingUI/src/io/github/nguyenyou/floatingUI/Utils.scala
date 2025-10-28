@@ -3,6 +3,7 @@ package io.github.nguyenyou.floatingUI
 import Types.*
 import scala.math.{min, max}
 import org.scalajs.dom
+import scala.scalajs.js
 
 /** Utility functions for floating element positioning.
   *
@@ -302,7 +303,29 @@ object Utils {
 
   /** Get the window for a node. */
   def getWindow(node: dom.Node): dom.Window = {
-    dom.window
+    if (node == null) return dom.window
+    // Use parentWindow for compatibility (defaultView is not available in scala-js-dom)
+    node.ownerDocument.asInstanceOf[js.Dynamic].defaultView.asInstanceOf[dom.Window]
+  }
+
+  /** Get the frame element for a window (if the window is inside an iframe).
+    *
+    * @param win
+    *   The window to check
+    * @return
+    *   The iframe element, or null if not in an iframe
+    */
+  def getFrameElement(win: dom.Window): dom.Element = {
+    try {
+      // Check if window has a parent and if we can access it
+      if (win.parent != null && win.parent != win) {
+        win.frameElement.asInstanceOf[dom.Element]
+      } else {
+        null
+      }
+    } catch {
+      case _: Throwable => null
+    }
   }
 
   /** Check if a node is an HTML element. */

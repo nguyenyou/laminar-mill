@@ -45,13 +45,27 @@ object FloatingUI {
     strategy: Strategy = "absolute",
     middleware: Seq[Middleware] = Seq.empty
   ): ComputePositionReturn = {
+    // This caches the expensive `getClippingElementAncestors` function so that
+    // multiple lifecycle resets re-use the same result. It only lives for a
+    // single call. If other functions become expensive, we can add them as well.
+    val cache = scala.collection.mutable.Map[ReferenceElement, Seq[dom.Element]]()
+
+    // Inject cache into platform
+    platform._c = Some(cache)
+
     val config = ComputePositionConfig(
       placement = placement,
       strategy = strategy,
       middleware = middleware,
       platform = platform
     )
-    ComputePosition.computePosition(reference, floating, config)
+
+    val result = ComputePosition.computePosition(reference, floating, config)
+
+    // Clear cache after computation
+    platform._c = None
+
+    result
   }
 
   // ============================================================================

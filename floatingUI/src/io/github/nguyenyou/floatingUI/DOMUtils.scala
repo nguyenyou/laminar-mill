@@ -12,6 +12,120 @@ import Utils.*
 object DOMUtils {
 
   // ============================================================================
+  // Bounding Client Rect (Full Implementation)
+  // ============================================================================
+
+  /** Get bounding client rect for an element with full support for scale, visual offsets, and iframe traversal.
+    *
+    * This is the complete implementation matching TypeScript's getBoundingClientRect from utils/getBoundingClientRect.ts.
+    *
+    * @param element
+    *   The element or virtual element to get the bounding rect for
+    * @param includeScale
+    *   Whether to include scale transformations in the calculation
+    * @param isFixedStrategy
+    *   Whether the element uses fixed positioning strategy
+    * @param offsetParent
+    *   The offset parent element or window
+    * @return
+    *   The bounding client rect with all transformations applied
+    */
+  def getBoundingClientRect(
+    element: Types.ReferenceElement,
+    includeScale: Boolean = false,
+    isFixedStrategy: Boolean = false,
+    offsetParent: Option[Any] = None
+  ): ClientRectObject = {
+    // Get the raw bounding client rect - convert to common format
+    val rawRect = element match {
+      case ve: Types.VirtualElement => ve.getBoundingClientRect()
+      case e: dom.Element           => e.getBoundingClientRect()
+    }
+
+    // Extract values from either ClientRectObject or DOMRect
+    val (rectLeft, rectTop, rectWidth, rectHeight) = rawRect match {
+      case cro: ClientRectObject => (cro.left, cro.top, cro.width, cro.height)
+      case dr: dom.DOMRect       => (dr.left, dr.top, dr.width, dr.height)
+      case _                     => (0.0, 0.0, 0.0, 0.0)
+    }
+
+    // Unwrap virtual element to get the DOM element
+    val domElement = Utils.unwrapElement(element)
+
+    // Calculate scale
+    var scale = Coords(1, 1)
+    if (includeScale) {
+      offsetParent match {
+        case Some(op) if op.isInstanceOf[dom.Element] =>
+          scale = getScale(op.asInstanceOf[dom.Element])
+        case Some(_) =>
+          // offsetParent is window or other non-element, use default scale
+          scale = Coords(1, 1)
+        case None =>
+          // No offsetParent specified, get scale from element itself
+          element match {
+            case e: dom.Element => scale = getScale(e)
+            case _              => scale = Coords(1, 1)
+          }
+      }
+    }
+
+    // Calculate visual offsets
+    val visualOffsets = if (shouldAddVisualOffsets(Option(domElement), isFixedStrategy, offsetParent)) {
+      getVisualOffsets(Option(domElement))
+    } else {
+      Coords(0, 0)
+    }
+
+    // Apply scale and visual offsets
+    var x = (rectLeft + visualOffsets.x) / scale.x
+    var y = (rectTop + visualOffsets.y) / scale.y
+    var width = rectWidth / scale.x
+    var height = rectHeight / scale.y
+
+    // Handle iframe traversal
+    if (domElement != null) {
+      val win = Utils.getWindow(domElement)
+      val offsetWin = offsetParent match {
+        case Some(op) if op.isInstanceOf[dom.Element] =>
+          Utils.getWindow(op.asInstanceOf[dom.Element])
+        case Some(w: dom.Window) =>
+          w
+        case _ =>
+          null
+      }
+
+      var currentWin = win
+      var currentIFrame = Utils.getFrameElement(currentWin)
+
+      while (currentIFrame != null && offsetParent.isDefined && offsetWin != currentWin) {
+        val iframeScale = getScale(currentIFrame)
+        val iframeRect = currentIFrame.getBoundingClientRect()
+        val css = dom.window.getComputedStyle(currentIFrame)
+
+        val left = iframeRect.left +
+          (currentIFrame.clientLeft + css.paddingLeft.replace("px", "").toDoubleOption.getOrElse(0.0)) * iframeScale.x
+        val top = iframeRect.top +
+          (currentIFrame.clientTop + css.paddingTop.replace("px", "").toDoubleOption.getOrElse(0.0)) * iframeScale.y
+
+        x *= iframeScale.x
+        y *= iframeScale.y
+        width *= iframeScale.x
+        height *= iframeScale.y
+
+        x += left
+        y += top
+
+        currentWin = Utils.getWindow(currentIFrame)
+        currentIFrame = Utils.getFrameElement(currentWin)
+      }
+    }
+
+    // Convert to ClientRectObject
+    Utils.rectToClientRect(Rect(x, y, width, height))
+  }
+
+  // ============================================================================
   // CSS and Dimensions
   // ============================================================================
 
@@ -282,12 +396,18 @@ object DOMUtils {
     Rect(x, y, width, height)
   }
 
+  /** Check if browser is WebKit-based. */
+  def isWebKit(): Boolean = {
+    val userAgent = dom.window.navigator.userAgent
+    userAgent.contains("AppleWebKit") && !userAgent.contains("Chrome")
+  }
+
   /** Get visual offsets (for visual viewport). */
-  def getVisualOffsets(element: dom.Element): Coords = {
+  def getVisualOffsets(element: Option[dom.Element]): Coords = {
     val win = dom.window
     val visualViewport = win.asInstanceOf[js.Dynamic].visualViewport
 
-    if (js.isUndefined(visualViewport) || visualViewport == null) {
+    if (!isWebKit() || js.isUndefined(visualViewport) || visualViewport == null) {
       return Coords(0, 0)
     }
 
@@ -295,6 +415,33 @@ object DOMUtils {
       visualViewport.offsetLeft.asInstanceOf[Double],
       visualViewport.offsetTop.asInstanceOf[Double]
     )
+  }
+
+  /** Check if visual offsets should be added.
+    *
+    * @param element
+    *   The element to check
+    * @param isFixed
+    *   Whether the element uses fixed positioning
+    * @param floatingOffsetParent
+    *   The offset parent of the floating element
+    * @return
+    *   True if visual offsets should be added
+    */
+  def shouldAddVisualOffsets(
+    element: Option[dom.Element],
+    isFixed: Boolean = false,
+    floatingOffsetParent: Option[Any] = None
+  ): Boolean = {
+    if (floatingOffsetParent.isEmpty) {
+      return false
+    }
+
+    if (isFixed && floatingOffsetParent != Some(Utils.getWindow(element.orNull))) {
+      return false
+    }
+
+    isFixed
   }
 
   /** Get HTML offset. */
@@ -377,7 +524,9 @@ object DOMUtils {
     offsetParent: dom.EventTarget,
     strategy: Strategy
   ): Rect = {
-    val clientRect = Utils.getBoundingClientRect(element)
+    val isFixed = strategy == "fixed"
+    // Use full getBoundingClientRect with all parameters
+    val clientRect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = isFixed, offsetParent = Some(offsetParent))
     val rect = Utils.rectToClientRect(Rect(clientRect.x, clientRect.y, clientRect.width, clientRect.height))
 
     if (offsetParent == dom.window) {
@@ -390,7 +539,7 @@ object DOMUtils {
     }
 
     val offsetParentElement = offsetParent.asInstanceOf[dom.Element]
-    val offsetParentClientRect = Utils.getBoundingClientRect(offsetParentElement)
+    val offsetParentClientRect = getBoundingClientRect(offsetParentElement, includeScale = true, isFixedStrategy = isFixed)
     val scale = getScale(offsetParentElement)
 
     Rect(
@@ -407,7 +556,8 @@ object DOMUtils {
 
   /** Get inner bounding client rect (subtracting scrollbars). */
   private def getInnerBoundingClientRect(element: dom.Element, strategy: Strategy): Rect = {
-    val clientRect = Utils.getBoundingClientRect(element)
+    // Use full getBoundingClientRect with scale support
+    val clientRect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = strategy == "fixed")
     val top = clientRect.top + element.asInstanceOf[dom.HTMLElement].clientTop
     val left = clientRect.left + element.asInstanceOf[dom.HTMLElement].clientLeft
     val scale = if (element.isInstanceOf[dom.HTMLElement]) getScale(element) else Coords(1, 1)
@@ -437,7 +587,7 @@ object DOMUtils {
       case Left(ancestor) => getInnerBoundingClientRect(ancestor, strategy)
       case Right(other)   =>
         // Custom rect object
-        val visualOffsets = getVisualOffsets(element)
+        val visualOffsets = getVisualOffsets(Some(element))
         Rect(0 - visualOffsets.x, 0 - visualOffsets.y, 0, 0)
     }
 
@@ -459,50 +609,75 @@ object DOMUtils {
     hasFixedPositionAncestor(parentNode.asInstanceOf[dom.Element], stopNode)
   }
 
-  /** Get clipping element ancestors. */
-  def getClippingElementAncestors(element: dom.Element): Seq[dom.Element] = {
-    var result = Utils
-      .getOverflowAncestors(element)
-      .filter(el => el.isInstanceOf[dom.Element] && getNodeName(el.asInstanceOf[dom.Node]) != "body")
-      .map(_.asInstanceOf[dom.Element])
+  /** Get clipping element ancestors.
+    *
+    * This function is expensive, so it uses a cache that is injected via the platform's _c field. The cache is created in computePosition
+    * and lives only for a single positioning calculation.
+    *
+    * @param element
+    *   The element to get clipping ancestors for
+    * @param cache
+    *   Optional cache map for storing/retrieving results
+    * @return
+    *   Sequence of clipping element ancestors
+    */
+  def getClippingElementAncestors(
+    element: dom.Element,
+    cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
+  ): Seq[dom.Element] = {
+    // Check cache first
+    cache.flatMap(_.get(element)) match {
+      case Some(cachedResult) =>
+        // Return cached result
+        cachedResult
+      case None =>
+        // Compute result
+        var result = Utils
+          .getOverflowAncestors(element)
+          .filter(el => el.isInstanceOf[dom.Element] && getNodeName(el.asInstanceOf[dom.Node]) != "body")
+          .map(_.asInstanceOf[dom.Element])
 
-    var currentContainingBlockComputedStyle: Option[dom.CSSStyleDeclaration] = None
-    val elementIsFixed = dom.window.getComputedStyle(element).position == "fixed"
-    var currentNode: dom.Node = if (elementIsFixed) Utils.getParentNode(element) else element
+        var currentContainingBlockComputedStyle: Option[dom.CSSStyleDeclaration] = None
+        val elementIsFixed = dom.window.getComputedStyle(element).position == "fixed"
+        var currentNode: dom.Node = if (elementIsFixed) Utils.getParentNode(element) else element
 
-    while (
-      currentNode != null && currentNode.isInstanceOf[dom.Element] &&
-      !isLastTraversableNode(currentNode)
-    ) {
-      val elem = currentNode.asInstanceOf[dom.Element]
-      val computedStyle = dom.window.getComputedStyle(elem)
-      val currentNodeIsContaining = isContainingBlock(elem)
+        while (
+          currentNode != null && currentNode.isInstanceOf[dom.Element] &&
+          !isLastTraversableNode(currentNode)
+        ) {
+          val elem = currentNode.asInstanceOf[dom.Element]
+          val computedStyle = dom.window.getComputedStyle(elem)
+          val currentNodeIsContaining = isContainingBlock(elem)
 
-      if (!currentNodeIsContaining && computedStyle.position == "fixed") {
-        currentContainingBlockComputedStyle = None
-      }
+          if (!currentNodeIsContaining && computedStyle.position == "fixed") {
+            currentContainingBlockComputedStyle = None
+          }
 
-      val shouldDropCurrentNode = if (elementIsFixed) {
-        !currentNodeIsContaining && currentContainingBlockComputedStyle.isEmpty
-      } else {
-        (!currentNodeIsContaining &&
-          computedStyle.position == "static" &&
-          currentContainingBlockComputedStyle.exists(s => s.position == "absolute" || s.position == "fixed")) ||
-        (isOverflowElement(elem) &&
-          !currentNodeIsContaining &&
-          hasFixedPositionAncestor(element, currentNode))
-      }
+          val shouldDropCurrentNode = if (elementIsFixed) {
+            !currentNodeIsContaining && currentContainingBlockComputedStyle.isEmpty
+          } else {
+            (!currentNodeIsContaining &&
+              computedStyle.position == "static" &&
+              currentContainingBlockComputedStyle.exists(s => s.position == "absolute" || s.position == "fixed")) ||
+            (isOverflowElement(elem) &&
+              !currentNodeIsContaining &&
+              hasFixedPositionAncestor(element, currentNode))
+          }
 
-      if (shouldDropCurrentNode) {
-        result = result.filterNot(_ == currentNode)
-      } else {
-        currentContainingBlockComputedStyle = Some(computedStyle)
-      }
+          if (shouldDropCurrentNode) {
+            result = result.filterNot(_ == currentNode)
+          } else {
+            currentContainingBlockComputedStyle = Some(computedStyle)
+          }
 
-      currentNode = Utils.getParentNode(currentNode)
+          currentNode = Utils.getParentNode(currentNode)
+        }
+
+        // Store in cache before returning
+        cache.foreach(_.put(element, result))
+
+        result
     }
-
-    result
   }
 
   /** Get clipping rect for an element. */
@@ -510,14 +685,16 @@ object DOMUtils {
     element: dom.Element,
     boundary: String,
     rootBoundary: String,
-    strategy: Strategy
+    strategy: Strategy,
+    cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
   ): Rect = {
     val elementClippingAncestors: Seq[Either[dom.Element, String]] =
       if (boundary == "clippingAncestors") {
         if (isTopLayer(element)) {
           Seq.empty
         } else {
-          getClippingElementAncestors(element).map(Left(_))
+          // Pass cache to getClippingElementAncestors
+          getClippingElementAncestors(element, cache).map(Left(_))
         }
       } else {
         Seq(Left(dom.document.querySelector(boundary).asInstanceOf[dom.Element]))

@@ -63,7 +63,8 @@ object DOMPlatform extends Platform {
         // Fallback for any other type
         dom.document.body
     }
-    DOMUtils.getClippingRect(domElement, boundary, rootBoundary, strategy)
+    // Pass the cache from the platform's _c field
+    DOMUtils.getClippingRect(domElement, boundary, rootBoundary, strategy, _c)
   }
 
   // Optional platform methods
