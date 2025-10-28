@@ -569,26 +569,37 @@ object DOMUtils {
     Rect(x, y, width, height)
   }
 
-  /** Get client rect from a clipping ancestor. */
-  def getClientRectFromClippingAncestor(
+  /** Get client rect from a clipping ancestor.
+    *
+    * Handles different types of clipping ancestors:
+    *   - 'viewport': viewport rect
+    *   - 'document': document rect
+    *   - Element: inner bounding client rect
+    *   - Rect object: custom rect with visual offset adjustment
+    */
+  private def getClientRectFromClippingAncestor(
     element: dom.Element,
-    clippingAncestor: Either[dom.Element, String],
+    clippingAncestor: Either[dom.Element, Either[String, Rect]],
     strategy: Strategy
   ): ClientRectObject = {
     val rect: Rect = clippingAncestor match {
-      case Right("viewport") => getViewportRect(element, strategy)
-      case Right("document") =>
+      case Right(Left("viewport")) => getViewportRect(element, strategy)
+      case Right(Left("document")) =>
         val docElement = getDocumentElement(element)
-        if (docElement.isInstanceOf[dom.HTMLElement]) {
-          getDocumentRect(docElement.asInstanceOf[dom.HTMLElement])
-        } else {
-          getViewportRect(element, strategy)
-        }
-      case Left(ancestor) => getInnerBoundingClientRect(ancestor, strategy)
-      case Right(other)   =>
-        // Custom rect object
+        getDocumentRect(docElement.asInstanceOf[dom.HTMLElement])
+      case Left(ancestor)           => getInnerBoundingClientRect(ancestor, strategy)
+      case Right(Right(customRect)) =>
+        // Custom rect object (e.g., from VirtualElement or custom boundary)
         val visualOffsets = getVisualOffsets(Some(element))
-        Rect(0 - visualOffsets.x, 0 - visualOffsets.y, 0, 0)
+        Rect(
+          x = customRect.x - visualOffsets.x,
+          y = customRect.y - visualOffsets.y,
+          width = customRect.width,
+          height = customRect.height
+        )
+      case Right(Left(_)) =>
+        // Fallback for unknown string values
+        getViewportRect(element, strategy)
     }
 
     Utils.rectToClientRect(rect)
@@ -680,7 +691,25 @@ object DOMUtils {
     }
   }
 
-  /** Get clipping rect for an element. */
+  /** Get clipping rect for an element.
+    *
+    * Gets the maximum area that the element is visible in due to any number of clipping ancestors.
+    *
+    * Matches TypeScript implementation from @floating-ui/dom/src/platform/getClippingRect.ts
+    *
+    * @param element
+    *   The element to get clipping rect for
+    * @param boundary
+    *   The clipping boundary - either "clippingAncestors" or a CSS selector
+    * @param rootBoundary
+    *   The root clipping boundary - "viewport" or "document"
+    * @param strategy
+    *   The positioning strategy
+    * @param cache
+    *   Optional cache for getClippingElementAncestors
+    * @return
+    *   The clipping rect
+    */
   def getClippingRect(
     element: dom.Element,
     boundary: String,
@@ -688,26 +717,47 @@ object DOMUtils {
     strategy: Strategy,
     cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
   ): Rect = {
-    val elementClippingAncestors: Seq[Either[dom.Element, String]] =
+    // Determine element clipping ancestors based on boundary
+    // Matches TypeScript: boundary === 'clippingAncestors' ? isTopLayer(element) ? [] : getClippingElementAncestors(element, this._c) :
+    // [].concat(boundary)
+    val elementClippingAncestors: Seq[Either[dom.Element, Either[String, Rect]]] =
       if (boundary == "clippingAncestors") {
         if (isTopLayer(element)) {
           Seq.empty
         } else {
           // Pass cache to getClippingElementAncestors
-          getClippingElementAncestors(element, cache).map(Left(_))
+          getClippingElementAncestors(element, cache).map(e => Left(e))
         }
       } else {
-        Seq(Left(dom.document.querySelector(boundary).asInstanceOf[dom.Element]))
+        // In TypeScript, boundary can be Element, Array<Element>, or Rect
+        // In this Scala.js implementation, we only support CSS selector strings for now
+        // This is a known limitation compared to the TypeScript version
+        val boundaryElement = dom.document.querySelector(boundary)
+        if (boundaryElement != null) {
+          Seq(Left(boundaryElement.asInstanceOf[dom.Element]))
+        } else {
+          // Fallback to empty if selector doesn't match
+          Seq.empty
+        }
       }
 
-    val clippingAncestors = elementClippingAncestors :+ Right(rootBoundary)
+    // Add root boundary to the list
+    // Matches TypeScript: [...elementClippingAncestors, rootBoundary]
+    val clippingAncestors = elementClippingAncestors :+ Right(Left(rootBoundary))
     val firstClippingAncestor = clippingAncestors.head
 
+    // Reduce over all clipping ancestors to find the intersection of all clipping rects
+    // Matches TypeScript: clippingAncestors.reduce((accRect, clippingAncestor) => {...}, getClientRectFromClippingAncestor(...))
     val clippingRect = clippingAncestors.foldLeft(
       getClientRectFromClippingAncestor(element, firstClippingAncestor, strategy)
     ) { (accRect, clippingAncestor) =>
       val rect = getClientRectFromClippingAncestor(element, clippingAncestor, strategy)
 
+      // Mutate accRect in TypeScript, but we create a new object in Scala
+      // accRect.top = max(rect.top, accRect.top)
+      // accRect.right = min(rect.right, accRect.right)
+      // accRect.bottom = min(rect.bottom, accRect.bottom)
+      // accRect.left = max(rect.left, accRect.left)
       ClientRectObject(
         top = math.max(rect.top, accRect.top),
         right = math.min(rect.right, accRect.right),
@@ -720,6 +770,9 @@ object DOMUtils {
       )
     }
 
+    // Return final rect with calculated width and height
+    // Matches TypeScript: {width: clippingRect.right - clippingRect.left, height: clippingRect.bottom - clippingRect.top, x:
+    // clippingRect.left, y: clippingRect.top}
     Rect(
       x = clippingRect.left,
       y = clippingRect.top,

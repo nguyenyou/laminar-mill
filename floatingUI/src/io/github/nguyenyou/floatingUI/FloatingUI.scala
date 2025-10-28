@@ -45,6 +45,12 @@ object FloatingUI {
     strategy: Strategy = "absolute",
     middleware: Seq[Middleware] = Seq.empty
   ): ComputePositionReturn = {
+    // Cache strategy matches TypeScript implementation exactly:
+    // - Creates a new Map (not WeakMap) for each computePosition call
+    // - Cache lives only for a single call to handle middleware resets
+    // - Cache is cleared after computation completes
+    // See: @floating-ui/dom/src/index.ts lines 19-28
+    //
     // This caches the expensive `getClippingElementAncestors` function so that
     // multiple lifecycle resets re-use the same result. It only lives for a
     // single call. If other functions become expensive, we can add them as well.
