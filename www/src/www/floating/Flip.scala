@@ -17,17 +17,14 @@ def Flip() = {
   val floatingRef = Var[Option[dom.HTMLElement]](None)
   val scrollRef = Var[Option[dom.HTMLElement]](None)
 
-  val scrollX = Var[Option[Double]](None)
-  val scrollY = Var[Option[Double]](None)
-  val scrollPosition: Signal[(Option[Double], Option[Double])] = scrollX.signal.combineWith(scrollY.signal)
+  val scrollPosition = Var[(Option[Double], Option[Double])](None, None)
 
   // RTL configuration
   val rtl = false
 
   /** Update scroll position state */
   def updateScrollPosition(scroll: dom.HTMLElement): Unit = {
-    scrollX.set(Some(scroll.scrollLeft))
-    scrollY.set(Some(scroll.scrollTop))
+    scrollPosition.set((Some(scroll.scrollLeft), Some(scroll.scrollTop)))
   }
 
   /** Handler for scroll events */
@@ -81,7 +78,7 @@ def Flip() = {
         onMountCallback { ctx => scrollRef.set(Some(ctx.thisNode.ref)) },
         className := "scroll",
         dataAttr("x") := "",
-        position := "relative",
+        position.relative,
 
         // Cleanup scroll listeners on unmount
         onUnmountCallback { _ =>
@@ -105,25 +102,16 @@ def Flip() = {
         // Scroll indicator (from useScroll.tsx lines 97-109)
         div(
           className := "scroll-indicator",
-          position := "fixed",
-          backgroundColor := "#edeff726",
-          zIndex := "10",
-          width := "fit-content",
-          padding := "5px",
-          borderRadius := "5px",
-          child.text <-- scrollPosition.map { case (x, y) =>
+          position.fixed,
+          child.text <-- scrollPosition.signal.map { case (x, y) =>
             s"x: ${x.map(_.toInt).getOrElse("null")}, y: ${y.map(_.toInt).getOrElse("null")}"
           }
         ),
-
-        // Reference element
         div(
           onMountCallback { ctx => referenceRef.set(Some(ctx.thisNode.ref)) },
           className := "reference",
           "Reference"
         ),
-
-        // Floating element
         div(
           onMountCallback { ctx => floatingRef.set(Some(ctx.thisNode.ref)) },
           className := "floating",
