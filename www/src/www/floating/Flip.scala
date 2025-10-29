@@ -212,8 +212,75 @@ def Flip() = {
   //   )
   // )
 
+  // State for scroll position tracking (inline useScroll logic)
+  val scrollX = Var[Option[Double]](None)
+  val scrollY = Var[Option[Double]](None)
+  val scrollPosition: Signal[(Option[Double], Option[Double])] = scrollX.signal.combineWith(scrollY.signal)
+
+  // RTL configuration
+  val rtl = false
+
+  /** Get all overflow ancestors for an element */
+  def getOverflowAncestors(element: dom.Element): Seq[dom.Element] = {
+    val ancestors = scala.collection.mutable.ArrayBuffer[dom.Element]()
+    var current = element.parentNode
+
+    while (current != null && current != dom.document.documentElement) {
+      current match {
+        case elem: dom.Element =>
+          val style = dom.window.getComputedStyle(elem)
+          val overflow = style.overflow
+          val overflowX = style.overflowX
+          val overflowY = style.overflowY
+
+          if (
+            overflow == "auto" || overflow == "scroll" ||
+            overflowX == "auto" || overflowX == "scroll" ||
+            overflowY == "auto" || overflowY == "scroll"
+          ) {
+            ancestors += elem
+          }
+          current = elem.parentNode
+        case _ =>
+          current = null
+      }
+    }
+
+    ancestors.toSeq
+  }
+
+  /** Update scroll position state */
+  def updateScrollPosition(scroll: dom.HTMLElement): Unit = {
+    scrollX.set(Some(scroll.scrollLeft))
+    scrollY.set(Some(scroll.scrollTop))
+  }
+
+  /** Handler for scroll events */
+  val handleScroll: js.Function1[dom.Event, Unit] = { (_: dom.Event) =>
+    scrollRef.now().foreach { scroll =>
+      updateScrollPosition(scroll)
+    }
+    // Call update() if needed for floating UI positioning
+    // update()
+  }
+
   div(
     h1("Flip"),
+    referenceRef.signal
+      .combineWith(
+        floatingRef.signal,
+        scrollRef.signal
+      )
+      .map { case (referenceOpt, floatingOpt, scrollOpt) =>
+        (referenceOpt, floatingOpt, scrollOpt) match {
+          case (Some(reference), Some(floating), Some(scroll)) =>
+            println("Refs ready!")
+            println(s"Reference: $reference")
+            println(s"Floating: $floating")
+            println(s"Scroll: $scroll")
+          case _ => "Refs not ready yet"
+        }
+      } --> Observer.empty,
     p(),
     div(
       className := "container",
@@ -223,8 +290,69 @@ def Flip() = {
         dataAttr("x") := "",
         position := "relative",
 
-        // Render the scroll indicator
-        // scrollResult.indicator,
+        // Inline useScroll logic: setup scroll listeners and centering on mount
+        onMountCallback { ctx =>
+          given Owner = ctx.owner
+
+          // Wait for all refs to be available using Signal.combine
+          val refsReady = Signal.combine(scrollRef.signal, referenceRef.signal, floatingRef.signal)
+
+          refsReady.foreach { case (scrollOpt, referenceOpt, floatingOpt) =>
+            (scrollOpt, referenceOpt) match {
+              case (Some(scroll), Some(reference)) =>
+                // Get all overflow ancestors from reference and floating elements
+                val referenceAncestors = getOverflowAncestors(reference)
+                val floatingAncestors = floatingOpt.map(getOverflowAncestors).getOrElse(Seq.empty)
+                val allAncestors = (referenceAncestors ++ floatingAncestors).distinct
+
+                // Attach scroll listeners to all ancestors
+                allAncestors.foreach { ancestor =>
+                  ancestor.addEventListener("scroll", handleScroll)
+                }
+
+                // Center the scroll container (from useScroll.tsx lines 78-82)
+                val y = scroll.scrollHeight / 2.0 - scroll.offsetHeight / 2.0
+                val x = scroll.scrollWidth / 2.0 - scroll.offsetWidth / 2.0
+                scroll.scrollTop = y
+                scroll.scrollLeft = if (rtl) -x else x
+
+                // Update scroll position state
+                updateScrollPosition(scroll)
+
+              case _ => // Refs not ready yet
+            }
+          }
+        },
+
+        // Cleanup scroll listeners on unmount
+        onUnmountCallback { _ =>
+          scrollRef.now().foreach { scroll =>
+            referenceRef.now().foreach { reference =>
+              val referenceAncestors = getOverflowAncestors(reference)
+              val floatingAncestors = floatingRef.now().map(getOverflowAncestors).getOrElse(Seq.empty)
+              val allAncestors = (referenceAncestors ++ floatingAncestors).distinct
+
+              // Remove scroll listeners
+              allAncestors.foreach { ancestor =>
+                ancestor.removeEventListener("scroll", handleScroll)
+              }
+            }
+          }
+        },
+
+        // Scroll indicator (from useScroll.tsx lines 97-109)
+        div(
+          className := "scroll-indicator",
+          position := "fixed",
+          backgroundColor := "#edeff726",
+          zIndex := "10",
+          width := "fit-content",
+          padding := "5px",
+          borderRadius := "5px",
+          child.text <-- scrollPosition.map { case (x, y) =>
+            s"x: ${x.map(_.toInt).getOrElse("null")}, y: ${y.map(_.toInt).getOrElse("null")}"
+          }
+        ),
 
         // Reference element
         div(
