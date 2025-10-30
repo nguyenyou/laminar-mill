@@ -18,14 +18,12 @@ yarn install
 yarn dev
 ```
 
-## Metals
-
-```sh
-mill __.compiledClassesAndSemanticDbFiles
-```
-
 ## Run Examples
 
 ```sh
 scala-cli examples/UsingClauseExample.scala -M example5
 ```
+
+## No ARIA is better than Bad ARIA
+
+https://www.w3.org/WAI/ARIA/apg/practices/read-me-first/
