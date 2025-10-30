@@ -5,6 +5,47 @@ import scala.scalajs.js
 import Utils.*
 import Types.{ClientRectObject, ReferenceElement}
 
+/*
+
+Automatically updates the position of the floating element when necessary to ensure it stays anchored.
+
+To ensure the floating element remains anchored to its reference element, such as when scrolling and resizing the screen, its position needs to be continually updated when necessary.
+
+To solve this, autoUpdate() adds listeners that will automatically call an update function which invokes computePosition() when necessary. Updates typically take only ~1ms.
+
+It’s important that this function is only called/set-up when the floating element is open on the screen, and cleaned up when it’s removed. Otherwise, it can cause severe performance degradation, especially with many floating elements being created.
+
+Call autoUpdate() only when the floating element is open or mounted:
+
+// This function will get called repeatedly.
+function updatePosition() {
+  computePosition(referenceEl, floatingEl).then(({x, y}) => {
+    // ...
+  });
+}
+
+// Mount the floating element to the DOM, such as on hover or click
+document.body.append(floatingEl);
+
+// Start auto updates.
+const cleanup = autoUpdate(
+  referenceEl,
+  floatingEl,
+  updatePosition,
+);
+
+Then, when the user unhovers or clicks away,
+unmount the floating element and ensure you call the cleanup function
+to stop the auto updates:
+
+// Remove the floating element from the DOM, such as on blur
+// or outside click.
+floatingEl.remove();
+// Stop auto updates.
+cleanup();
+
+ */
+
 /** AutoUpdate functionality for floating elements.
   *
   * Automatically updates the position of floating elements when necessary, such as when scrolling, resizing, or layout shifts occur.

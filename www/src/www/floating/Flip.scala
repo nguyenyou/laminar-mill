@@ -1,6 +1,7 @@
 package www.floating
 
 import io.github.nguyenyou.laminar.api.L.*
+import io.github.nguyenyou.floatingUI.FloatingUI
 import io.github.nguyenyou.floatingUI.FloatingUI.{computePosition, getOverflowAncestors}
 import io.github.nguyenyou.floatingUI.Types.*
 import io.github.nguyenyou.floatingUI.middleware.FlipMiddleware
@@ -29,11 +30,29 @@ def Flip() = {
 
   /** Handler for scroll events */
   val handleScroll: js.Function1[dom.Event, Unit] = { (_: dom.Event) =>
+    println("handle scroll")
     scrollRef.now().foreach { scroll =>
       updateScrollPosition(scroll)
     }
     // Call update() if needed for floating UI positioning
     // update()
+  }
+
+  def updatePosition() = {
+    println("update position")
+    for {
+      reference <- referenceRef.now()
+      floating <- floatingRef.now()
+    } {
+      val pos = FloatingUI.computePosition(
+        reference = reference,
+        floating = floating,
+        placement = "bottom",
+        middleware = Seq(FlipMiddleware.flip())
+      )
+      println(pos)
+    }
+
   }
 
   div(
@@ -66,6 +85,13 @@ def Flip() = {
 
             // Update scroll position state
             updateScrollPosition(scroll)
+
+            // register auto update
+            val cleanup = FloatingUI.autoUpdate(
+              reference = reference,
+              floating = floating,
+              update = updatePosition
+            )
           }
 
           case _ => "Refs not ready yet"
