@@ -32,12 +32,9 @@ def Flip() = {
 
   /** Handler for scroll events */
   val handleScroll: js.Function1[dom.Event, Unit] = { (_: dom.Event) =>
-    println("handle scroll")
     scrollRef.now().foreach { scroll =>
       updateScrollPosition(scroll)
     }
-    // Call update() if needed for floating UI positioning
-    // update()
   }
 
   def updatePosition() = {
@@ -133,8 +130,6 @@ def Flip() = {
             }
           }
         },
-
-        // Scroll indicator (from useScroll.tsx lines 97-109)
         div(
           className := "scroll-indicator",
           position.fixed,
