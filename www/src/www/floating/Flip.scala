@@ -14,6 +14,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 def Flip() = {
+  val strategy: Strategy = "absolute"
   val referenceRef = Var[Option[dom.HTMLElement]](None)
   val floatingRef = Var[Option[dom.HTMLElement]](None)
   val scrollRef = Var[Option[dom.HTMLElement]](None)
@@ -46,11 +47,13 @@ def Flip() = {
     } {
       val pos = FloatingUI.computePosition(
         reference = reference,
-        floating = floating,
-        placement = "bottom",
-        middleware = Seq(FlipMiddleware.flip())
+        floating = floating
       )
-      println(pos)
+      println(s"X: ${pos.x}, Y: ${pos.y}")
+
+      // floating.style.top = s"${pos.y}px"
+      // floating.style.left = s"${pos.x}px"
+      // floating.style.position = pos.strategy
     }
 
   }
@@ -141,6 +144,9 @@ def Flip() = {
         div(
           onMountCallback { ctx => floatingRef.set(Some(ctx.thisNode.ref)) },
           className := "floating",
+          position.absolute,
+          top.px(910),
+          left.px(711),
           "Floating"
         )
       )

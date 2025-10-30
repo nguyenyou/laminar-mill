@@ -518,35 +518,82 @@ object DOMUtils {
     )
   }
 
-  /** Get rect relative to offset parent. */
+  /** Get rect relative to offset parent.
+    *
+    * This matches the TypeScript implementation from floating-ui/packages/dom/src/utils/getRectRelativeToOffsetParent.ts
+    */
   def getRectRelativeToOffsetParent(
     element: dom.Element,
     offsetParent: dom.EventTarget,
     strategy: Strategy
   ): Rect = {
+    val isOffsetParentAnElement = offsetParent.isInstanceOf[dom.HTMLElement]
+    val documentElement = if (offsetParent.isInstanceOf[dom.Node]) {
+      getDocumentElement(offsetParent.asInstanceOf[dom.Node])
+    } else {
+      dom.document.documentElement
+    }
     val isFixed = strategy == "fixed"
-    // Use full getBoundingClientRect with all parameters
-    val clientRect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = isFixed, offsetParent = Some(offsetParent))
-    val rect = Utils.rectToClientRect(Rect(clientRect.x, clientRect.y, clientRect.width, clientRect.height))
+    val rect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = isFixed, offsetParent = Some(offsetParent))
 
-    if (offsetParent == dom.window) {
-      return Rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
+    var scroll = (0.0, 0.0)
+    var offsets = Coords(0, 0)
+
+    // Helper function for RTL scrollbar offset
+    def setLeftRTLScrollbarOffset(): Unit = {
+      offsets = Coords(getWindowScrollBarX(documentElement, None), offsets.y)
     }
 
-    // Convert from viewport-relative to offset-parent-relative
-    if (!offsetParent.isInstanceOf[dom.Element]) {
-      return Rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
+    if (isOffsetParentAnElement || (!isOffsetParentAnElement && !isFixed)) {
+      val offsetParentNode = if (offsetParent.isInstanceOf[dom.Node]) {
+        offsetParent.asInstanceOf[dom.Node]
+      } else {
+        dom.window.asInstanceOf[dom.Node]
+      }
+
+      if (
+        getNodeName(offsetParentNode) != "body" ||
+        isOverflowElement(documentElement)
+      ) {
+        scroll = getNodeScroll(offsetParentNode)
+      }
+
+      if (isOffsetParentAnElement) {
+        val offsetParentElement = offsetParent.asInstanceOf[dom.HTMLElement]
+        val offsetRect = getBoundingClientRect(
+          offsetParentElement,
+          includeScale = true,
+          isFixedStrategy = isFixed,
+          offsetParent = Some(offsetParent)
+        )
+        offsets = Coords(
+          offsetRect.x + offsetParentElement.clientLeft,
+          offsetRect.y + offsetParentElement.clientTop
+        )
+      } else if (documentElement != null) {
+        setLeftRTLScrollbarOffset()
+      }
     }
 
-    val offsetParentElement = offsetParent.asInstanceOf[dom.Element]
-    val offsetParentClientRect = getBoundingClientRect(offsetParentElement, includeScale = true, isFixedStrategy = isFixed)
-    val scale = getScale(offsetParentElement)
+    if (isFixed && !isOffsetParentAnElement && documentElement != null) {
+      setLeftRTLScrollbarOffset()
+    }
+
+    val htmlOffset =
+      if (documentElement != null && !isOffsetParentAnElement && !isFixed) {
+        getHTMLOffset(documentElement.asInstanceOf[dom.HTMLElement], scroll)
+      } else {
+        Coords(0, 0)
+      }
+
+    val x = rect.left + scroll._1 - offsets.x - htmlOffset.x
+    val y = rect.top + scroll._2 - offsets.y - htmlOffset.y
 
     Rect(
-      x = (rect.left - offsetParentClientRect.x) / scale.x,
-      y = (rect.top - offsetParentClientRect.y) / scale.y,
-      width = (rect.right - rect.left) / scale.x,
-      height = (rect.bottom - rect.top) / scale.y
+      x = x,
+      y = y,
+      width = rect.width,
+      height = rect.height
     )
   }
 
