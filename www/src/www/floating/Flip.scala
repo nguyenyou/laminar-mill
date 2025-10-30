@@ -18,6 +18,7 @@ def Flip() = {
   val referenceRef = Var[Option[dom.HTMLElement]](None)
   val floatingRef = Var[Option[dom.HTMLElement]](None)
   val scrollRef = Var[Option[dom.HTMLElement]](None)
+  val cleanupRef = Var[Option[js.Function0[Unit]]](None)
 
   val scrollPosition = Var[(Option[Double], Option[Double])](None, None)
 
@@ -47,18 +48,22 @@ def Flip() = {
     } {
       val pos = FloatingUI.computePosition(
         reference = reference,
-        floating = floating
+        floating = floating,
+        middleware = Seq(FlipMiddleware.flip())
       )
       println(s"X: ${pos.x}, Y: ${pos.y}")
 
-      // floating.style.top = s"${pos.y}px"
-      // floating.style.left = s"${pos.x}px"
-      // floating.style.position = pos.strategy
+      floating.style.top = s"${pos.y}px"
+      floating.style.left = s"${pos.x}px"
+      floating.style.position = pos.strategy
     }
 
   }
 
   div(
+    onUnmountCallback { _ =>
+      cleanupRef.now().foreach(_())
+    },
     h1("Flip"),
     referenceRef.signal
       .combineWith(
@@ -95,6 +100,7 @@ def Flip() = {
               floating = floating,
               update = updatePosition
             )
+            cleanupRef.set(Some(cleanup))
           }
 
           case _ => "Refs not ready yet"
@@ -144,9 +150,6 @@ def Flip() = {
         div(
           onMountCallback { ctx => floatingRef.set(Some(ctx.thisNode.ref)) },
           className := "floating",
-          position.absolute,
-          top.px(910),
-          left.px(711),
           "Floating"
         )
       )
