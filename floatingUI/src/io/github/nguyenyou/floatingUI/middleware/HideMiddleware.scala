@@ -37,7 +37,7 @@ object HideMiddleware {
       val strategy = evaluatedOptions.strategy
 
       strategy match {
-        case "referenceHidden" =>
+        case HideStrategy.ReferenceHidden =>
           // Spread all DetectOverflowOptions and override elementContext
           val detectOverflowOptions = DetectOverflowOptions(
             boundary = evaluatedOptions.boundary,
@@ -60,7 +60,7 @@ object HideMiddleware {
             reset = None
           )
 
-        case "escaped" =>
+        case HideStrategy.Escaped =>
           // Spread all DetectOverflowOptions and override altBoundary
           val detectOverflowOptions = DetectOverflowOptions(
             boundary = evaluatedOptions.boundary,

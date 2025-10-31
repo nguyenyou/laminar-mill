@@ -485,4 +485,88 @@ class BoundarySpec extends AnyFlatSpec with Matchers {
     opts1.elementContext shouldBe ElementContext.Reference
     opts2.elementContext shouldBe ElementContext.Floating
   }
+
+  // ============================================================================
+  // HideStrategy Tests
+  // ============================================================================
+
+  "HideStrategy enum" should "have correct toValue for ReferenceHidden" in {
+    HideStrategy.ReferenceHidden.toValue shouldBe "referenceHidden"
+  }
+
+  it should "have correct toValue for Escaped" in {
+    HideStrategy.Escaped.toValue shouldBe "escaped"
+  }
+
+  "HideStrategy.fromString" should "parse 'referenceHidden' string" in {
+    val strategy = HideStrategy.fromString("referenceHidden")
+    strategy shouldBe HideStrategy.ReferenceHidden
+    strategy.toValue shouldBe "referenceHidden"
+  }
+
+  it should "parse 'escaped' string" in {
+    val strategy = HideStrategy.fromString("escaped")
+    strategy shouldBe HideStrategy.Escaped
+    strategy.toValue shouldBe "escaped"
+  }
+
+  it should "throw exception for invalid string" in {
+    assertThrows[IllegalArgumentException] {
+      HideStrategy.fromString("invalid")
+    }
+  }
+
+  it should "throw exception with helpful error message" in {
+    val exception = intercept[IllegalArgumentException] {
+      HideStrategy.fromString("hidden")
+    }
+    exception.getMessage should include("Invalid HideStrategy")
+    exception.getMessage should include("hidden")
+    exception.getMessage should include("referenceHidden")
+    exception.getMessage should include("escaped")
+  }
+
+  "HideOptions" should "accept HideStrategy enum values" in {
+    // Test ReferenceHidden variant
+    val opts1 = HideOptions(strategy = HideStrategy.ReferenceHidden)
+    opts1.strategy shouldBe HideStrategy.ReferenceHidden
+
+    // Test Escaped variant
+    val opts2 = HideOptions(strategy = HideStrategy.Escaped)
+    opts2.strategy shouldBe HideStrategy.Escaped
+
+    // Test default value
+    val opts3 = HideOptions()
+    opts3.strategy shouldBe HideStrategy.ReferenceHidden
+  }
+
+  it should "have correct default HideStrategy" in {
+    // Default should be ReferenceHidden (matching TypeScript default)
+    HideOptions().strategy shouldBe HideStrategy.ReferenceHidden
+  }
+
+  "HideStrategy type safety" should "prevent invalid values at compile time" in {
+    // This test verifies that the enum provides type safety
+    // The following would not compile:
+    // val opts = HideOptions(strategy = "invalid")
+    // val opts = HideOptions(strategy = "hidden")
+
+    // Only valid enum values are accepted
+    val opts1 = HideOptions(strategy = HideStrategy.ReferenceHidden)
+    val opts2 = HideOptions(strategy = HideStrategy.Escaped)
+
+    opts1.strategy shouldBe HideStrategy.ReferenceHidden
+    opts2.strategy shouldBe HideStrategy.Escaped
+  }
+
+  "HideStrategy enum" should "support pattern matching" in {
+    // Test that pattern matching works correctly
+    def getStrategyName(strategy: HideStrategy): String = strategy match {
+      case HideStrategy.ReferenceHidden => "referenceHidden"
+      case HideStrategy.Escaped         => "escaped"
+    }
+
+    getStrategyName(HideStrategy.ReferenceHidden) shouldBe "referenceHidden"
+    getStrategyName(HideStrategy.Escaped) shouldBe "escaped"
+  }
 }

@@ -385,6 +385,54 @@ object Types {
     }
   }
 
+  /** Hide strategy for determining when to hide the floating element.
+    *
+    * Specifies which hiding detection strategy to use when checking if the floating element should be hidden.
+    *
+    * Matches TypeScript: type HideStrategy = 'referenceHidden' | 'escaped'
+    *
+    * @see
+    *   https://floating-ui.com/docs/hide
+    */
+  enum HideStrategy(val toValue: String) {
+
+    /** Detect if the reference element is hidden or fully clipped.
+      *
+      * Checks if the reference element is not visible within its clipping boundary. This is useful for hiding the floating element when the
+      * reference element is scrolled out of view or otherwise hidden.
+      *
+      * When this strategy is used, the middleware checks overflow with `elementContext = 'reference'`.
+      */
+    case ReferenceHidden extends HideStrategy("referenceHidden")
+
+    /** Detect if the floating element has escaped its boundary.
+      *
+      * Checks if the floating element has overflowed outside its allowed boundary. This is useful for hiding the floating element when it
+      * would appear outside the viewport or other boundary constraints.
+      *
+      * When this strategy is used, the middleware checks overflow with `altBoundary = true`.
+      */
+    case Escaped extends HideStrategy("escaped")
+  }
+
+  object HideStrategy {
+
+    /** Parse HideStrategy from string value.
+      *
+      * @param value
+      *   String value ("referenceHidden" or "escaped")
+      * @return
+      *   Corresponding HideStrategy enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid HideStrategy
+      */
+    def fromString(value: String): HideStrategy = value match {
+      case "referenceHidden" => ReferenceHidden
+      case "escaped"         => Escaped
+      case _ => throw new IllegalArgumentException(s"Invalid HideStrategy: $value. Valid values are: 'referenceHidden', 'escaped'")
+    }
+  }
+
   // ============================================================================
   // Coordinate and Dimension Types
   // ============================================================================
@@ -791,7 +839,7 @@ object Types {
     */
   case class HideOptions(
     // Hide-specific option
-    strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
+    strategy: HideStrategy = HideStrategy.ReferenceHidden,
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
