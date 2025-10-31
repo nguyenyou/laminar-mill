@@ -3,6 +3,8 @@ package io.github.nguyenyou.floatingUI
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import io.github.nguyenyou.floatingUI.Utils.*
+import io.github.nguyenyou.floatingUI.Types.Placement
+import io.github.nguyenyou.floatingUI.Types.Placement.*
 
 /** Tests for getOppositeAxisPlacements function.
   *
@@ -16,54 +18,54 @@ import io.github.nguyenyou.floatingUI.Utils.*
   *   - Respects direction parameter (start/end) to determine order
   *   - Respects rtl parameter for right-to-left language support
   *
-  * The function is used for fallbackAxisSideDirection in flip middleware to determine
-  * alternative placements when the primary placement doesn't fit.
+  * The function is used for fallbackAxisSideDirection in flip middleware to determine alternative placements when the primary placement
+  * doesn't fit.
   */
 class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
 
   describe("side") {
 
     it("top") {
-      getOppositeAxisPlacements("top", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left",
-        "right"
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "start") shouldBe Seq(
+        Left,
+        Right
       )
-      getOppositeAxisPlacements("top", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right",
-        "left"
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "end") shouldBe Seq(
+        Right,
+        Left
       )
     }
 
     it("bottom") {
-      getOppositeAxisPlacements("bottom", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left",
-        "right"
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "start") shouldBe Seq(
+        Left,
+        Right
       )
-      getOppositeAxisPlacements("bottom", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right",
-        "left"
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "end") shouldBe Seq(
+        Right,
+        Left
       )
     }
 
     it("left") {
-      getOppositeAxisPlacements("left", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top",
-        "bottom"
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "start") shouldBe Seq(
+        Top,
+        Bottom
       )
-      getOppositeAxisPlacements("left", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom",
-        "top"
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "end") shouldBe Seq(
+        Bottom,
+        Top
       )
     }
 
     it("right") {
-      getOppositeAxisPlacements("right", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top",
-        "bottom"
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "start") shouldBe Seq(
+        Top,
+        Bottom
       )
-      getOppositeAxisPlacements("right", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom",
-        "top"
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "end") shouldBe Seq(
+        Bottom,
+        Top
       )
     }
   }
@@ -71,94 +73,94 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("start alignment") {
 
     it("top-start") {
-      getOppositeAxisPlacements("top-start", flipAlignment = false, direction = "start") shouldBe Seq(
-        "left-start",
-        "right-start"
+      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = "start") shouldBe Seq(
+        LeftStart,
+        RightStart
       )
-      getOppositeAxisPlacements("top-start", flipAlignment = false, direction = "end") shouldBe Seq(
-        "right-start",
-        "left-start"
+      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = "end") shouldBe Seq(
+        RightStart,
+        LeftStart
       )
-      getOppositeAxisPlacements("top-start", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left-start",
-        "right-start",
-        "left-end",
-        "right-end"
+      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = "start") shouldBe Seq(
+        LeftStart,
+        RightStart,
+        LeftEnd,
+        RightEnd
       )
-      getOppositeAxisPlacements("top-start", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right-start",
-        "left-start",
-        "right-end",
-        "left-end"
+      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = "end") shouldBe Seq(
+        RightStart,
+        LeftStart,
+        RightEnd,
+        LeftEnd
       )
     }
 
     it("bottom-start") {
-      getOppositeAxisPlacements("bottom-start", flipAlignment = false, direction = "start") shouldBe Seq(
-        "left-start",
-        "right-start"
+      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = "start") shouldBe Seq(
+        LeftStart,
+        RightStart
       )
-      getOppositeAxisPlacements("bottom-start", flipAlignment = false, direction = "end") shouldBe Seq(
-        "right-start",
-        "left-start"
+      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = "end") shouldBe Seq(
+        RightStart,
+        LeftStart
       )
-      getOppositeAxisPlacements("bottom-start", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left-start",
-        "right-start",
-        "left-end",
-        "right-end"
+      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = "start") shouldBe Seq(
+        LeftStart,
+        RightStart,
+        LeftEnd,
+        RightEnd
       )
-      getOppositeAxisPlacements("bottom-start", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right-start",
-        "left-start",
-        "right-end",
-        "left-end"
+      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = "end") shouldBe Seq(
+        RightStart,
+        LeftStart,
+        RightEnd,
+        LeftEnd
       )
     }
 
     it("left-start") {
-      getOppositeAxisPlacements("left-start", flipAlignment = false, direction = "start") shouldBe Seq(
-        "top-start",
-        "bottom-start"
+      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = "start") shouldBe Seq(
+        TopStart,
+        BottomStart
       )
-      getOppositeAxisPlacements("left-start", flipAlignment = false, direction = "end") shouldBe Seq(
-        "bottom-start",
-        "top-start"
+      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = "end") shouldBe Seq(
+        BottomStart,
+        TopStart
       )
-      getOppositeAxisPlacements("left-start", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top-start",
-        "bottom-start",
-        "top-end",
-        "bottom-end"
+      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = "start") shouldBe Seq(
+        TopStart,
+        BottomStart,
+        TopEnd,
+        BottomEnd
       )
-      getOppositeAxisPlacements("left-start", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom-start",
-        "top-start",
-        "bottom-end",
-        "top-end"
+      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = "end") shouldBe Seq(
+        BottomStart,
+        TopStart,
+        BottomEnd,
+        TopEnd
       )
     }
 
     it("right-start") {
-      getOppositeAxisPlacements("right-start", flipAlignment = false, direction = "start") shouldBe Seq(
-        "top-start",
-        "bottom-start"
+      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = "start") shouldBe Seq(
+        TopStart,
+        BottomStart
       )
-      getOppositeAxisPlacements("right-start", flipAlignment = false, direction = "end") shouldBe Seq(
-        "bottom-start",
-        "top-start"
+      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = "end") shouldBe Seq(
+        BottomStart,
+        TopStart
       )
-      getOppositeAxisPlacements("right-start", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top-start",
-        "bottom-start",
-        "top-end",
-        "bottom-end"
+      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = "start") shouldBe Seq(
+        TopStart,
+        BottomStart,
+        TopEnd,
+        BottomEnd
       )
-      getOppositeAxisPlacements("right-start", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom-start",
-        "top-start",
-        "bottom-end",
-        "top-end"
+      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = "end") shouldBe Seq(
+        BottomStart,
+        TopStart,
+        BottomEnd,
+        TopEnd
       )
     }
   }
@@ -166,96 +168,96 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("end alignment") {
 
     it("top-end") {
-      getOppositeAxisPlacements("top-end", flipAlignment = false, direction = "start") shouldBe Seq(
-        "left-end",
-        "right-end"
+      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+        LeftEnd,
+        RightEnd
       )
-      getOppositeAxisPlacements("top-end", flipAlignment = false, direction = "end") shouldBe Seq(
-        "right-end",
-        "left-end"
+      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+        RightEnd,
+        LeftEnd
       )
-      getOppositeAxisPlacements("top-end", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left-end",
-        "right-end",
-        "left-start",
-        "right-start"
+      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+        LeftEnd,
+        RightEnd,
+        LeftStart,
+        RightStart
       )
-      getOppositeAxisPlacements("top-end", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right-end",
-        "left-end",
-        "right-start",
-        "left-start"
+      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+        RightEnd,
+        LeftEnd,
+        RightStart,
+        LeftStart
       )
     }
 
     it("bottom-end") {
-      getOppositeAxisPlacements("bottom-end", flipAlignment = false, direction = "start") shouldBe Seq(
-        "left-end",
-        "right-end"
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+        LeftEnd,
+        RightEnd
       )
-      getOppositeAxisPlacements("bottom-end", flipAlignment = false, direction = "end") shouldBe Seq(
-        "right-end",
-        "left-end"
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+        RightEnd,
+        LeftEnd
       )
-      getOppositeAxisPlacements("bottom-end", flipAlignment = true, direction = "start") shouldBe Seq(
-        "left-end",
-        "right-end",
-        "left-start",
-        "right-start"
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+        LeftEnd,
+        RightEnd,
+        LeftStart,
+        RightStart
       )
-      getOppositeAxisPlacements("bottom-end", flipAlignment = true, direction = "end") shouldBe Seq(
-        "right-end",
-        "left-end",
-        "right-start",
-        "left-start"
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+        RightEnd,
+        LeftEnd,
+        RightStart,
+        LeftStart
       )
     }
 
     it("left-end") {
-      getOppositeAxisPlacements("left-end", flipAlignment = false, direction = "start") shouldBe Seq(
-        "top-end",
-        "bottom-end"
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+        TopEnd,
+        BottomEnd
       )
-      getOppositeAxisPlacements("left-end", flipAlignment = false, direction = "end") shouldBe Seq(
-        "bottom-end",
-        "top-end"
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+        BottomEnd,
+        TopEnd
       )
-      // Note: The TypeScript test has a bug here - it tests "left-start" instead of "left-end"
-      // We'll test "left-end" as the test name suggests
-      getOppositeAxisPlacements("left-end", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top-end",
-        "bottom-end",
-        "top-start",
-        "bottom-start"
+      // Note: The TypeScript test has a bug here - it tests LeftStart instead of LeftEnd
+      // We'll test LeftEnd as the test name suggests
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+        TopEnd,
+        BottomEnd,
+        TopStart,
+        BottomStart
       )
-      getOppositeAxisPlacements("left-end", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom-end",
-        "top-end",
-        "bottom-start",
-        "top-start"
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+        BottomEnd,
+        TopEnd,
+        BottomStart,
+        TopStart
       )
     }
 
     it("right-end") {
-      getOppositeAxisPlacements("right-end", flipAlignment = false, direction = "start") shouldBe Seq(
-        "top-end",
-        "bottom-end"
+      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+        TopEnd,
+        BottomEnd
       )
-      getOppositeAxisPlacements("right-end", flipAlignment = false, direction = "end") shouldBe Seq(
-        "bottom-end",
-        "top-end"
+      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+        BottomEnd,
+        TopEnd
       )
-      getOppositeAxisPlacements("right-end", flipAlignment = true, direction = "start") shouldBe Seq(
-        "top-end",
-        "bottom-end",
-        "top-start",
-        "bottom-start"
+      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+        TopEnd,
+        BottomEnd,
+        TopStart,
+        BottomStart
       )
-      getOppositeAxisPlacements("right-end", flipAlignment = true, direction = "end") shouldBe Seq(
-        "bottom-end",
-        "top-end",
-        "bottom-start",
-        "top-start"
+      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+        BottomEnd,
+        TopEnd,
+        BottomStart,
+        TopStart
       )
     }
   }
@@ -263,48 +265,47 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("rtl") {
 
     it("top") {
-      getOppositeAxisPlacements("top", flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
-        "right",
-        "left"
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+        Right,
+        Left
       )
-      getOppositeAxisPlacements("top", flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
-        "left",
-        "right"
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+        Left,
+        Right
       )
     }
 
     it("bottom") {
-      getOppositeAxisPlacements("bottom", flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
-        "right",
-        "left"
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+        Right,
+        Left
       )
-      getOppositeAxisPlacements("bottom", flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
-        "left",
-        "right"
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+        Left,
+        Right
       )
     }
 
     it("left") {
-      getOppositeAxisPlacements("left", flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
-        "top",
-        "bottom"
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+        Top,
+        Bottom
       )
-      getOppositeAxisPlacements("left", flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
-        "bottom",
-        "top"
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+        Bottom,
+        Top
       )
     }
 
     it("right") {
-      getOppositeAxisPlacements("right", flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
-        "top",
-        "bottom"
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+        Top,
+        Bottom
       )
-      getOppositeAxisPlacements("right", flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
-        "bottom",
-        "top"
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+        Bottom,
+        Top
       )
     }
   }
 }
-

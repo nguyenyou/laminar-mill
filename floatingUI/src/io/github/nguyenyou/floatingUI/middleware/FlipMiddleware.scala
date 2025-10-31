@@ -25,7 +25,7 @@ object FlipMiddleware {
 
       val side = getSide(state.placement)
       val initialSideAxis = getSideAxis(state.initialPlacement)
-      val isBasePlacement = getSide(state.initialPlacement) == state.initialPlacement
+      val isBasePlacement = getAlignment(state.initialPlacement).isEmpty
       val rtl = state.platform.isRTL(state.elements.floating)
 
       // Determine checkMainAxis and checkCrossAxis

@@ -46,7 +46,7 @@ object ShiftMiddleware {
 
       val overflow = detectOverflow(state, Left(detectOverflowOptions))
 
-      val crossAxis = getSideAxis(getSide(placement))
+      val crossAxis = getSideAxis(placement)
       val mainAxis = getOppositeAxis(crossAxis)
 
       val coords = Coords(x, y)

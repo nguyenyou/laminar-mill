@@ -20,7 +20,64 @@ object Types {
   type Side = "top" | "right" | "bottom" | "left"
 
   /** Placement of the floating element. Can be a side or a side with alignment. */
-  type Placement = String
+  enum Placement {
+    case Top, TopStart, TopEnd
+    case Right, RightStart, RightEnd
+    case Bottom, BottomStart, BottomEnd
+    case Left, LeftStart, LeftEnd
+
+    /** Convert placement to string representation. */
+    def toValue: String = this match {
+      case Top         => "top"
+      case TopStart    => "top-start"
+      case TopEnd      => "top-end"
+      case Right       => "right"
+      case RightStart  => "right-start"
+      case RightEnd    => "right-end"
+      case Bottom      => "bottom"
+      case BottomStart => "bottom-start"
+      case BottomEnd   => "bottom-end"
+      case Left        => "left"
+      case LeftStart   => "left-start"
+      case LeftEnd     => "left-end"
+    }
+  }
+
+  object Placement {
+
+    /** Parse a string into a Placement. */
+    def fromString(s: String): Option[Placement] = s match {
+      case "top"          => Some(Top)
+      case "top-start"    => Some(TopStart)
+      case "top-end"      => Some(TopEnd)
+      case "right"        => Some(Right)
+      case "right-start"  => Some(RightStart)
+      case "right-end"    => Some(RightEnd)
+      case "bottom"       => Some(Bottom)
+      case "bottom-start" => Some(BottomStart)
+      case "bottom-end"   => Some(BottomEnd)
+      case "left"         => Some(Left)
+      case "left-start"   => Some(LeftStart)
+      case "left-end"     => Some(LeftEnd)
+      case _              => None
+    }
+
+    /** All possible placements. */
+    val all: Seq[Placement] = Seq(
+      Top,
+      TopStart,
+      TopEnd,
+      Right,
+      RightStart,
+      RightEnd,
+      Bottom,
+      BottomStart,
+      BottomEnd,
+      Left,
+      LeftStart,
+      LeftEnd
+    )
+  }
 
   /** Positioning strategy: "absolute" or "fixed". */
   type Strategy = "absolute" | "fixed"
@@ -318,7 +375,7 @@ object Types {
 
   /** Configuration for computePosition. */
   case class ComputePositionConfig(
-    placement: Placement = "bottom",
+    placement: Placement = Placement.Bottom,
     strategy: Strategy = "absolute",
     middleware: Seq[Middleware] = Seq.empty,
     platform: Platform

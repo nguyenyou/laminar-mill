@@ -41,7 +41,7 @@ object FloatingUI {
   def computePosition(
     reference: ReferenceElement,
     floating: dom.HTMLElement,
-    placement: Placement = "bottom",
+    placement: Placement = Placement.Bottom,
     strategy: Strategy = "absolute",
     middleware: Seq[Middleware] = Seq.empty
   ): ComputePositionReturn = {

@@ -11,20 +11,7 @@ import io.github.nguyenyou.floatingUI.DetectOverflow
 object AutoPlacementMiddleware {
 
   // All possible placements
-  private val allPlacements: Seq[Placement] = Seq(
-    "top",
-    "top-start",
-    "top-end",
-    "right",
-    "right-start",
-    "right-end",
-    "bottom",
-    "bottom-start",
-    "bottom-end",
-    "left",
-    "left-start",
-    "left-end"
-  )
+  private val allPlacements: Seq[Placement] = Placement.all
 
   /** Get list of placements to try based on alignment and allowed placements. */
   def getPlacementList(
@@ -40,7 +27,7 @@ object AutoPlacementMiddleware {
         matching ++ nonMatching
       case None =>
         // Only include base placements (no alignment)
-        allowedPlacements.filter(p => getSide(p) == p)
+        allowedPlacements.filter(p => getAlignment(p).isEmpty)
     }
 
     allowedPlacementsSortedByAlignment.filter { placement =>

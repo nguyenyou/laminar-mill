@@ -46,13 +46,20 @@ object Utils {
   // ============================================================================
 
   def getSide(placement: Placement): Side = {
-    placement.split("-")(0).asInstanceOf[Side]
+    placement match {
+      case Placement.Top | Placement.TopStart | Placement.TopEnd          => "top"
+      case Placement.Right | Placement.RightStart | Placement.RightEnd    => "right"
+      case Placement.Bottom | Placement.BottomStart | Placement.BottomEnd => "bottom"
+      case Placement.Left | Placement.LeftStart | Placement.LeftEnd       => "left"
+    }
   }
 
   def getAlignment(placement: Placement): Option[Alignment] = {
-    val parts = placement.split("-")
-    if (parts.length > 1) Some(parts(1).asInstanceOf[Alignment])
-    else None
+    placement match {
+      case Placement.TopStart | Placement.RightStart | Placement.BottomStart | Placement.LeftStart => Some("start")
+      case Placement.TopEnd | Placement.RightEnd | Placement.BottomEnd | Placement.LeftEnd         => Some("end")
+      case _                                                                                       => None
+    }
   }
 
   def getOppositeAxis(axis: Axis): Axis = {
@@ -73,13 +80,34 @@ object Utils {
   }
 
   def getOppositePlacement(placement: Placement): Placement = {
-    val pattern = "(left|right|bottom|top)".r
-    pattern.replaceAllIn(placement, m => oppositeSideMap(m.matched))
+    placement match {
+      case Placement.Top         => Placement.Bottom
+      case Placement.TopStart    => Placement.BottomStart
+      case Placement.TopEnd      => Placement.BottomEnd
+      case Placement.Right       => Placement.Left
+      case Placement.RightStart  => Placement.LeftStart
+      case Placement.RightEnd    => Placement.LeftEnd
+      case Placement.Bottom      => Placement.Top
+      case Placement.BottomStart => Placement.TopStart
+      case Placement.BottomEnd   => Placement.TopEnd
+      case Placement.Left        => Placement.Right
+      case Placement.LeftStart   => Placement.RightStart
+      case Placement.LeftEnd     => Placement.RightEnd
+    }
   }
 
   def getOppositeAlignmentPlacement(placement: Placement): Placement = {
-    val pattern = "(start|end)".r
-    pattern.replaceAllIn(placement, m => oppositeAlignmentMap(m.matched))
+    placement match {
+      case Placement.TopStart    => Placement.TopEnd
+      case Placement.TopEnd      => Placement.TopStart
+      case Placement.RightStart  => Placement.RightEnd
+      case Placement.RightEnd    => Placement.RightStart
+      case Placement.BottomStart => Placement.BottomEnd
+      case Placement.BottomEnd   => Placement.BottomStart
+      case Placement.LeftStart   => Placement.LeftEnd
+      case Placement.LeftEnd     => Placement.LeftStart
+      case p                     => p // No alignment to flip for base placements
+    }
   }
 
   def getExpandedPlacements(placement: Placement): Seq[Placement] = {
@@ -111,10 +139,10 @@ object Utils {
       }
 
     if (refLength > floatLength) {
-      mainAlignmentSide = getOppositePlacement(mainAlignmentSide).asInstanceOf[Side]
+      mainAlignmentSide = oppositeSideMap(mainAlignmentSide).asInstanceOf[Side]
     }
 
-    (mainAlignmentSide, getOppositePlacement(mainAlignmentSide).asInstanceOf[Side])
+    (mainAlignmentSide, oppositeSideMap(mainAlignmentSide).asInstanceOf[Side])
   }
 
   /** Get placements on the opposite axis.
@@ -130,37 +158,55 @@ object Utils {
     val alignment = getAlignment(placement)
     val side = getSide(placement)
 
-    // Get the list of sides on the perpendicular axis
-    val sideList = getSideList(side, direction == "start", rtl)
+    // Get the list of base placements on the perpendicular axis
+    val basePlacements = getSideList(side, direction == "start", rtl)
 
-    // If there's an alignment, add it to each side
+    // If there's an alignment, add it to each base placement
     val list = alignment match {
       case Some(align) =>
-        val withAlignment = sideList.map(s => s"$s-$align")
+        val withAlignment = basePlacements.map { basePlacement =>
+          // Construct aligned placement from base placement and alignment
+          makeAlignedPlacement(basePlacement, align)
+        }
         if (flipAlignment) {
-          // Also include opposite alignment variants
+          // Add all placements with original alignment, then all with opposite alignment
           withAlignment ++ withAlignment.map(getOppositeAlignmentPlacement)
         } else {
           withAlignment
         }
       case None =>
-        sideList
+        basePlacements
     }
 
     list
   }
 
-  /** Helper to get the list of sides for opposite axis placements. */
+  /** Helper to construct an aligned placement from a base placement and alignment. */
+  private def makeAlignedPlacement(basePlacement: Placement, alignment: Alignment): Placement = {
+    (basePlacement, alignment) match {
+      case (Placement.Top, "start")    => Placement.TopStart
+      case (Placement.Top, "end")      => Placement.TopEnd
+      case (Placement.Right, "start")  => Placement.RightStart
+      case (Placement.Right, "end")    => Placement.RightEnd
+      case (Placement.Bottom, "start") => Placement.BottomStart
+      case (Placement.Bottom, "end")   => Placement.BottomEnd
+      case (Placement.Left, "start")   => Placement.LeftStart
+      case (Placement.Left, "end")     => Placement.LeftEnd
+      case _                           => basePlacement // Shouldn't happen, but return base placement as fallback
+    }
+  }
+
+  /** Helper to get the list of base placements for opposite axis. */
   private def getSideList(side: Side, isStart: Boolean, rtl: Boolean): Seq[Placement] = {
     side match {
       case "top" | "bottom" =>
         if (rtl) {
-          if (isStart) Seq("right", "left") else Seq("left", "right")
+          if (isStart) Seq(Placement.Right, Placement.Left) else Seq(Placement.Left, Placement.Right)
         } else {
-          if (isStart) Seq("left", "right") else Seq("right", "left")
+          if (isStart) Seq(Placement.Left, Placement.Right) else Seq(Placement.Right, Placement.Left)
         }
       case "left" | "right" =>
-        if (isStart) Seq("top", "bottom") else Seq("bottom", "top")
+        if (isStart) Seq(Placement.Top, Placement.Bottom) else Seq(Placement.Bottom, Placement.Top)
       case _ =>
         Seq.empty
     }
