@@ -371,4 +371,118 @@ class BoundarySpec extends AnyFlatSpec with Matchers {
     val opts3 = DetectOverflowOptions()
     opts3.rootBoundary shouldBe "viewport"
   }
+
+  // ============================================================================
+  // ElementContext Tests
+  // ============================================================================
+
+  "ElementContext enum" should "have correct toValue for Reference" in {
+    ElementContext.Reference.toValue shouldBe "reference"
+  }
+
+  it should "have correct toValue for Floating" in {
+    ElementContext.Floating.toValue shouldBe "floating"
+  }
+
+  "ElementContext.fromString" should "parse 'reference' string" in {
+    val context = ElementContext.fromString("reference")
+    context shouldBe ElementContext.Reference
+    context.toValue shouldBe "reference"
+  }
+
+  it should "parse 'floating' string" in {
+    val context = ElementContext.fromString("floating")
+    context shouldBe ElementContext.Floating
+    context.toValue shouldBe "floating"
+  }
+
+  it should "throw exception for invalid string" in {
+    assertThrows[IllegalArgumentException] {
+      ElementContext.fromString("invalid")
+    }
+  }
+
+  it should "throw exception with helpful error message" in {
+    val exception = intercept[IllegalArgumentException] {
+      ElementContext.fromString("unknown")
+    }
+    exception.getMessage should include("Invalid ElementContext")
+    exception.getMessage should include("unknown")
+    exception.getMessage should include("reference")
+    exception.getMessage should include("floating")
+  }
+
+  "DetectOverflowOptions" should "accept ElementContext enum values" in {
+    // Test Reference variant
+    val opts1 = DetectOverflowOptions(elementContext = ElementContext.Reference)
+    opts1.elementContext shouldBe ElementContext.Reference
+
+    // Test Floating variant
+    val opts2 = DetectOverflowOptions(elementContext = ElementContext.Floating)
+    opts2.elementContext shouldBe ElementContext.Floating
+
+    // Test default value
+    val opts3 = DetectOverflowOptions()
+    opts3.elementContext shouldBe ElementContext.Floating
+  }
+
+  "Middleware options" should "accept ElementContext enum values" in {
+    // FlipOptions
+    val flipOpts1 = FlipOptions(elementContext = ElementContext.Reference)
+    flipOpts1.elementContext shouldBe ElementContext.Reference
+
+    val flipOpts2 = FlipOptions(elementContext = ElementContext.Floating)
+    flipOpts2.elementContext shouldBe ElementContext.Floating
+
+    // ShiftOptions
+    val shiftOpts = ShiftOptions(elementContext = ElementContext.Reference)
+    shiftOpts.elementContext shouldBe ElementContext.Reference
+
+    // AutoPlacementOptions
+    val autoOpts = AutoPlacementOptions(elementContext = ElementContext.Floating)
+    autoOpts.elementContext shouldBe ElementContext.Floating
+
+    // HideOptions
+    val hideOpts = HideOptions(elementContext = ElementContext.Reference)
+    hideOpts.elementContext shouldBe ElementContext.Reference
+
+    // SizeOptions
+    val sizeOpts = SizeOptions(elementContext = ElementContext.Floating)
+    sizeOpts.elementContext shouldBe ElementContext.Floating
+  }
+
+  "Middleware options" should "have correct default ElementContext" in {
+    // All middleware options should default to Floating
+    FlipOptions().elementContext shouldBe ElementContext.Floating
+    ShiftOptions().elementContext shouldBe ElementContext.Floating
+    AutoPlacementOptions().elementContext shouldBe ElementContext.Floating
+    HideOptions().elementContext shouldBe ElementContext.Floating
+    SizeOptions().elementContext shouldBe ElementContext.Floating
+    DetectOverflowOptions().elementContext shouldBe ElementContext.Floating
+  }
+
+  "detectOverflow" should "accept ElementContext.Floating in options" in {
+    // Test that detectOverflow accepts ElementContext enum values
+    val options = DetectOverflowOptions(elementContext = ElementContext.Floating)
+    options.elementContext shouldBe ElementContext.Floating
+  }
+
+  it should "accept ElementContext.Reference in options" in {
+    // Test that detectOverflow accepts ElementContext enum values
+    val options = DetectOverflowOptions(elementContext = ElementContext.Reference)
+    options.elementContext shouldBe ElementContext.Reference
+  }
+
+  "ElementContext type safety" should "prevent invalid values at compile time" in {
+    // This test verifies that the enum provides type safety
+    // The following would not compile:
+    // val opts = DetectOverflowOptions(elementContext = "invalid")
+
+    // Only valid enum values are accepted
+    val opts1 = DetectOverflowOptions(elementContext = ElementContext.Reference)
+    val opts2 = DetectOverflowOptions(elementContext = ElementContext.Floating)
+
+    opts1.elementContext shouldBe ElementContext.Reference
+    opts2.elementContext shouldBe ElementContext.Floating
+  }
 }

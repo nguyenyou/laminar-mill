@@ -51,14 +51,14 @@ object DetectOverflow {
     val padding = evaluatedOptions.padding
 
     val paddingObject = getPaddingObject(padding)
-    val altContext = if (elementContext == "floating") "reference" else "floating"
+    val altContext = if (elementContext == ElementContext.Floating) ElementContext.Reference else ElementContext.Floating
 
     // Determine which element to use based on altBoundary and elementContext
     // Matches TypeScript: elements[altBoundary ? altContext : elementContext]
     val element = if (altBoundary) {
-      if (altContext == "reference") elements.reference else elements.floating
+      if (altContext == ElementContext.Reference) elements.reference else elements.floating
     } else {
-      if (elementContext == "floating") elements.floating else elements.reference
+      if (elementContext == ElementContext.Floating) elements.floating else elements.reference
     }
 
     // Determine the actual element to use for clipping rect calculation
@@ -92,7 +92,7 @@ object DetectOverflow {
     // Determine the rect to use based on elementContext
     // Matches TypeScript: elementContext === 'floating' ? {x, y, width: rects.floating.width, height: rects.floating.height} :
     // rects.reference
-    val rect = if (elementContext == "floating") {
+    val rect = if (elementContext == ElementContext.Floating) {
       Rect(
         x = x,
         y = y,

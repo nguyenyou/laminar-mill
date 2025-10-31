@@ -343,6 +343,48 @@ object Types {
     }
   }
 
+  /** Element context for overflow detection.
+    *
+    * Specifies which element (floating or reference) to check for overflow relative to a boundary.
+    *
+    * Matches TypeScript: type ElementContext = 'reference' | 'floating'
+    *
+    * @see
+    *   https://floating-ui.com/docs/detectOverflow#elementcontext
+    */
+  enum ElementContext(val toValue: String) {
+
+    /** Check overflow of the reference element.
+      *
+      * Used when you want to detect if the reference element itself is overflowing its boundary.
+      */
+    case Reference extends ElementContext("reference")
+
+    /** Check overflow of the floating element (default).
+      *
+      * Used when you want to detect if the floating element is overflowing its boundary. This is the most common use case.
+      */
+    case Floating extends ElementContext("floating")
+  }
+
+  object ElementContext {
+
+    /** Parse ElementContext from string value.
+      *
+      * @param value
+      *   String value ("reference" or "floating")
+      * @return
+      *   Corresponding ElementContext enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid ElementContext
+      */
+    def fromString(value: String): ElementContext = value match {
+      case "reference" => Reference
+      case "floating"  => Floating
+      case _           => throw new IllegalArgumentException(s"Invalid ElementContext: $value. Valid values are: 'reference', 'floating'")
+    }
+  }
+
   // ============================================================================
   // Coordinate and Dimension Types
   // ============================================================================
@@ -681,7 +723,7 @@ object Types {
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
   )
@@ -710,7 +752,7 @@ object Types {
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
   )
@@ -738,7 +780,7 @@ object Types {
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
   )
@@ -753,7 +795,7 @@ object Types {
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     altBoundary: Boolean = false,
     padding: Padding = 0
   )
@@ -766,7 +808,7 @@ object Types {
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
     rootBoundary: RootBoundary = "viewport",
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0),
     // Size-specific option
@@ -820,11 +862,11 @@ object Types {
       *   "viewport"
       */
     rootBoundary: RootBoundary = "viewport",
-    /** The element context - "floating" or "reference".
+    /** The element context - which element to check for overflow.
       * @default
-      *   "floating"
+      *   ElementContext.Floating
       */
-    elementContext: String = "floating",
+    elementContext: ElementContext = ElementContext.Floating,
     /** Whether to use alternate boundary.
       * @default
       *   false

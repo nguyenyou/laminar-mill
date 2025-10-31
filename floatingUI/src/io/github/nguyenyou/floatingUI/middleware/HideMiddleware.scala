@@ -42,7 +42,7 @@ object HideMiddleware {
           val detectOverflowOptions = DetectOverflowOptions(
             boundary = evaluatedOptions.boundary,
             rootBoundary = evaluatedOptions.rootBoundary,
-            elementContext = "reference", // Override to "reference"
+            elementContext = ElementContext.Reference, // Override to Reference
             altBoundary = evaluatedOptions.altBoundary,
             padding = evaluatedOptions.padding
           )
