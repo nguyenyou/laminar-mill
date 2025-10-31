@@ -357,7 +357,7 @@ object DOMUtils {
       height = visualViewport.height.asInstanceOf[Double]
 
       // For fixed positioning, include visual viewport offsets
-      if (strategy == "fixed") {
+      if (strategy == Strategy.Fixed) {
         x = visualViewport.offsetLeft.asInstanceOf[Double]
         y = visualViewport.offsetTop.asInstanceOf[Double]
       }
@@ -462,7 +462,7 @@ object DOMUtils {
     offsetParent: dom.EventTarget,
     strategy: Strategy
   ): Rect = {
-    val isFixed = strategy == "fixed"
+    val isFixed = strategy == Strategy.Fixed
 
     // If offsetParent is window or document element, no conversion needed
     if (!offsetParent.isInstanceOf[dom.Element]) {
@@ -533,7 +533,7 @@ object DOMUtils {
     } else {
       dom.document.documentElement
     }
-    val isFixed = strategy == "fixed"
+    val isFixed = strategy == Strategy.Fixed
     val rect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = isFixed, offsetParent = Some(offsetParent))
 
     var scroll = (0.0, 0.0)
@@ -604,7 +604,7 @@ object DOMUtils {
   /** Get inner bounding client rect (subtracting scrollbars). */
   private def getInnerBoundingClientRect(element: dom.Element, strategy: Strategy): Rect = {
     // Use full getBoundingClientRect with scale support
-    val clientRect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = strategy == "fixed")
+    val clientRect = getBoundingClientRect(element, includeScale = true, isFixedStrategy = strategy == Strategy.Fixed)
     val top = clientRect.top + element.asInstanceOf[dom.HTMLElement].clientTop
     val left = clientRect.left + element.asInstanceOf[dom.HTMLElement].clientLeft
     val scale = if (element.isInstanceOf[dom.HTMLElement]) getScale(element) else Coords(1, 1)

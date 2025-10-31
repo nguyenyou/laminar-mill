@@ -32,7 +32,7 @@ object FloatingUI {
     * @param placement
     *   The desired placement (default: "bottom")
     * @param strategy
-    *   The positioning strategy (default: "absolute")
+    *   The positioning strategy (default: Strategy.Absolute)
     * @param middleware
     *   Array of middleware to apply
     * @return
@@ -42,7 +42,7 @@ object FloatingUI {
     reference: ReferenceElement,
     floating: dom.HTMLElement,
     placement: Placement = Placement.Bottom,
-    strategy: Strategy = "absolute",
+    strategy: Strategy = Strategy.Absolute,
     middleware: Seq[Middleware] = Seq.empty
   ): ComputePositionReturn = {
     // Cache strategy matches TypeScript implementation exactly:

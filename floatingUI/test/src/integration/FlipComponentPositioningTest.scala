@@ -6,6 +6,8 @@ import org.scalajs.dom
 import io.github.nguyenyou.floatingUI.FloatingUI.computePosition
 import io.github.nguyenyou.floatingUI.middleware.FlipMiddleware
 import io.github.nguyenyou.floatingUI.Types.Placement.*
+import io.github.nguyenyou.floatingUI.Types.Strategy
+import io.github.nguyenyou.floatingUI.Types.Strategy.*
 
 /** Integration test that mimics the Flip component structure.
   *
@@ -129,7 +131,7 @@ class FlipComponentPositioningTest extends AnyFunSpec with Matchers {
 
         // Verify placement and strategy
         result.placement shouldBe Bottom
-        result.strategy shouldBe "absolute"
+        result.strategy shouldBe Strategy.Absolute
 
         // Log the results for debugging (similar to Flip.scala line 54)
         println(s"✓ Calculated coordinates: X: ${result.x}, Y: ${result.y}")

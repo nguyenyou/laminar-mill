@@ -80,7 +80,25 @@ object Types {
   }
 
   /** Positioning strategy: "absolute" or "fixed". */
-  type Strategy = "absolute" | "fixed"
+  enum Strategy {
+    case Absolute, Fixed
+
+    /** Convert strategy to string representation. */
+    def toValue: String = this match {
+      case Absolute => "absolute"
+      case Fixed    => "fixed"
+    }
+  }
+
+  object Strategy {
+
+    /** Parse a string into a Strategy. */
+    def fromString(s: String): Option[Strategy] = s match {
+      case "absolute" => Some(Absolute)
+      case "fixed"    => Some(Fixed)
+      case _          => None
+    }
+  }
 
   /** Axis for positioning: "x" or "y". */
   type Axis = "x" | "y"
@@ -376,7 +394,7 @@ object Types {
   /** Configuration for computePosition. */
   case class ComputePositionConfig(
     placement: Placement = Placement.Bottom,
-    strategy: Strategy = "absolute",
+    strategy: Strategy = Strategy.Absolute,
     middleware: Seq[Middleware] = Seq.empty,
     platform: Platform
   )
