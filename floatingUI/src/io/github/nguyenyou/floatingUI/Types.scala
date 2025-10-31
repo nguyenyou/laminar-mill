@@ -281,6 +281,68 @@ object Types {
     }
   }
 
+  /** Root boundary type for clipping detection.
+    *
+    * Matches TypeScript: `type RootBoundary = 'viewport' | 'document' | Rect`
+    *
+    * The root boundary defines the outermost clipping area for overflow detection. Valid values:
+    *   - `"viewport"` - Use the browser viewport as the root boundary (default)
+    *   - `"document"` - Use the entire document as the root boundary
+    *   - `Rect` - Use a custom rectangle as the root boundary
+    *
+    * Examples:
+    * {{{
+    * // String literals (backward compatible)
+    * val opts1 = FlipOptions(rootBoundary = "viewport")
+    * val opts2 = ShiftOptions(rootBoundary = "document")
+    *
+    * // Custom Rect (new functionality)
+    * val customRoot = Rect(x = 0, y = 0, width = 1920, height = 1080)
+    * val opts3 = AutoPlacementOptions(rootBoundary = customRoot)
+    * }}}
+    *
+    * @see
+    *   https://floating-ui.com/docs/detectOverflow#rootboundary
+    */
+  type RootBoundary = String | Rect
+
+  /** Internal representation of RootBoundary for type-safe pattern matching.
+    *
+    * This sealed trait is used internally to convert the union type `RootBoundary` into a form that supports exhaustive pattern matching.
+    * Users should not interact with this type directly - use the `RootBoundary` type alias instead.
+    */
+  private[floatingUI] sealed trait RootBoundaryInternal
+
+  private[floatingUI] object RootBoundaryInternal {
+
+    /** Viewport root boundary - uses the browser viewport. */
+    case object Viewport extends RootBoundaryInternal
+
+    /** Document root boundary - uses the entire document. */
+    case object Document extends RootBoundaryInternal
+
+    /** Custom rectangle root boundary. */
+    case class CustomRect(rect: Rect) extends RootBoundaryInternal
+
+    /** Convert a RootBoundary union type to RootBoundaryInternal for pattern matching.
+      *
+      * Handles runtime type checking since Scala 3 union types don't support exhaustive matching.
+      *
+      * @param rootBoundary
+      *   The root boundary value (String or Rect)
+      * @return
+      *   The internal representation for pattern matching
+      */
+    def fromRootBoundary(rootBoundary: RootBoundary): RootBoundaryInternal = {
+      (rootBoundary: Any) match {
+        case s: String if s == "viewport" => Viewport
+        case s: String if s == "document" => Document
+        case rect: Rect                   => CustomRect(rect)
+        case _                            => Viewport // Fallback to default
+      }
+    }
+  }
+
   // ============================================================================
   // Coordinate and Dimension Types
   // ============================================================================
@@ -503,7 +565,7 @@ object Types {
     // Required methods
     def getElementRects(reference: ReferenceElement, floating: dom.HTMLElement, strategy: Strategy): ElementRects
     def getDimensions(element: dom.Element): Dimensions
-    def getClippingRect(element: Any, boundary: Boundary, rootBoundary: String, strategy: Strategy): Rect
+    def getClippingRect(element: Any, boundary: Boundary, rootBoundary: RootBoundary, strategy: Strategy): Rect
 
     // Cache for expensive operations (e.g., getClippingElementAncestors)
     // This is injected by computePosition and used by platform methods
@@ -618,7 +680,7 @@ object Types {
     limiter: Option[Limiter] = None,
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
@@ -647,7 +709,7 @@ object Types {
     flipAlignment: Boolean = true,
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
@@ -675,7 +737,7 @@ object Types {
     autoAlignment: Boolean = true,
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0)
@@ -690,7 +752,7 @@ object Types {
     strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
     padding: Padding = 0
@@ -703,7 +765,7 @@ object Types {
   case class SizeOptions(
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
     padding: Derivable[Padding] = Left(0),
@@ -748,10 +810,16 @@ object Types {
       */
     boundary: Boundary = "clippingAncestors",
     /** The root clipping boundary - "viewport", "document", or custom Rect.
+      *
+      * Valid values:
+      *   - `"viewport"` - Use the browser viewport as the root boundary (default)
+      *   - `"document"` - Use the entire document as the root boundary
+      *   - `Rect` - Use a custom rectangle as the root boundary
+      *
       * @default
       *   "viewport"
       */
-    rootBoundary: String = "viewport",
+    rootBoundary: RootBoundary = "viewport",
     /** The element context - "floating" or "reference".
       * @default
       *   "floating"

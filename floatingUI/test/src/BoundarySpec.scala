@@ -216,4 +216,159 @@ class BoundarySpec extends AnyFlatSpec with Matchers {
     val opts3 = DetectOverflowOptions()
     opts3.boundary shouldBe "clippingAncestors"
   }
+
+  // ============================================================================
+  // RootBoundary Tests
+  // ============================================================================
+
+  "RootBoundaryInternal.fromRootBoundary" should "handle viewport string" in {
+    val rootBoundary: RootBoundary = "viewport"
+    val internal = RootBoundaryInternal.fromRootBoundary(rootBoundary)
+    internal shouldBe RootBoundaryInternal.Viewport
+  }
+
+  it should "handle document string" in {
+    val rootBoundary: RootBoundary = "document"
+    val internal = RootBoundaryInternal.fromRootBoundary(rootBoundary)
+    internal shouldBe RootBoundaryInternal.Document
+  }
+
+  it should "handle custom Rect" in {
+    val rect = Rect(x = 0, y = 0, width = 1920, height = 1080)
+    val rootBoundary: RootBoundary = rect
+    val internal = RootBoundaryInternal.fromRootBoundary(rootBoundary)
+
+    internal match {
+      case RootBoundaryInternal.CustomRect(r) => r shouldBe rect
+      case _                                  => fail("Expected CustomRect variant")
+    }
+  }
+
+  it should "fallback to Viewport for unknown strings" in {
+    val rootBoundary: RootBoundary = "unknown"
+    val internal = RootBoundaryInternal.fromRootBoundary(rootBoundary)
+    internal shouldBe RootBoundaryInternal.Viewport
+  }
+
+  "getClippingRect" should "work with viewport rootBoundary" in {
+    val element = dom.document.createElement("div").asInstanceOf[dom.Element]
+    dom.document.body.appendChild(element)
+
+    try {
+      val rect = DOMUtils.getClippingRect(
+        element,
+        boundary = "clippingAncestors",
+        rootBoundary = "viewport",
+        strategy = Strategy.Absolute
+      )
+
+      // Should return a valid rect with positive dimensions
+      rect.width should be > 0.0
+      rect.height should be > 0.0
+    } finally {
+      dom.document.body.removeChild(element)
+    }
+  }
+
+  it should "work with document rootBoundary" in {
+    val element = dom.document.createElement("div").asInstanceOf[dom.Element]
+    dom.document.body.appendChild(element)
+
+    try {
+      val rect = DOMUtils.getClippingRect(
+        element,
+        boundary = "clippingAncestors",
+        rootBoundary = "document",
+        strategy = Strategy.Absolute
+      )
+
+      // Should return a valid rect
+      rect.width should be >= 0.0
+      rect.height should be >= 0.0
+    } finally {
+      dom.document.body.removeChild(element)
+    }
+  }
+
+  it should "work with custom Rect rootBoundary" in {
+    val element = dom.document.createElement("div").asInstanceOf[dom.Element]
+    dom.document.body.appendChild(element)
+
+    try {
+      val customRoot = Rect(x = 0, y = 0, width = 1920, height = 1080)
+      val rect = DOMUtils.getClippingRect(
+        element,
+        boundary = "clippingAncestors",
+        rootBoundary = customRoot,
+        strategy = Strategy.Absolute
+      )
+
+      // Should return a valid rect
+      rect.width should be >= 0.0
+      rect.height should be >= 0.0
+    } finally {
+      dom.document.body.removeChild(element)
+    }
+  }
+
+  "DetectOverflowOptions" should "accept RootBoundary type" in {
+    // Test that all variants of RootBoundary work with DetectOverflowOptions
+
+    // String "viewport" variant
+    val opts1 = DetectOverflowOptions(rootBoundary = "viewport")
+    opts1.rootBoundary shouldBe "viewport"
+
+    // String "document" variant
+    val opts2 = DetectOverflowOptions(rootBoundary = "document")
+    opts2.rootBoundary shouldBe "document"
+
+    // Rect variant
+    val rect = Rect(0, 0, 1920, 1080)
+    val opts3 = DetectOverflowOptions(rootBoundary = rect)
+    opts3.rootBoundary shouldBe rect
+  }
+
+  "Middleware options" should "accept RootBoundary type" in {
+    val rect = Rect(0, 0, 1920, 1080)
+
+    // FlipOptions
+    val flipOpts1 = FlipOptions(rootBoundary = "viewport")
+    flipOpts1.rootBoundary shouldBe "viewport"
+
+    val flipOpts2 = FlipOptions(rootBoundary = "document")
+    flipOpts2.rootBoundary shouldBe "document"
+
+    val flipOpts3 = FlipOptions(rootBoundary = rect)
+    flipOpts3.rootBoundary shouldBe rect
+
+    // ShiftOptions
+    val shiftOpts = ShiftOptions(rootBoundary = rect)
+    shiftOpts.rootBoundary shouldBe rect
+
+    // AutoPlacementOptions
+    val autoOpts = AutoPlacementOptions(rootBoundary = rect)
+    autoOpts.rootBoundary shouldBe rect
+
+    // HideOptions
+    val hideOpts = HideOptions(rootBoundary = rect)
+    hideOpts.rootBoundary shouldBe rect
+
+    // SizeOptions
+    val sizeOpts = SizeOptions(rootBoundary = rect)
+    sizeOpts.rootBoundary shouldBe rect
+  }
+
+  "RootBoundary backward compatibility" should "work with existing string-based code" in {
+    // All existing code using strings should continue to work
+
+    val opts1 = FlipOptions(rootBoundary = "viewport")
+    opts1.rootBoundary shouldBe "viewport"
+
+    val opts2 = ShiftOptions(rootBoundary = "document")
+    opts2.rootBoundary shouldBe "document"
+
+    // Default values should still work
+    val opts3 = DetectOverflowOptions()
+    opts3.rootBoundary shouldBe "viewport"
+  }
 }

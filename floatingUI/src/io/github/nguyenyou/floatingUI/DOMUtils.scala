@@ -749,7 +749,7 @@ object DOMUtils {
     * @param boundary
     *   The clipping boundary - can be "clippingAncestors", Element, Array[Element], or Rect
     * @param rootBoundary
-    *   The root clipping boundary - "viewport" or "document"
+    *   The root clipping boundary - "viewport", "document", or custom Rect
     * @param strategy
     *   The positioning strategy
     * @param cache
@@ -760,12 +760,10 @@ object DOMUtils {
   def getClippingRect(
     element: dom.Element,
     boundary: Boundary,
-    rootBoundary: String,
+    rootBoundary: RootBoundary,
     strategy: Strategy,
     cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
   ): Rect = {
-    import BoundaryInternal.*
-
     // Convert boundary to internal representation for type-safe pattern matching
     val boundaryInternal = BoundaryInternal.fromBoundary(boundary)
 
@@ -774,7 +772,7 @@ object DOMUtils {
     // [].concat(boundary)
     val elementClippingAncestors: Seq[Either[dom.Element, Either[String, Rect]]] =
       boundaryInternal match {
-        case ClippingAncestors =>
+        case BoundaryInternal.ClippingAncestors =>
           if (isTopLayer(element)) {
             Seq.empty
           } else {
@@ -782,22 +780,31 @@ object DOMUtils {
             getClippingElementAncestors(element, cache).map(e => Left(e))
           }
 
-        case Element(el) =>
+        case BoundaryInternal.Element(el) =>
           // Single element boundary
           Seq(Left(el))
 
-        case Elements(arr) =>
+        case BoundaryInternal.Elements(arr) =>
           // Array of elements - convert js.Array to Seq
           arr.toSeq.map(e => Left(e))
 
-        case CustomRect(rect) =>
+        case BoundaryInternal.CustomRect(rect) =>
           // Custom rect boundary
           Seq(Right(Right(rect)))
       }
 
+    // Convert rootBoundary to internal representation
+    val rootBoundaryInternal = RootBoundaryInternal.fromRootBoundary(rootBoundary)
+
     // Add root boundary to the list
     // Matches TypeScript: [...elementClippingAncestors, rootBoundary]
-    val clippingAncestors = elementClippingAncestors :+ Right(Left(rootBoundary))
+    val rootBoundaryElement: Either[dom.Element, Either[String, Rect]] = rootBoundaryInternal match {
+      case RootBoundaryInternal.Viewport         => Right(Left("viewport"))
+      case RootBoundaryInternal.Document         => Right(Left("document"))
+      case RootBoundaryInternal.CustomRect(rect) => Right(Right(rect))
+    }
+
+    val clippingAncestors = elementClippingAncestors :+ rootBoundaryElement
     val firstClippingAncestor = clippingAncestors.head
 
     // Reduce over all clipping ancestors to find the intersection of all clipping rects

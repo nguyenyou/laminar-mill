@@ -49,7 +49,7 @@ object DOMPlatform extends Platform {
   override def getClippingRect(
     element: Any,
     boundary: Boundary,
-    rootBoundary: String,
+    rootBoundary: RootBoundary,
     strategy: Strategy
   ): Rect = {
     // For clipping rect, we need a DOM element
