@@ -31,28 +31,25 @@ object ComputeCoordsFromPlacement {
     val commonAlign = refAlignLength / 2 - floatAlignLength / 2
 
     var coords: Coords = side match {
-      case "top" =>
+      case Side.Top =>
         Coords(x = commonX, y = reference.y - floating.height)
-      case "bottom" =>
+      case Side.Bottom =>
         Coords(x = commonX, y = reference.y + reference.height)
-      case "right" =>
+      case Side.Right =>
         Coords(x = reference.x + reference.width, y = commonY)
-      case "left" =>
+      case Side.Left =>
         Coords(x = reference.x - floating.width, y = commonY)
-      case _ =>
-        // Default case for any other placement (shouldn't happen in practice)
-        Coords(x = reference.x, y = reference.y)
     }
 
     getAlignment(placement) match {
-      case Some("start") =>
+      case Some(Alignment.Start) =>
         val adjustment = commonAlign * (if (rtl && isVertical) -1 else 1)
         coords = if (alignmentAxis == "x") {
           coords.copy(x = coords.x - adjustment)
         } else {
           coords.copy(y = coords.y - adjustment)
         }
-      case Some("end") =>
+      case Some(Alignment.End) =>
         val adjustment = commonAlign * (if (rtl && isVertical) -1 else 1)
         coords = if (alignmentAxis == "x") {
           coords.copy(x = coords.x + adjustment)

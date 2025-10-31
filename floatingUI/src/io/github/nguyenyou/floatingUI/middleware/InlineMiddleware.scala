@@ -116,7 +116,7 @@ object InlineMiddleware {
           if (getSideAxis(placement) == "y") {
             val firstRect = clientRects.head
             val lastRect = clientRects.last
-            val isTop = getSide(placement) == "top"
+            val isTop = getSide(placement) == Side.Top
 
             val top = firstRect.top
             val bottom = lastRect.bottom
@@ -136,7 +136,7 @@ object InlineMiddleware {
               y = top
             )
           } else {
-            val isLeftSide = getSide(placement) == "left"
+            val isLeftSide = getSide(placement) == Side.Left
             val maxRight = clientRects.map(_.right).max
             val minLeft = clientRects.map(_.left).min
             val measureRects = clientRects.filter { rect =>

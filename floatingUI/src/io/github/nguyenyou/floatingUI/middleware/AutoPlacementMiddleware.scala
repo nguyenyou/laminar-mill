@@ -103,22 +103,22 @@ object AutoPlacementMiddleware {
           // Get overflow values for current placement
           val side = getSide(current)
           val sideValue = side match {
-            case "top"    => overflow.top
-            case "right"  => overflow.right
-            case "bottom" => overflow.bottom
-            case "left"   => overflow.left
+            case Side.Top    => overflow.top
+            case Side.Right  => overflow.right
+            case Side.Bottom => overflow.bottom
+            case Side.Left   => overflow.left
           }
           val side1Value = alignmentSides._1 match {
-            case "top"    => overflow.top
-            case "right"  => overflow.right
-            case "bottom" => overflow.bottom
-            case "left"   => overflow.left
+            case Side.Top    => overflow.top
+            case Side.Right  => overflow.right
+            case Side.Bottom => overflow.bottom
+            case Side.Left   => overflow.left
           }
           val side2Value = alignmentSides._2 match {
-            case "top"    => overflow.top
-            case "right"  => overflow.right
-            case "bottom" => overflow.bottom
-            case "left"   => overflow.left
+            case Side.Top    => overflow.top
+            case Side.Right  => overflow.right
+            case Side.Bottom => overflow.bottom
+            case Side.Left   => overflow.left
           }
 
           val currentOverflows = Seq(sideValue, side1Value, side2Value)

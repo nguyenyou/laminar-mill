@@ -14,10 +14,53 @@ object Types {
   // ============================================================================
 
   /** Alignment of the floating element relative to the reference element. */
-  type Alignment = "start" | "end"
+  enum Alignment {
+    case Start, End
+
+    /** Convert alignment to string representation. */
+    def toValue: String = this match {
+      case Start => "start"
+      case End   => "end"
+    }
+  }
+
+  object Alignment {
+
+    /** Parse a string into an Alignment. */
+    def fromString(s: String): Option[Alignment] = s match {
+      case "start" => Some(Start)
+      case "end"   => Some(End)
+      case _       => None
+    }
+  }
 
   /** Side of the reference element where the floating element is placed. */
-  type Side = "top" | "right" | "bottom" | "left"
+  enum Side {
+    case Top, Right, Bottom, Left
+
+    /** Convert side to string representation. */
+    def toValue: String = this match {
+      case Top    => "top"
+      case Right  => "right"
+      case Bottom => "bottom"
+      case Left   => "left"
+    }
+  }
+
+  object Side {
+
+    /** Parse a string into a Side. */
+    def fromString(s: String): Option[Side] = s match {
+      case "top"    => Some(Top)
+      case "right"  => Some(Right)
+      case "bottom" => Some(Bottom)
+      case "left"   => Some(Left)
+      case _        => None
+    }
+
+    /** All sides in order. */
+    val all: Seq[Side] = Seq(Top, Right, Bottom, Left)
+  }
 
   /** Placement of the floating element. Can be a side or a side with alignment. */
   enum Placement {

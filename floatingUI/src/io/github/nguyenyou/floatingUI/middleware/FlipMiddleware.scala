@@ -77,10 +77,10 @@ object FlipMiddleware {
 
       if (checkMainAxis) {
         val sideValue = side match {
-          case "top"    => overflow.top
-          case "bottom" => overflow.bottom
-          case "left"   => overflow.left
-          case "right"  => overflow.right
+          case Side.Top    => overflow.top
+          case Side.Bottom => overflow.bottom
+          case Side.Left   => overflow.left
+          case Side.Right  => overflow.right
         }
         overflows += sideValue
       }
@@ -94,16 +94,16 @@ object FlipMiddleware {
       if (shouldCheckCrossAxis) {
         val sides = getAlignmentSides(state.placement, state.rects, rtl)
         val side1Value = sides._1 match {
-          case "top"    => overflow.top
-          case "bottom" => overflow.bottom
-          case "left"   => overflow.left
-          case "right"  => overflow.right
+          case Side.Top    => overflow.top
+          case Side.Bottom => overflow.bottom
+          case Side.Left   => overflow.left
+          case Side.Right  => overflow.right
         }
         val side2Value = sides._2 match {
-          case "top"    => overflow.top
-          case "bottom" => overflow.bottom
-          case "left"   => overflow.left
-          case "right"  => overflow.right
+          case Side.Top    => overflow.top
+          case Side.Bottom => overflow.bottom
+          case Side.Left   => overflow.left
+          case Side.Right  => overflow.right
         }
         overflows += side1Value
         overflows += side2Value

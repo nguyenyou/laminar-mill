@@ -31,8 +31,8 @@ object ArrowMiddleware {
       val length = getAxisLength(axis)
       val arrowDimensions = state.platform.getDimensions(element)
       val isYAxis = axis == "y"
-      val minProp = if (isYAxis) "top" else "left"
-      val maxProp = if (isYAxis) "bottom" else "right"
+      val minProp = if (isYAxis) Side.Top else Side.Left
+      val maxProp = if (isYAxis) Side.Bottom else Side.Right
       val clientProp = if (isYAxis) "clientHeight" else "clientWidth"
 
       val refLength = if (length == "width") state.rects.reference.width else state.rects.reference.height
@@ -79,11 +79,11 @@ object ArrowMiddleware {
       // centered, modify the padding so that it is centered.
       val largestPossiblePadding = clientSize / 2 - arrowLength / 2 - 1
       val minPadding = mathMin(
-        if (minProp == "top") paddingObject.top else paddingObject.left,
+        if (minProp == Side.Top) paddingObject.top else paddingObject.left,
         largestPossiblePadding
       )
       val maxPadding = mathMin(
-        if (maxProp == "bottom") paddingObject.bottom else paddingObject.right,
+        if (maxProp == Side.Bottom) paddingObject.bottom else paddingObject.right,
         largestPossiblePadding
       )
 

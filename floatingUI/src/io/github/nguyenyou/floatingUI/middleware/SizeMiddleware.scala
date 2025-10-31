@@ -42,19 +42,19 @@ object SizeMiddleware {
       val height = rects.floating.height
 
       // Determine which sides to check based on placement
-      val (heightSide, widthSide) = if (side == "top" || side == "bottom") {
+      val (heightSide, widthSide) = if (side == Side.Top || side == Side.Bottom) {
         // For top/bottom placements:
         // heightSide is the placement side itself
         // widthSide depends on alignment and RTL
         val isRTL = platform.isRTL(elements.floating)
-        val rtlAwareAlignment = if (isRTL) "start" else "end"
-        val ws = if (alignment.contains(rtlAwareAlignment)) "left" else "right"
+        val rtlAwareAlignment = if (isRTL) Alignment.Start else Alignment.End
+        val ws = if (alignment.contains(rtlAwareAlignment)) Side.Left else Side.Right
         (side, ws)
       } else {
         // For left/right placements:
         // widthSide is the placement side itself
         // heightSide depends on alignment
-        val hs = if (alignment.contains("end")) "top" else "bottom"
+        val hs = if (alignment.contains(Alignment.End)) Side.Top else Side.Bottom
         (hs, side)
       }
 
@@ -63,15 +63,15 @@ object SizeMiddleware {
 
       // Get overflow for specific sides
       val heightSideOverflow = heightSide match {
-        case "top"    => overflow.top
-        case "bottom" => overflow.bottom
-        case _        => 0.0
+        case Side.Top    => overflow.top
+        case Side.Bottom => overflow.bottom
+        case _           => 0.0
       }
 
       val widthSideOverflow = widthSide match {
-        case "left"  => overflow.left
-        case "right" => overflow.right
-        case _       => 0.0
+        case Side.Left  => overflow.left
+        case Side.Right => overflow.right
+        case _          => 0.0
       }
 
       val overflowAvailableHeight = math.min(

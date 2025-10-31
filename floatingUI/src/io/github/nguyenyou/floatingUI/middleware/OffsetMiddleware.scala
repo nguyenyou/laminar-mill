@@ -68,7 +68,7 @@ object OffsetMiddleware {
     var crossAxis = crossAxisValue
 
     if (alignment.isDefined && alignmentAxisValue.isDefined) {
-      crossAxis = if (alignment.get == "end") alignmentAxisValue.get * -1 else alignmentAxisValue.get
+      crossAxis = if (alignment.get == Alignment.End) alignmentAxisValue.get * -1 else alignmentAxisValue.get
     }
 
     if (isVertical) {

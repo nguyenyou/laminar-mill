@@ -15,20 +15,20 @@ object Utils {
   // Constants
   // ============================================================================
 
-  val sides: Seq[Side] = Seq("top", "right", "bottom", "left")
-  val alignments: Seq[Alignment] = Seq("start", "end")
-  val originSides: Set[String] = Set("left", "top")
+  val sides: Seq[Side] = Seq(Side.Top, Side.Right, Side.Bottom, Side.Left)
+  val alignments: Seq[Alignment] = Seq(Alignment.Start, Alignment.End)
+  val originSides: Set[Side] = Set(Side.Left, Side.Top)
 
-  private val oppositeSideMap: Map[String, String] = Map(
-    "left" -> "right",
-    "right" -> "left",
-    "bottom" -> "top",
-    "top" -> "bottom"
+  private val oppositeSideMap: Map[Side, Side] = Map(
+    Side.Left -> Side.Right,
+    Side.Right -> Side.Left,
+    Side.Bottom -> Side.Top,
+    Side.Top -> Side.Bottom
   )
 
-  private val oppositeAlignmentMap: Map[String, String] = Map(
-    "start" -> "end",
-    "end" -> "start"
+  private val oppositeAlignmentMap: Map[Alignment, Alignment] = Map(
+    Alignment.Start -> Alignment.End,
+    Alignment.End -> Alignment.Start
   )
 
   // ============================================================================
@@ -47,17 +47,17 @@ object Utils {
 
   def getSide(placement: Placement): Side = {
     placement match {
-      case Placement.Top | Placement.TopStart | Placement.TopEnd          => "top"
-      case Placement.Right | Placement.RightStart | Placement.RightEnd    => "right"
-      case Placement.Bottom | Placement.BottomStart | Placement.BottomEnd => "bottom"
-      case Placement.Left | Placement.LeftStart | Placement.LeftEnd       => "left"
+      case Placement.Top | Placement.TopStart | Placement.TopEnd          => Side.Top
+      case Placement.Right | Placement.RightStart | Placement.RightEnd    => Side.Right
+      case Placement.Bottom | Placement.BottomStart | Placement.BottomEnd => Side.Bottom
+      case Placement.Left | Placement.LeftStart | Placement.LeftEnd       => Side.Left
     }
   }
 
   def getAlignment(placement: Placement): Option[Alignment] = {
     placement match {
-      case Placement.TopStart | Placement.RightStart | Placement.BottomStart | Placement.LeftStart => Some("start")
-      case Placement.TopEnd | Placement.RightEnd | Placement.BottomEnd | Placement.LeftEnd         => Some("end")
+      case Placement.TopStart | Placement.RightStart | Placement.BottomStart | Placement.LeftStart => Some(Alignment.Start)
+      case Placement.TopEnd | Placement.RightEnd | Placement.BottomEnd | Placement.LeftEnd         => Some(Alignment.End)
       case _                                                                                       => None
     }
   }
@@ -72,7 +72,7 @@ object Utils {
 
   def getSideAxis(placement: Placement): Axis = {
     val side = getSide(placement)
-    if (side == "top" || side == "bottom") "y" else "x"
+    if (side == Side.Top || side == Side.Bottom) "y" else "x"
   }
 
   def getAlignmentAxis(placement: Placement): Axis = {
@@ -133,16 +133,16 @@ object Utils {
 
     var mainAlignmentSide: Side =
       if (alignmentAxis == "x") {
-        if (alignment.contains(if (rtl) "end" else "start")) "right" else "left"
+        if (alignment.contains(if (rtl) Alignment.End else Alignment.Start)) Side.Right else Side.Left
       } else {
-        if (alignment.contains("start")) "bottom" else "top"
+        if (alignment.contains(Alignment.Start)) Side.Bottom else Side.Top
       }
 
     if (refLength > floatLength) {
-      mainAlignmentSide = oppositeSideMap(mainAlignmentSide).asInstanceOf[Side]
+      mainAlignmentSide = oppositeSideMap(mainAlignmentSide)
     }
 
-    (mainAlignmentSide, oppositeSideMap(mainAlignmentSide).asInstanceOf[Side])
+    (mainAlignmentSide, oppositeSideMap(mainAlignmentSide))
   }
 
   /** Get placements on the opposite axis.
@@ -184,31 +184,29 @@ object Utils {
   /** Helper to construct an aligned placement from a base placement and alignment. */
   private def makeAlignedPlacement(basePlacement: Placement, alignment: Alignment): Placement = {
     (basePlacement, alignment) match {
-      case (Placement.Top, "start")    => Placement.TopStart
-      case (Placement.Top, "end")      => Placement.TopEnd
-      case (Placement.Right, "start")  => Placement.RightStart
-      case (Placement.Right, "end")    => Placement.RightEnd
-      case (Placement.Bottom, "start") => Placement.BottomStart
-      case (Placement.Bottom, "end")   => Placement.BottomEnd
-      case (Placement.Left, "start")   => Placement.LeftStart
-      case (Placement.Left, "end")     => Placement.LeftEnd
-      case _                           => basePlacement // Shouldn't happen, but return base placement as fallback
+      case (Placement.Top, Alignment.Start)    => Placement.TopStart
+      case (Placement.Top, Alignment.End)      => Placement.TopEnd
+      case (Placement.Right, Alignment.Start)  => Placement.RightStart
+      case (Placement.Right, Alignment.End)    => Placement.RightEnd
+      case (Placement.Bottom, Alignment.Start) => Placement.BottomStart
+      case (Placement.Bottom, Alignment.End)   => Placement.BottomEnd
+      case (Placement.Left, Alignment.Start)   => Placement.LeftStart
+      case (Placement.Left, Alignment.End)     => Placement.LeftEnd
+      case _                                   => basePlacement // Shouldn't happen, but return base placement as fallback
     }
   }
 
   /** Helper to get the list of base placements for opposite axis. */
   private def getSideList(side: Side, isStart: Boolean, rtl: Boolean): Seq[Placement] = {
     side match {
-      case "top" | "bottom" =>
+      case Side.Top | Side.Bottom =>
         if (rtl) {
           if (isStart) Seq(Placement.Right, Placement.Left) else Seq(Placement.Left, Placement.Right)
         } else {
           if (isStart) Seq(Placement.Left, Placement.Right) else Seq(Placement.Right, Placement.Left)
         }
-      case "left" | "right" =>
+      case Side.Left | Side.Right =>
         if (isStart) Seq(Placement.Top, Placement.Bottom) else Seq(Placement.Bottom, Placement.Top)
-      case _ =>
-        Seq.empty
     }
   }
 

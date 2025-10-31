@@ -54,11 +54,11 @@ object ShiftMiddleware {
       var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
 
       if (checkMainAxis) {
-        val minSide = if (mainAxis == "y") "top" else "left"
-        val maxSide = if (mainAxis == "y") "bottom" else "right"
+        val minSide = if (mainAxis == "y") Side.Top else Side.Left
+        val maxSide = if (mainAxis == "y") Side.Bottom else Side.Right
 
-        val minValue = if (minSide == "top") overflow.top else overflow.left
-        val maxValue = if (maxSide == "bottom") overflow.bottom else overflow.right
+        val minValue = if (minSide == Side.Top) overflow.top else overflow.left
+        val maxValue = if (maxSide == Side.Bottom) overflow.bottom else overflow.right
 
         val min = mainAxisCoord + minValue
         val max = mainAxisCoord - maxValue
@@ -67,11 +67,11 @@ object ShiftMiddleware {
       }
 
       if (checkCrossAxis) {
-        val minSide = if (crossAxis == "y") "top" else "left"
-        val maxSide = if (crossAxis == "y") "bottom" else "right"
+        val minSide = if (crossAxis == "y") Side.Top else Side.Left
+        val maxSide = if (crossAxis == "y") Side.Bottom else Side.Right
 
-        val minValue = if (minSide == "top") overflow.top else overflow.left
-        val maxValue = if (maxSide == "bottom") overflow.bottom else overflow.right
+        val minValue = if (minSide == Side.Top) overflow.top else overflow.left
+        val maxValue = if (maxSide == Side.Bottom) overflow.bottom else overflow.right
 
         val min = crossAxisCoord + minValue
         val max = crossAxisCoord - maxValue
