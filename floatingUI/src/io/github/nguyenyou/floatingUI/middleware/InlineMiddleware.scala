@@ -113,7 +113,7 @@ object InlineMiddleware {
         }
         // Two or more connected rects
         else if (clientRects.length >= 2) {
-          if (getSideAxis(placement) == "y") {
+          if (getSideAxis(placement) == Axis.Y) {
             val firstRect = clientRects.head
             val lastRect = clientRects.last
             val isTop = getSide(placement) == Side.Top

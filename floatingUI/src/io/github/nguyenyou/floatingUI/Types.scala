@@ -144,10 +144,46 @@ object Types {
   }
 
   /** Axis for positioning: "x" or "y". */
-  type Axis = "x" | "y"
+  enum Axis {
+    case X, Y
+
+    /** Convert axis to string representation. */
+    def toValue: String = this match {
+      case X => "x"
+      case Y => "y"
+    }
+  }
+
+  object Axis {
+
+    /** Parse a string into an Axis. */
+    def fromString(s: String): Option[Axis] = s match {
+      case "x" => Some(X)
+      case "y" => Some(Y)
+      case _   => None
+    }
+  }
 
   /** Length dimension: "width" or "height". */
-  type Length = "width" | "height"
+  enum Length {
+    case Width, Height
+
+    /** Convert length to string representation. */
+    def toValue: String = this match {
+      case Width  => "width"
+      case Height => "height"
+    }
+  }
+
+  object Length {
+
+    /** Parse a string into a Length. */
+    def fromString(s: String): Option[Length] = s match {
+      case "width"  => Some(Width)
+      case "height" => Some(Height)
+      case _        => None
+    }
+  }
 
   // ============================================================================
   // Coordinate and Dimension Types

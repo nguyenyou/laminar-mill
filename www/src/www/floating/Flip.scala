@@ -14,7 +14,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 def Flip() = {
-  val strategy: Strategy = "absolute"
+  val strategy: Strategy = Strategy.Absolute
   val referenceRef = Var[Option[dom.HTMLElement]](None)
   val floatingRef = Var[Option[dom.HTMLElement]](None)
   val scrollRef = Var[Option[dom.HTMLElement]](None)
@@ -52,7 +52,7 @@ def Flip() = {
 
       floating.style.top = s"${pos.y}px"
       floating.style.left = s"${pos.x}px"
-      floating.style.position = pos.strategy
+      floating.style.position = pos.strategy.toValue
     }
 
   }

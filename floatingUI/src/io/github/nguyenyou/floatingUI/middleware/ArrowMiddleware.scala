@@ -30,16 +30,31 @@ object ArrowMiddleware {
       val axis = getAlignmentAxis(state.placement)
       val length = getAxisLength(axis)
       val arrowDimensions = state.platform.getDimensions(element)
-      val isYAxis = axis == "y"
+      val isYAxis = axis == Axis.Y
       val minProp = if (isYAxis) Side.Top else Side.Left
       val maxProp = if (isYAxis) Side.Bottom else Side.Right
       val clientProp = if (isYAxis) "clientHeight" else "clientWidth"
 
-      val refLength = if (length == "width") state.rects.reference.width else state.rects.reference.height
-      val refAxis = if (axis == "x") state.rects.reference.x else state.rects.reference.y
-      val coordsAxis = if (axis == "x") coords.x else coords.y
-      val floatLength = if (length == "width") state.rects.floating.width else state.rects.floating.height
-      val arrowLength = if (length == "width") arrowDimensions.width else arrowDimensions.height
+      val refLength = length match {
+        case Length.Width  => state.rects.reference.width
+        case Length.Height => state.rects.reference.height
+      }
+      val refAxis = axis match {
+        case Axis.X => state.rects.reference.x
+        case Axis.Y => state.rects.reference.y
+      }
+      val coordsAxis = axis match {
+        case Axis.X => coords.x
+        case Axis.Y => coords.y
+      }
+      val floatLength = length match {
+        case Length.Width  => state.rects.floating.width
+        case Length.Height => state.rects.floating.height
+      }
+      val arrowLength = length match {
+        case Length.Width  => arrowDimensions.width
+        case Length.Height => arrowDimensions.height
+      }
 
       val endDiff = refLength + refAxis - coordsAxis - floatLength
       val startDiff = coordsAxis - refAxis
@@ -109,14 +124,13 @@ object ArrowMiddleware {
         0
       }
 
-      val newCoords = if (axis == "x") {
-        Coords(x = coords.x + alignmentOffset, y = coords.y)
-      } else {
-        Coords(x = coords.x, y = coords.y + alignmentOffset)
+      val newCoords = axis match {
+        case Axis.X => Coords(x = coords.x + alignmentOffset, y = coords.y)
+        case Axis.Y => Coords(x = coords.x, y = coords.y + alignmentOffset)
       }
 
       val arrowData = Map(
-        axis -> offset,
+        axis.toValue -> offset,
         "centerOffset" -> (center - offset - alignmentOffset)
       ) ++ (if (shouldAddOffset) Map("alignmentOffset" -> alignmentOffset) else Map.empty)
 

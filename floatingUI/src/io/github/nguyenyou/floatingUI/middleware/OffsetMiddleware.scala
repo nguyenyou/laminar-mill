@@ -45,7 +45,7 @@ object OffsetMiddleware {
   ): Coords = {
     val side = getSide(state.placement)
     val alignment = getAlignment(state.placement)
-    val isVertical = getSideAxis(state.placement) == "y"
+    val isVertical = getSideAxis(state.placement) == Axis.Y
     val rtl = state.platform.isRTL(state.elements.floating)
     val mainAxisMulti = if (originSides.contains(side)) -1 else 1
     val crossAxisMulti = if (rtl && isVertical) -1 else 1

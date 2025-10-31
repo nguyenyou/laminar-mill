@@ -50,12 +50,24 @@ object ShiftMiddleware {
       val mainAxis = getOppositeAxis(crossAxis)
 
       val coords = Coords(x, y)
-      var mainAxisCoord = if (mainAxis == "x") coords.x else coords.y
-      var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
+      var mainAxisCoord = mainAxis match {
+        case Axis.X => coords.x
+        case Axis.Y => coords.y
+      }
+      var crossAxisCoord = crossAxis match {
+        case Axis.X => coords.x
+        case Axis.Y => coords.y
+      }
 
       if (checkMainAxis) {
-        val minSide = if (mainAxis == "y") Side.Top else Side.Left
-        val maxSide = if (mainAxis == "y") Side.Bottom else Side.Right
+        val minSide = mainAxis match {
+          case Axis.Y => Side.Top
+          case Axis.X => Side.Left
+        }
+        val maxSide = mainAxis match {
+          case Axis.Y => Side.Bottom
+          case Axis.X => Side.Right
+        }
 
         val minValue = if (minSide == Side.Top) overflow.top else overflow.left
         val maxValue = if (maxSide == Side.Bottom) overflow.bottom else overflow.right
@@ -67,8 +79,14 @@ object ShiftMiddleware {
       }
 
       if (checkCrossAxis) {
-        val minSide = if (crossAxis == "y") Side.Top else Side.Left
-        val maxSide = if (crossAxis == "y") Side.Bottom else Side.Right
+        val minSide = crossAxis match {
+          case Axis.Y => Side.Top
+          case Axis.X => Side.Left
+        }
+        val maxSide = crossAxis match {
+          case Axis.Y => Side.Bottom
+          case Axis.X => Side.Right
+        }
 
         val minValue = if (minSide == Side.Top) overflow.top else overflow.left
         val maxValue = if (maxSide == Side.Bottom) overflow.bottom else overflow.right
@@ -81,8 +99,14 @@ object ShiftMiddleware {
 
       // Apply limiter function with updated coordinates
       val updatedState = state.copy(
-        x = if (mainAxis == "x") mainAxisCoord else crossAxisCoord,
-        y = if (mainAxis == "y") mainAxisCoord else crossAxisCoord
+        x = mainAxis match {
+          case Axis.X => mainAxisCoord
+          case Axis.Y => crossAxisCoord
+        },
+        y = mainAxis match {
+          case Axis.Y => mainAxisCoord
+          case Axis.X => crossAxisCoord
+        }
       )
       val limitedCoords = limiter.fn(updatedState)
 
@@ -94,8 +118,14 @@ object ShiftMiddleware {
             "x" -> (limitedCoords.x - x),
             "y" -> (limitedCoords.y - y),
             "enabled" -> Map(
-              "x" -> (if (mainAxis == "x") checkMainAxis else checkCrossAxis),
-              "y" -> (if (mainAxis == "y") checkMainAxis else checkCrossAxis)
+              "x" -> (mainAxis match {
+                case Axis.X => checkMainAxis
+                case Axis.Y => checkCrossAxis
+              }),
+              "y" -> (mainAxis match {
+                case Axis.Y => checkMainAxis
+                case Axis.X => checkCrossAxis
+              })
             )
           )
         ),
@@ -136,14 +166,32 @@ object ShiftMiddleware {
         val crossAxis = getSideAxis(placement)
         val mainAxis = getOppositeAxis(crossAxis)
 
-        var mainAxisCoord = if (mainAxis == "x") coords.x else coords.y
-        var crossAxisCoord = if (crossAxis == "x") coords.x else coords.y
+        var mainAxisCoord = mainAxis match {
+          case Axis.X => coords.x
+          case Axis.Y => coords.y
+        }
+        var crossAxisCoord = crossAxis match {
+          case Axis.X => coords.x
+          case Axis.Y => coords.y
+        }
 
         if (evaluatedOptions.mainAxis) {
-          val len = if (mainAxis == "y") "height" else "width"
-          val refMainAxis = if (mainAxis == "x") rects.reference.x else rects.reference.y
-          val floatingLen = if (len == "width") rects.floating.width else rects.floating.height
-          val refLen = if (len == "width") rects.reference.width else rects.reference.height
+          val len = mainAxis match {
+            case Axis.Y => Length.Height
+            case Axis.X => Length.Width
+          }
+          val refMainAxis = mainAxis match {
+            case Axis.X => rects.reference.x
+            case Axis.Y => rects.reference.y
+          }
+          val floatingLen = len match {
+            case Length.Width  => rects.floating.width
+            case Length.Height => rects.floating.height
+          }
+          val refLen = len match {
+            case Length.Width  => rects.reference.width
+            case Length.Height => rects.reference.height
+          }
 
           val limitMin = refMainAxis - floatingLen + computedOffset.mainAxis
           val limitMax = refMainAxis + refLen - computedOffset.mainAxis
@@ -156,16 +204,31 @@ object ShiftMiddleware {
         }
 
         if (evaluatedOptions.crossAxis) {
-          val len = if (mainAxis == "y") "width" else "height"
+          val len = mainAxis match {
+            case Axis.Y => Length.Width
+            case Axis.X => Length.Height
+          }
           val isOriginSide = originSides.contains(getSide(placement))
-          val refCrossAxis = if (crossAxis == "x") rects.reference.x else rects.reference.y
-          val floatingLen = if (len == "width") rects.floating.width else rects.floating.height
-          val refLen = if (len == "width") rects.reference.width else rects.reference.height
+          val refCrossAxis = crossAxis match {
+            case Axis.X => rects.reference.x
+            case Axis.Y => rects.reference.y
+          }
+          val floatingLen = len match {
+            case Length.Width  => rects.floating.width
+            case Length.Height => rects.floating.height
+          }
+          val refLen = len match {
+            case Length.Width  => rects.reference.width
+            case Length.Height => rects.reference.height
+          }
 
           // Get offset from middleware data if available
           val offsetValue = middlewareData.offset
             .flatMap { offsetData =>
-              if (crossAxis == "x") Some(offsetData.x) else Some(offsetData.y)
+              crossAxis match {
+                case Axis.X => Some(offsetData.x)
+                case Axis.Y => Some(offsetData.y)
+              }
             }
             .getOrElse(0.0)
 
@@ -184,10 +247,9 @@ object ShiftMiddleware {
           }
         }
 
-        if (mainAxis == "x") {
-          Coords(x = mainAxisCoord, y = crossAxisCoord)
-        } else {
-          Coords(x = crossAxisCoord, y = mainAxisCoord)
+        mainAxis match {
+          case Axis.X => Coords(x = mainAxisCoord, y = crossAxisCoord)
+          case Axis.Y => Coords(x = crossAxisCoord, y = mainAxisCoord)
         }
       }
     )

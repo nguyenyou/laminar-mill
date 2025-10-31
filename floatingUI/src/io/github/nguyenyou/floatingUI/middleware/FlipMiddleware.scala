@@ -175,7 +175,7 @@ object FlipMiddleware {
                   if (hasFallbackAxisSideDirection) {
                     val currentSideAxis = getSideAxis(d.placement)
                     // Create a bias to the y axis due to horizontal reading directions
-                    currentSideAxis == initialSideAxis || currentSideAxis == "y"
+                    currentSideAxis == initialSideAxis || currentSideAxis == Axis.Y
                   } else {
                     true
                   }

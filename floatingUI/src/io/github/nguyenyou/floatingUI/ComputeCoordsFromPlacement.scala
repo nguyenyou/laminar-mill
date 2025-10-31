@@ -18,7 +18,7 @@ object ComputeCoordsFromPlacement {
     val alignmentAxis = getAlignmentAxis(placement)
     val alignLength = getAxisLength(alignmentAxis)
     val side = getSide(placement)
-    val isVertical = sideAxis == "y"
+    val isVertical = sideAxis == Axis.Y
 
     val reference = rects.reference
     val floating = rects.floating
@@ -26,8 +26,14 @@ object ComputeCoordsFromPlacement {
     val commonX = reference.x + reference.width / 2 - floating.width / 2
     val commonY = reference.y + reference.height / 2 - floating.height / 2
 
-    val refAlignLength = if (alignLength == "width") reference.width else reference.height
-    val floatAlignLength = if (alignLength == "width") floating.width else floating.height
+    val refAlignLength = alignLength match {
+      case Length.Width  => reference.width
+      case Length.Height => reference.height
+    }
+    val floatAlignLength = alignLength match {
+      case Length.Width  => floating.width
+      case Length.Height => floating.height
+    }
     val commonAlign = refAlignLength / 2 - floatAlignLength / 2
 
     var coords: Coords = side match {
@@ -44,17 +50,15 @@ object ComputeCoordsFromPlacement {
     getAlignment(placement) match {
       case Some(Alignment.Start) =>
         val adjustment = commonAlign * (if (rtl && isVertical) -1 else 1)
-        coords = if (alignmentAxis == "x") {
-          coords.copy(x = coords.x - adjustment)
-        } else {
-          coords.copy(y = coords.y - adjustment)
+        coords = alignmentAxis match {
+          case Axis.X => coords.copy(x = coords.x - adjustment)
+          case Axis.Y => coords.copy(y = coords.y - adjustment)
         }
       case Some(Alignment.End) =>
         val adjustment = commonAlign * (if (rtl && isVertical) -1 else 1)
-        coords = if (alignmentAxis == "x") {
-          coords.copy(x = coords.x + adjustment)
-        } else {
-          coords.copy(y = coords.y + adjustment)
+        coords = alignmentAxis match {
+          case Axis.X => coords.copy(x = coords.x + adjustment)
+          case Axis.Y => coords.copy(y = coords.y + adjustment)
         }
       case _ => // No alignment, keep coords as is
     }

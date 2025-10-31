@@ -63,16 +63,22 @@ object Utils {
   }
 
   def getOppositeAxis(axis: Axis): Axis = {
-    if (axis == "x") "y" else "x"
+    axis match {
+      case Axis.X => Axis.Y
+      case Axis.Y => Axis.X
+    }
   }
 
   def getAxisLength(axis: Axis): Length = {
-    if (axis == "y") "height" else "width"
+    axis match {
+      case Axis.Y => Length.Height
+      case Axis.X => Length.Width
+    }
   }
 
   def getSideAxis(placement: Placement): Axis = {
     val side = getSide(placement)
-    if (side == Side.Top || side == Side.Bottom) "y" else "x"
+    if (side == Side.Top || side == Side.Bottom) Axis.Y else Axis.X
   }
 
   def getAlignmentAxis(placement: Placement): Axis = {
@@ -128,14 +134,21 @@ object Utils {
     val alignmentAxis = getAlignmentAxis(placement)
     val length = getAxisLength(alignmentAxis)
 
-    val refLength = if (length == "width") rects.reference.width else rects.reference.height
-    val floatLength = if (length == "width") rects.floating.width else rects.floating.height
+    val refLength = length match {
+      case Length.Width  => rects.reference.width
+      case Length.Height => rects.reference.height
+    }
+    val floatLength = length match {
+      case Length.Width  => rects.floating.width
+      case Length.Height => rects.floating.height
+    }
 
     var mainAlignmentSide: Side =
-      if (alignmentAxis == "x") {
-        if (alignment.contains(if (rtl) Alignment.End else Alignment.Start)) Side.Right else Side.Left
-      } else {
-        if (alignment.contains(Alignment.Start)) Side.Bottom else Side.Top
+      alignmentAxis match {
+        case Axis.X =>
+          if (alignment.contains(if (rtl) Alignment.End else Alignment.Start)) Side.Right else Side.Left
+        case Axis.Y =>
+          if (alignment.contains(Alignment.Start)) Side.Bottom else Side.Top
       }
 
     if (refLength > floatLength) {
@@ -307,13 +320,13 @@ object Utils {
   }
 
   def getCoordsValue(coords: Coords, axis: Axis): Double = axis match {
-    case "x" => coords.x
-    case "y" => coords.y
+    case Axis.X => coords.x
+    case Axis.Y => coords.y
   }
 
   def updateCoords(coords: Coords, axis: Axis, value: Double): Coords = axis match {
-    case "x" => coords.copy(x = value)
-    case "y" => coords.copy(y = value)
+    case Axis.X => coords.copy(x = value)
+    case Axis.Y => coords.copy(y = value)
   }
 
   // ============================================================================

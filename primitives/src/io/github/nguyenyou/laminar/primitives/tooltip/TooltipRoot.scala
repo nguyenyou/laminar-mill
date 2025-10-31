@@ -34,7 +34,7 @@ class TooltipRoot(val store: TooltipStore) {
       val result = FloatingUI.computePosition(
         reference = trigger,
         floating = portal,
-        placement = "top",
+        placement = Placement.Top,
         middleware = middlewares.toSeq
       )
 
@@ -47,12 +47,11 @@ class TooltipRoot(val store: TooltipStore) {
       result.middlewareData.arrow.foreach { arrowData =>
         tooltipArrow.foreach { arrowElement =>
           // Calculate the static side based on placement
-          val staticSide = result.placement.split("-")(0) match {
-            case "top"    => "bottom"
-            case "right"  => "left"
-            case "bottom" => "top"
-            case "left"   => "right"
-            case _        => "bottom"
+          val staticSide = result.placement match {
+            case Placement.Top | Placement.TopStart | Placement.TopEnd          => "bottom"
+            case Placement.Right | Placement.RightStart | Placement.RightEnd    => "left"
+            case Placement.Bottom | Placement.BottomStart | Placement.BottomEnd => "top"
+            case Placement.Left | Placement.LeftStart | Placement.LeftEnd       => "right"
           }
 
           // Apply x position if available
