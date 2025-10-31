@@ -747,7 +747,7 @@ object DOMUtils {
     * @param element
     *   The element to get clipping rect for
     * @param boundary
-    *   The clipping boundary - either "clippingAncestors" or a CSS selector
+    *   The clipping boundary - can be "clippingAncestors", Element, Array[Element], or Rect
     * @param rootBoundary
     *   The root clipping boundary - "viewport" or "document"
     * @param strategy
@@ -759,33 +759,40 @@ object DOMUtils {
     */
   def getClippingRect(
     element: dom.Element,
-    boundary: String,
+    boundary: Boundary,
     rootBoundary: String,
     strategy: Strategy,
     cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
   ): Rect = {
+    import BoundaryInternal.*
+
+    // Convert boundary to internal representation for type-safe pattern matching
+    val boundaryInternal = BoundaryInternal.fromBoundary(boundary)
+
     // Determine element clipping ancestors based on boundary
     // Matches TypeScript: boundary === 'clippingAncestors' ? isTopLayer(element) ? [] : getClippingElementAncestors(element, this._c) :
     // [].concat(boundary)
     val elementClippingAncestors: Seq[Either[dom.Element, Either[String, Rect]]] =
-      if (boundary == "clippingAncestors") {
-        if (isTopLayer(element)) {
-          Seq.empty
-        } else {
-          // Pass cache to getClippingElementAncestors
-          getClippingElementAncestors(element, cache).map(e => Left(e))
-        }
-      } else {
-        // In TypeScript, boundary can be Element, Array<Element>, or Rect
-        // In this Scala.js implementation, we only support CSS selector strings for now
-        // This is a known limitation compared to the TypeScript version
-        val boundaryElement = dom.document.querySelector(boundary)
-        if (boundaryElement != null) {
-          Seq(Left(boundaryElement.asInstanceOf[dom.Element]))
-        } else {
-          // Fallback to empty if selector doesn't match
-          Seq.empty
-        }
+      boundaryInternal match {
+        case ClippingAncestors =>
+          if (isTopLayer(element)) {
+            Seq.empty
+          } else {
+            // Pass cache to getClippingElementAncestors
+            getClippingElementAncestors(element, cache).map(e => Left(e))
+          }
+
+        case Element(el) =>
+          // Single element boundary
+          Seq(Left(el))
+
+        case Elements(arr) =>
+          // Array of elements - convert js.Array to Seq
+          arr.toSeq.map(e => Left(e))
+
+        case CustomRect(rect) =>
+          // Custom rect boundary
+          Seq(Right(Right(rect)))
       }
 
     // Add root boundary to the list

@@ -206,6 +206,81 @@ object Types {
     }
   }
 
+  /** Boundary type for clipping detection.
+    *
+    * Matches TypeScript: 'clippingAncestors' | Element | Array<Element> | Rect
+    *
+    * Supports four types of boundaries:
+    *   - String "clippingAncestors": Uses element's overflow ancestors
+    *   - String (CSS selector): Queries DOM for boundary element
+    *   - dom.Element: Single element as boundary
+    *   - js.Array[dom.Element]: Multiple elements as boundaries
+    *   - Rect: Custom rectangle as boundary
+    */
+  type Boundary = String | dom.Element | js.Array[dom.Element] | Rect
+
+  /** Internal representation of Boundary for type-safe pattern matching.
+    *
+    * This is used internally to ensure exhaustive pattern matching while keeping the public API ergonomic.
+    */
+  private[floatingUI] sealed trait BoundaryInternal
+
+  private[floatingUI] object BoundaryInternal {
+
+    /** Use clipping ancestors as boundary. */
+    case object ClippingAncestors extends BoundaryInternal
+
+    /** Single DOM element as boundary. */
+    case class Element(element: dom.Element) extends BoundaryInternal
+
+    /** Multiple DOM elements as boundaries. */
+    case class Elements(elements: js.Array[dom.Element]) extends BoundaryInternal
+
+    /** Custom rectangle as boundary. */
+    case class CustomRect(rect: Rect) extends BoundaryInternal
+
+    /** Convert public Boundary type to internal representation.
+      *
+      * @param boundary
+      *   The boundary value from user
+      * @return
+      *   Internal representation for type-safe pattern matching
+      */
+    def fromBoundary(boundary: Boundary): BoundaryInternal = {
+      // Use runtime type checking to determine which variant we have
+      // This is necessary because Scala 3 union types don't support exhaustive matching
+      (boundary: Any) match {
+        case s: String if s == "clippingAncestors" =>
+          ClippingAncestors
+
+        case s: String =>
+          // CSS selector - query the DOM
+          val el = dom.document.querySelector(s)
+          if (el != null) {
+            Element(el.asInstanceOf[dom.Element])
+          } else {
+            // Fallback to clippingAncestors if selector doesn't match
+            ClippingAncestors
+          }
+
+        case el: dom.Element =>
+          Element(el)
+
+        case arr: js.Array[?] =>
+          // Type erasure means we can't check element type at runtime
+          // Trust that user passed js.Array[dom.Element]
+          Elements(arr.asInstanceOf[js.Array[dom.Element]])
+
+        case rect: Rect =>
+          CustomRect(rect)
+
+        case _ =>
+          // Fallback for unexpected types
+          ClippingAncestors
+      }
+    }
+  }
+
   // ============================================================================
   // Coordinate and Dimension Types
   // ============================================================================
@@ -428,7 +503,7 @@ object Types {
     // Required methods
     def getElementRects(reference: ReferenceElement, floating: dom.HTMLElement, strategy: Strategy): ElementRects
     def getDimensions(element: dom.Element): Dimensions
-    def getClippingRect(element: Any, boundary: String, rootBoundary: String, strategy: Strategy): Rect
+    def getClippingRect(element: Any, boundary: Boundary, rootBoundary: String, strategy: Strategy): Rect
 
     // Cache for expensive operations (e.g., getClippingElementAncestors)
     // This is injected by computePosition and used by platform methods
@@ -542,7 +617,7 @@ object Types {
     crossAxis: Boolean = false,
     limiter: Option[Limiter] = None,
     // DetectOverflowOptions fields
-    boundary: String = "clippingAncestors",
+    boundary: Boundary = "clippingAncestors",
     rootBoundary: String = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
@@ -571,7 +646,7 @@ object Types {
     fallbackAxisSideDirection: String = "none",
     flipAlignment: Boolean = true,
     // DetectOverflowOptions fields
-    boundary: String = "clippingAncestors",
+    boundary: Boundary = "clippingAncestors",
     rootBoundary: String = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
@@ -599,7 +674,7 @@ object Types {
     allowedPlacements: Seq[Placement] = Seq.empty,
     autoAlignment: Boolean = true,
     // DetectOverflowOptions fields
-    boundary: String = "clippingAncestors",
+    boundary: Boundary = "clippingAncestors",
     rootBoundary: String = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
@@ -614,7 +689,7 @@ object Types {
     // Hide-specific option
     strategy: String = "referenceHidden", // "referenceHidden" or "escaped"
     // DetectOverflowOptions fields
-    boundary: String = "clippingAncestors",
+    boundary: Boundary = "clippingAncestors",
     rootBoundary: String = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
@@ -627,7 +702,7 @@ object Types {
     */
   case class SizeOptions(
     // DetectOverflowOptions fields
-    boundary: String = "clippingAncestors",
+    boundary: Boundary = "clippingAncestors",
     rootBoundary: String = "viewport",
     elementContext: String = "floating",
     altBoundary: Boolean = false,
@@ -662,12 +737,35 @@ object Types {
     crossAxis: Double = 0
   )
 
-  /** Detect overflow options. */
+  /** Detect overflow options.
+    *
+    * Matches TypeScript DetectOverflowOptions from @floating-ui/core
+    */
   case class DetectOverflowOptions(
-    boundary: String = "clippingAncestors",
+    /** The clipping boundary - can be "clippingAncestors", Element, Array[Element], or Rect.
+      * @default
+      *   "clippingAncestors"
+      */
+    boundary: Boundary = "clippingAncestors",
+    /** The root clipping boundary - "viewport", "document", or custom Rect.
+      * @default
+      *   "viewport"
+      */
     rootBoundary: String = "viewport",
+    /** The element context - "floating" or "reference".
+      * @default
+      *   "floating"
+      */
     elementContext: String = "floating",
+    /** Whether to use alternate boundary.
+      * @default
+      *   false
+      */
     altBoundary: Boolean = false,
+    /** Padding around the boundary.
+      * @default
+      *   0
+      */
     padding: Padding = 0
   )
 }

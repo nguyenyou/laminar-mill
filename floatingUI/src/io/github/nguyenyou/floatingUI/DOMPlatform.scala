@@ -48,7 +48,7 @@ object DOMPlatform extends Platform {
 
   override def getClippingRect(
     element: Any,
-    boundary: String,
+    boundary: Boundary,
     rootBoundary: String,
     strategy: Strategy
   ): Rect = {
