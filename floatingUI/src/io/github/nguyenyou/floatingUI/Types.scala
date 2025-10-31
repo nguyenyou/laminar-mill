@@ -13,96 +13,175 @@ object Types {
   // Basic Types
   // ============================================================================
 
-  /** Alignment of the floating element relative to the reference element. */
-  enum Alignment {
-    case Start, End
+  /** Alignment of the floating element relative to the reference element.
+    *
+    * Specifies whether the floating element should align to the start or end of the reference element along the cross axis.
+    *
+    * Matches TypeScript: type Alignment = 'start' | 'end'
+    *
+    * @see
+    *   https://floating-ui.com/docs/computePosition#placement
+    */
+  enum Alignment(val toValue: String) {
 
-    /** Convert alignment to string representation. */
-    def toValue: String = this match {
-      case Start => "start"
-      case End   => "end"
-    }
+    /** Align to the start of the reference element.
+      *
+      * For horizontal placements (top/bottom), this means left alignment. For vertical placements (left/right), this means top alignment.
+      */
+    case Start extends Alignment("start")
+
+    /** Align to the end of the reference element.
+      *
+      * For horizontal placements (top/bottom), this means right alignment. For vertical placements (left/right), this means bottom
+      * alignment.
+      */
+    case End extends Alignment("end")
   }
 
   object Alignment {
 
-    /** Parse a string into an Alignment. */
-    def fromString(s: String): Option[Alignment] = s match {
-      case "start" => Some(Start)
-      case "end"   => Some(End)
-      case _       => None
+    /** Parse Alignment from string value.
+      *
+      * @param value
+      *   String value ("start" or "end")
+      * @return
+      *   Corresponding Alignment enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Alignment
+      */
+    def fromString(value: String): Alignment = value match {
+      case "start" => Start
+      case "end"   => End
+      case _       => throw new IllegalArgumentException(s"Invalid Alignment: $value. Valid values are: 'start', 'end'")
     }
   }
 
-  /** Side of the reference element where the floating element is placed. */
-  enum Side {
-    case Top, Right, Bottom, Left
+  /** Side of the reference element where the floating element is placed.
+    *
+    * Specifies the primary side (top, right, bottom, or left) where the floating element should be positioned relative to the reference
+    * element.
+    *
+    * Matches TypeScript: type Side = 'top' | 'right' | 'bottom' | 'left'
+    *
+    * @see
+    *   https://floating-ui.com/docs/computePosition#placement
+    */
+  enum Side(val toValue: String) {
 
-    /** Convert side to string representation. */
-    def toValue: String = this match {
-      case Top    => "top"
-      case Right  => "right"
-      case Bottom => "bottom"
-      case Left   => "left"
-    }
+    /** Place floating element above the reference element. */
+    case Top extends Side("top")
+
+    /** Place floating element to the right of the reference element. */
+    case Right extends Side("right")
+
+    /** Place floating element below the reference element. */
+    case Bottom extends Side("bottom")
+
+    /** Place floating element to the left of the reference element. */
+    case Left extends Side("left")
   }
 
   object Side {
 
-    /** Parse a string into a Side. */
-    def fromString(s: String): Option[Side] = s match {
-      case "top"    => Some(Top)
-      case "right"  => Some(Right)
-      case "bottom" => Some(Bottom)
-      case "left"   => Some(Left)
-      case _        => None
+    /** Parse Side from string value.
+      *
+      * @param value
+      *   String value ("top", "right", "bottom", or "left")
+      * @return
+      *   Corresponding Side enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Side
+      */
+    def fromString(value: String): Side = value match {
+      case "top"    => Top
+      case "right"  => Right
+      case "bottom" => Bottom
+      case "left"   => Left
+      case _        => throw new IllegalArgumentException(s"Invalid Side: $value. Valid values are: 'top', 'right', 'bottom', 'left'")
     }
 
     /** All sides in order. */
     val all: Seq[Side] = Seq(Top, Right, Bottom, Left)
   }
 
-  /** Placement of the floating element. Can be a side or a side with alignment. */
-  enum Placement {
-    case Top, TopStart, TopEnd
-    case Right, RightStart, RightEnd
-    case Bottom, BottomStart, BottomEnd
-    case Left, LeftStart, LeftEnd
+  /** Placement of the floating element relative to the reference element.
+    *
+    * Specifies where the floating element should be positioned. Can be a side (top, right, bottom, left) or a side with alignment (e.g.,
+    * top-start, top-end).
+    *
+    * Matches TypeScript: type Placement = 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end' | 'bottom' |
+    * 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end'
+    *
+    * @see
+    *   https://floating-ui.com/docs/computePosition#placement
+    */
+  enum Placement(val toValue: String) {
 
-    /** Convert placement to string representation. */
-    def toValue: String = this match {
-      case Top         => "top"
-      case TopStart    => "top-start"
-      case TopEnd      => "top-end"
-      case Right       => "right"
-      case RightStart  => "right-start"
-      case RightEnd    => "right-end"
-      case Bottom      => "bottom"
-      case BottomStart => "bottom-start"
-      case BottomEnd   => "bottom-end"
-      case Left        => "left"
-      case LeftStart   => "left-start"
-      case LeftEnd     => "left-end"
-    }
+    /** Place above, centered. */
+    case Top extends Placement("top")
+
+    /** Place above, aligned to start. */
+    case TopStart extends Placement("top-start")
+
+    /** Place above, aligned to end. */
+    case TopEnd extends Placement("top-end")
+
+    /** Place to the right, centered. */
+    case Right extends Placement("right")
+
+    /** Place to the right, aligned to start. */
+    case RightStart extends Placement("right-start")
+
+    /** Place to the right, aligned to end. */
+    case RightEnd extends Placement("right-end")
+
+    /** Place below, centered. */
+    case Bottom extends Placement("bottom")
+
+    /** Place below, aligned to start. */
+    case BottomStart extends Placement("bottom-start")
+
+    /** Place below, aligned to end. */
+    case BottomEnd extends Placement("bottom-end")
+
+    /** Place to the left, centered. */
+    case Left extends Placement("left")
+
+    /** Place to the left, aligned to start. */
+    case LeftStart extends Placement("left-start")
+
+    /** Place to the left, aligned to end. */
+    case LeftEnd extends Placement("left-end")
   }
 
   object Placement {
 
-    /** Parse a string into a Placement. */
-    def fromString(s: String): Option[Placement] = s match {
-      case "top"          => Some(Top)
-      case "top-start"    => Some(TopStart)
-      case "top-end"      => Some(TopEnd)
-      case "right"        => Some(Right)
-      case "right-start"  => Some(RightStart)
-      case "right-end"    => Some(RightEnd)
-      case "bottom"       => Some(Bottom)
-      case "bottom-start" => Some(BottomStart)
-      case "bottom-end"   => Some(BottomEnd)
-      case "left"         => Some(Left)
-      case "left-start"   => Some(LeftStart)
-      case "left-end"     => Some(LeftEnd)
-      case _              => None
+    /** Parse Placement from string value.
+      *
+      * @param value
+      *   String value (e.g., "top", "top-start", "bottom-end")
+      * @return
+      *   Corresponding Placement enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Placement
+      */
+    def fromString(value: String): Placement = value match {
+      case "top"          => Top
+      case "top-start"    => TopStart
+      case "top-end"      => TopEnd
+      case "right"        => Right
+      case "right-start"  => RightStart
+      case "right-end"    => RightEnd
+      case "bottom"       => Bottom
+      case "bottom-start" => BottomStart
+      case "bottom-end"   => BottomEnd
+      case "left"         => Left
+      case "left-start"   => LeftStart
+      case "left-end"     => LeftEnd
+      case _ =>
+        throw new IllegalArgumentException(
+          s"Invalid Placement: $value. Valid values are: 'top', 'top-start', 'top-end', 'right', 'right-start', 'right-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end'"
+        )
     }
 
     /** All possible placements. */
@@ -122,87 +201,161 @@ object Types {
     )
   }
 
-  /** Positioning strategy: "absolute" or "fixed". */
-  enum Strategy {
-    case Absolute, Fixed
+  /** Positioning strategy for the floating element.
+    *
+    * Specifies the CSS position property to use for positioning the floating element.
+    *
+    * Matches TypeScript: type Strategy = 'absolute' | 'fixed'
+    *
+    * @see
+    *   https://floating-ui.com/docs/computePosition#strategy
+    */
+  enum Strategy(val toValue: String) {
 
-    /** Convert strategy to string representation. */
-    def toValue: String = this match {
-      case Absolute => "absolute"
-      case Fixed    => "fixed"
-    }
+    /** Use CSS absolute positioning.
+      *
+      * The floating element is positioned relative to its nearest positioned ancestor. This is the default and most common strategy.
+      */
+    case Absolute extends Strategy("absolute")
+
+    /** Use CSS fixed positioning.
+      *
+      * The floating element is positioned relative to the viewport. Useful when the floating element needs to stay in place during
+      * scrolling.
+      */
+    case Fixed extends Strategy("fixed")
   }
 
   object Strategy {
 
-    /** Parse a string into a Strategy. */
-    def fromString(s: String): Option[Strategy] = s match {
-      case "absolute" => Some(Absolute)
-      case "fixed"    => Some(Fixed)
-      case _          => None
+    /** Parse Strategy from string value.
+      *
+      * @param value
+      *   String value ("absolute" or "fixed")
+      * @return
+      *   Corresponding Strategy enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Strategy
+      */
+    def fromString(value: String): Strategy = value match {
+      case "absolute" => Absolute
+      case "fixed"    => Fixed
+      case _          => throw new IllegalArgumentException(s"Invalid Strategy: $value. Valid values are: 'absolute', 'fixed'")
     }
   }
 
-  /** Axis for positioning: "x" or "y". */
-  enum Axis {
-    case X, Y
+  /** Axis for positioning and measurements.
+    *
+    * Specifies the horizontal (x) or vertical (y) axis for positioning calculations.
+    *
+    * Matches TypeScript: type Axis = 'x' | 'y'
+    *
+    * @see
+    *   https://floating-ui.com/docs/detectOverflow
+    */
+  enum Axis(val toValue: String) {
 
-    /** Convert axis to string representation. */
-    def toValue: String = this match {
-      case X => "x"
-      case Y => "y"
-    }
+    /** Horizontal axis (left-right direction). */
+    case X extends Axis("x")
+
+    /** Vertical axis (top-bottom direction). */
+    case Y extends Axis("y")
   }
 
   object Axis {
 
-    /** Parse a string into an Axis. */
-    def fromString(s: String): Option[Axis] = s match {
-      case "x" => Some(X)
-      case "y" => Some(Y)
-      case _   => None
+    /** Parse Axis from string value.
+      *
+      * @param value
+      *   String value ("x" or "y")
+      * @return
+      *   Corresponding Axis enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Axis
+      */
+    def fromString(value: String): Axis = value match {
+      case "x" => X
+      case "y" => Y
+      case _   => throw new IllegalArgumentException(s"Invalid Axis: $value. Valid values are: 'x', 'y'")
     }
   }
 
-  /** Length dimension: "width" or "height". */
-  enum Length {
-    case Width, Height
+  /** Length dimension for size measurements.
+    *
+    * Specifies whether to measure width (horizontal) or height (vertical) dimension.
+    *
+    * Matches TypeScript: type Length = 'width' | 'height'
+    *
+    * @see
+    *   https://floating-ui.com/docs/size
+    */
+  enum Length(val toValue: String) {
 
-    /** Convert length to string representation. */
-    def toValue: String = this match {
-      case Width  => "width"
-      case Height => "height"
-    }
+    /** Width dimension (horizontal measurement). */
+    case Width extends Length("width")
+
+    /** Height dimension (vertical measurement). */
+    case Height extends Length("height")
   }
 
   object Length {
 
-    /** Parse a string into a Length. */
-    def fromString(s: String): Option[Length] = s match {
-      case "width"  => Some(Width)
-      case "height" => Some(Height)
-      case _        => None
+    /** Parse Length from string value.
+      *
+      * @param value
+      *   String value ("width" or "height")
+      * @return
+      *   Corresponding Length enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid Length
+      */
+    def fromString(value: String): Length = value match {
+      case "width"  => Width
+      case "height" => Height
+      case _        => throw new IllegalArgumentException(s"Invalid Length: $value. Valid values are: 'width', 'height'")
     }
   }
 
-  /** Fallback strategy for flip middleware: "bestFit" or "initialPlacement". */
-  enum FallbackStrategy {
-    case BestFit, InitialPlacement
+  /** Fallback strategy for flip middleware when no placements fit.
+    *
+    * Specifies what to do when none of the allowed placements fit within the boundary.
+    *
+    * Matches TypeScript: type FallbackStrategy = 'bestFit' | 'initialPlacement'
+    *
+    * @see
+    *   https://floating-ui.com/docs/flip#fallbackstrategy
+    */
+  enum FallbackStrategy(val toValue: String) {
 
-    /** Convert fallback strategy to string representation. */
-    def toValue: String = this match {
-      case BestFit          => "bestFit"
-      case InitialPlacement => "initialPlacement"
-    }
+    /** Use the placement that has the most space available.
+      *
+      * When no placements fit, choose the one with the largest available space. This is the default behavior.
+      */
+    case BestFit extends FallbackStrategy("bestFit")
+
+    /** Use the initial placement regardless of available space.
+      *
+      * When no placements fit, keep the initial placement even if it overflows. Useful when you want predictable positioning.
+      */
+    case InitialPlacement extends FallbackStrategy("initialPlacement")
   }
 
   object FallbackStrategy {
 
-    /** Parse a string into a FallbackStrategy. */
-    def fromString(s: String): Option[FallbackStrategy] = s match {
-      case "bestFit"          => Some(BestFit)
-      case "initialPlacement" => Some(InitialPlacement)
-      case _                  => None
+    /** Parse FallbackStrategy from string value.
+      *
+      * @param value
+      *   String value ("bestFit" or "initialPlacement")
+      * @return
+      *   Corresponding FallbackStrategy enum value
+      * @throws IllegalArgumentException
+      *   if value is not a valid FallbackStrategy
+      */
+    def fromString(value: String): FallbackStrategy = value match {
+      case "bestFit"          => BestFit
+      case "initialPlacement" => InitialPlacement
+      case _ =>
+        throw new IllegalArgumentException(s"Invalid FallbackStrategy: $value. Valid values are: 'bestFit', 'initialPlacement'")
     }
   }
 
