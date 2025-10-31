@@ -749,10 +749,131 @@ object Types {
     rects: Option[Either[Boolean, ElementRects]] = None
   )
 
-  /** Middleware object. */
+  /** Middleware object for customizing positioning behavior.
+    *
+    * Middleware allows you to customize the positioning logic and add features beyond basic placement. Each middleware has a unique name
+    * and a function that processes the positioning state.
+    *
+    * The library provides 8 built-in middleware:
+    *   - **"offset"** - Displaces the floating element from its reference element
+    *   - **"flip"** - Flips the placement to keep the floating element in view
+    *   - **"shift"** - Shifts the floating element along an axis to keep it in view
+    *   - **"hide"** - Provides data to hide the floating element when appropriate
+    *   - **"size"** - Resizes the floating element based on available space
+    *   - **"arrow"** - Positions an inner arrow element to point at the reference
+    *   - **"autoPlacement"** - Automatically chooses the best placement
+    *   - **"inline"** - Handles inline reference elements spanning multiple lines
+    *
+    * Custom middleware can use any name. The name is used as a key to store middleware-specific data in `MiddlewareData.custom`.
+    *
+    * Matches TypeScript: type Middleware = { name: string; options?: any; fn: (state: MiddlewareState) => Promisable<MiddlewareReturn> }
+    *
+    * @see
+    *   https://floating-ui.com/docs/middleware
+    */
   trait Middleware {
+
+    /** Unique identifier for this middleware.
+      *
+      * Built-in middleware use fixed names (e.g., "offset", "flip"). Custom middleware can use any string value. The name is used to
+      * organize middleware data in the `MiddlewareData` object.
+      */
     def name: String
+
+    /** Middleware function that processes positioning state.
+      *
+      * @param state
+      *   Current positioning state including coordinates, placement, rects, and platform
+      * @return
+      *   Middleware return value with optional coordinate adjustments, data, or reset instructions
+      */
     def fn(state: MiddlewareState): MiddlewareReturn
+  }
+
+  /** Convenience constants for built-in middleware names.
+    *
+    * These constants provide type-safe references to the names of the 8 built-in middleware. They are provided for convenience and
+    * documentation purposes.
+    *
+    * Note: Custom middleware can use any name not in this list. These constants are not exhaustive - they only cover the built-in
+    * middleware provided by the library.
+    *
+    * @see
+    *   https://floating-ui.com/docs/middleware
+    */
+  object MiddlewareNames {
+
+    /** Offset middleware name: "offset"
+      *
+      * Displaces the floating element from its reference element by a specified distance.
+      *
+      * @see
+      *   https://floating-ui.com/docs/offset
+      */
+    val Offset: String = "offset"
+
+    /** Flip middleware name: "flip"
+      *
+      * Flips the placement to the opposite side to keep the floating element in view.
+      *
+      * @see
+      *   https://floating-ui.com/docs/flip
+      */
+    val Flip: String = "flip"
+
+    /** Shift middleware name: "shift"
+      *
+      * Shifts the floating element along an axis to keep it in view when it would overflow.
+      *
+      * @see
+      *   https://floating-ui.com/docs/shift
+      */
+    val Shift: String = "shift"
+
+    /** Hide middleware name: "hide"
+      *
+      * Provides data to determine when the floating element should be hidden.
+      *
+      * @see
+      *   https://floating-ui.com/docs/hide
+      */
+    val Hide: String = "hide"
+
+    /** Size middleware name: "size"
+      *
+      * Provides data to resize the floating element based on available space.
+      *
+      * @see
+      *   https://floating-ui.com/docs/size
+      */
+    val Size: String = "size"
+
+    /** Arrow middleware name: "arrow"
+      *
+      * Positions an inner arrow element to point at the reference element.
+      *
+      * @see
+      *   https://floating-ui.com/docs/arrow
+      */
+    val Arrow: String = "arrow"
+
+    /** AutoPlacement middleware name: "autoPlacement"
+      *
+      * Automatically chooses the placement with the most available space.
+      *
+      * @see
+      *   https://floating-ui.com/docs/autoPlacement
+      */
+    val AutoPlacement: String = "autoPlacement"
+
+    /** Inline middleware name: "inline"
+      *
+      * Improves positioning for inline reference elements that span multiple lines.
+      *
+      * @see
+      *   https://floating-ui.com/docs/inline
+      */
+    val Inline: String = "inline"
   }
 
   // ============================================================================
