@@ -185,6 +185,27 @@ object Types {
     }
   }
 
+  /** Fallback strategy for flip middleware: "bestFit" or "initialPlacement". */
+  enum FallbackStrategy {
+    case BestFit, InitialPlacement
+
+    /** Convert fallback strategy to string representation. */
+    def toValue: String = this match {
+      case BestFit          => "bestFit"
+      case InitialPlacement => "initialPlacement"
+    }
+  }
+
+  object FallbackStrategy {
+
+    /** Parse a string into a FallbackStrategy. */
+    def fromString(s: String): Option[FallbackStrategy] = s match {
+      case "bestFit"          => Some(BestFit)
+      case "initialPlacement" => Some(InitialPlacement)
+      case _                  => None
+    }
+  }
+
   // ============================================================================
   // Coordinate and Dimension Types
   // ============================================================================
@@ -546,7 +567,7 @@ object Types {
     mainAxis: Boolean = true,
     crossAxis: FlipCrossAxis = true,
     fallbackPlacements: Option[Seq[Placement]] = None,
-    fallbackStrategy: String = "bestFit",
+    fallbackStrategy: FallbackStrategy = FallbackStrategy.BestFit,
     fallbackAxisSideDirection: String = "none",
     flipAlignment: Boolean = true,
     // DetectOverflowOptions fields

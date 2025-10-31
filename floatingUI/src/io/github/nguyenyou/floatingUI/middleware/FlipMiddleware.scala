@@ -168,7 +168,7 @@ object FlipMiddleware {
         // If no placement fits on main axis, use fallback strategy
         if (resetPlacement.isEmpty) {
           evaluatedOptions.fallbackStrategy match {
-            case "bestFit" =>
+            case FallbackStrategy.BestFit =>
               // Calculate total positive overflow for each placement
               val placementWithOverflow = overflowsData
                 .filter { d =>
@@ -189,10 +189,7 @@ object FlipMiddleware {
 
               resetPlacement = placementWithOverflow.map(_._1)
 
-            case "initialPlacement" =>
-              resetPlacement = Some(state.initialPlacement)
-
-            case _ =>
+            case FallbackStrategy.InitialPlacement =>
               resetPlacement = Some(state.initialPlacement)
           }
         }
