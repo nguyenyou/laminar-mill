@@ -649,6 +649,34 @@ object Types {
     custom: Map[String, Any] = Map.empty
   )
 
+  /** Helper methods for working with custom middleware data.
+    *
+    * Custom middleware should store their data under a unique name in
+    * [[MiddlewareData.custom]] as a `Map[String, Any]`. These helpers provide a
+    * convenient and slightly safer way to retrieve that data.
+    */
+  object MiddlewareDataHelpers {
+
+    /** Retrieve custom middleware data for the given middleware name and cast
+      * it to the desired type.
+      *
+      * Example:
+      * {{ {
+      *   case class MyData(foo: Double, bar: String)
+      *   val dataOpt = MiddlewareDataHelpers.getAs[Map[String, Any]](state.middlewareData, "myMiddleware")
+      * }} }
+      */
+    def getAs[T](middlewareData: MiddlewareData, name: String): Option[T] =
+      middlewareData.custom.get(name).map(_.asInstanceOf[T])
+
+    /** Retrieve custom middleware data as a `Map[String, Any]` for the given
+      * middleware name.
+      */
+    def getMap(middlewareData: MiddlewareData, name: String): Option[Map[String, Any]] =
+      getAs[Map[String, Any]](middlewareData, name)
+  }
+
+
   /** Arrow middleware data. */
   case class ArrowData(
     x: Option[Double] = None,
