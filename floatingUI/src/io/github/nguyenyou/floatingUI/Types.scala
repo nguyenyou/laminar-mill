@@ -1059,8 +1059,37 @@ object Types {
     fn: MiddlewareState => Coords
   )
 
-  /** Cross-axis option for flip middleware - can be Boolean or "alignment". */
-  type FlipCrossAxis = Boolean | String
+  /** Cross-axis option for flip middleware - matches `true | false | 'alignment'`. */
+  enum FlipCrossAxis {
+    case All
+    case None
+    case Alignment
+  }
+
+  object FlipCrossAxis {
+
+    /** Convenience helper to convert from a Boolean value. */
+    def fromBoolean(value: Boolean): FlipCrossAxis = if (value) FlipCrossAxis.All else FlipCrossAxis.None
+  }
+
+  /** Direction for `fallbackAxisSideDirection`. */
+  enum FallbackAxisSideDirection(val toValue: String) {
+    case None extends FallbackAxisSideDirection("none")
+    case Start extends FallbackAxisSideDirection("start")
+    case End extends FallbackAxisSideDirection("end")
+  }
+
+  object FallbackAxisSideDirection {
+
+    /** Parse direction from string literal. */
+    def fromString(value: String): FallbackAxisSideDirection = value match {
+      case "none"  => None
+      case "start" => Start
+      case "end"   => End
+      case _ =>
+        throw new IllegalArgumentException("Invalid FallbackAxisSideDirection: " + value + ". Valid values: 'none', 'start', 'end'")
+    }
+  }
 
   /** Options for flip middleware.
     *
@@ -1069,10 +1098,10 @@ object Types {
   case class FlipOptions(
     // Flip-specific options
     mainAxis: Boolean = true,
-    crossAxis: FlipCrossAxis = true,
+    crossAxis: FlipCrossAxis = FlipCrossAxis.All,
     fallbackPlacements: Option[Seq[Placement]] = None,
     fallbackStrategy: FallbackStrategy = FallbackStrategy.BestFit,
-    fallbackAxisSideDirection: String = "none",
+    fallbackAxisSideDirection: FallbackAxisSideDirection = FallbackAxisSideDirection.None,
     flipAlignment: Boolean = true,
     // DetectOverflowOptions fields
     boundary: Boundary = "clippingAncestors",

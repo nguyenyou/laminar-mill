@@ -30,7 +30,7 @@ object FlipMiddleware {
 
       // Determine checkMainAxis and checkCrossAxis
       val checkMainAxis = evaluatedOptions.mainAxis
-      val checkCrossAxis = evaluatedOptions.crossAxis
+      val crossAxisMode = evaluatedOptions.crossAxis
 
       // Build fallback placements
       val specifiedFallbackPlacements = evaluatedOptions.fallbackPlacements
@@ -43,7 +43,10 @@ object FlipMiddleware {
       }
 
       // Add opposite axis placements if fallbackAxisSideDirection is set
-      val hasFallbackAxisSideDirection = evaluatedOptions.fallbackAxisSideDirection != "none"
+      val hasFallbackAxisSideDirection = evaluatedOptions.fallbackAxisSideDirection match {
+        case FallbackAxisSideDirection.None => false
+        case _                              => true
+      }
       val allFallbackPlacements = if (specifiedFallbackPlacements.isEmpty && hasFallbackAxisSideDirection) {
         fallbackPlacements ++ getOppositeAxisPlacements(
           state.initialPlacement,
@@ -86,9 +89,9 @@ object FlipMiddleware {
       }
 
       // Handle crossAxis - can be Boolean or "alignment"
-      val shouldCheckCrossAxis = checkCrossAxis match {
-        case b: Boolean => b
-        case s: String  => true // "alignment" or any string means true
+      val shouldCheckCrossAxis = crossAxisMode match {
+        case FlipCrossAxis.None => false
+        case _                  => true
       }
 
       if (shouldCheckCrossAxis) {
@@ -123,38 +126,40 @@ object FlipMiddleware {
         val nextIndex = state.middlewareData.flip.flatMap(_.index).getOrElse(0) + 1
         val nextPlacement = if (nextIndex < placements.length) Some(placements(nextIndex)) else None
 
-        if (nextPlacement.isDefined) {
-          // Check if we should ignore cross-axis overflow for alignment mode
-          val ignoreCrossAxisOverflow = checkCrossAxis match {
-            case s: String if s == "alignment" =>
-              initialSideAxis != getSideAxis(nextPlacement.get)
-            case _ => false
-          }
+        nextPlacement match {
+          case Some(placementCandidate) =>
+            // Check if we should ignore cross-axis overflow for alignment mode
+            val ignoreCrossAxisOverflow = crossAxisMode match {
+              case FlipCrossAxis.Alignment =>
+                initialSideAxis != getSideAxis(placementCandidate)
+              case _ => false
+            }
 
-          // Determine if we should try the next placement
-          val shouldTryNext = !ignoreCrossAxisOverflow || {
-            // We leave the current main axis only if every placement on that axis overflows the main axis
-            overflowsData.forall { d =>
-              if (getSideAxis(d.placement) == initialSideAxis) {
-                d.overflows.headOption.exists(_ > 0)
-              } else {
-                true
+            // Determine if we should try the next placement
+            val shouldTryNext = !ignoreCrossAxisOverflow || {
+              // We leave the current main axis only if every placement on that axis overflows the main axis
+              overflowsData.forall { d =>
+                if (getSideAxis(d.placement) == initialSideAxis) {
+                  d.overflows.headOption.exists(_ > 0)
+                } else {
+                  true
+                }
               }
             }
-          }
 
-          if (shouldTryNext) {
-            // Try next placement and re-run the lifecycle
-            return MiddlewareReturn(
-              data = Some(
-                Map(
-                  "index" -> nextIndex,
-                  "overflows" -> overflowsData
-                )
-              ),
-              reset = Some(Right(ResetValue(placement = nextPlacement)))
-            )
-          }
+            if (shouldTryNext) {
+              // Try next placement and re-run the lifecycle
+              return MiddlewareReturn(
+                data = Some(
+                  Map(
+                    "index" -> nextIndex,
+                    "overflows" -> overflowsData
+                  )
+                ),
+                reset = Some(Right(ResetValue(placement = Some(placementCandidate))))
+              )
+            }
+          case None => ()
         }
 
         // No more placements to try - find best placement
@@ -197,17 +202,13 @@ object FlipMiddleware {
         // If we found a different placement, reset to it
         if (resetPlacement.isDefined && state.placement != resetPlacement.get) {
           return MiddlewareReturn(
-            data = Some(Map("overflows" -> overflowsData)),
             reset = Some(Right(ResetValue(placement = resetPlacement)))
           )
         }
       }
 
-      // No overflow or same placement - return empty with overflow data
-      MiddlewareReturn(
-        data = if (overflowsData.nonEmpty) Some(Map("overflows" -> overflowsData)) else None,
-        reset = None
-      )
+      // No overflow or no better placement - return empty result
+      MiddlewareReturn()
     }
   }
 }

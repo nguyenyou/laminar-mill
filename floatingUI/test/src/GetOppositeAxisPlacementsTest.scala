@@ -3,7 +3,7 @@ package io.github.nguyenyou.floatingUI
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import io.github.nguyenyou.floatingUI.Utils.*
-import io.github.nguyenyou.floatingUI.Types.Placement
+import io.github.nguyenyou.floatingUI.Types.{FallbackAxisSideDirection, Placement}
 import io.github.nguyenyou.floatingUI.Types.Placement.*
 
 /** Tests for getOppositeAxisPlacements function.
@@ -26,44 +26,44 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("side") {
 
     it("top") {
-      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         Left,
         Right
       )
-      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         Right,
         Left
       )
     }
 
     it("bottom") {
-      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         Left,
         Right
       )
-      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         Right,
         Left
       )
     }
 
     it("left") {
-      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         Top,
         Bottom
       )
-      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         Bottom,
         Top
       )
     }
 
     it("right") {
-      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         Top,
         Bottom
       )
-      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         Bottom,
         Top
       )
@@ -73,21 +73,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("start alignment") {
 
     it("top-start") {
-      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftStart,
         RightStart
       )
-      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(TopStart, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightStart,
         LeftStart
       )
-      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftStart,
         RightStart,
         LeftEnd,
         RightEnd
       )
-      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(TopStart, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightStart,
         LeftStart,
         RightEnd,
@@ -96,21 +96,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("bottom-start") {
-      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftStart,
         RightStart
       )
-      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(BottomStart, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightStart,
         LeftStart
       )
-      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftStart,
         RightStart,
         LeftEnd,
         RightEnd
       )
-      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(BottomStart, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightStart,
         LeftStart,
         RightEnd,
@@ -119,21 +119,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("left-start") {
-      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopStart,
         BottomStart
       )
-      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(LeftStart, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomStart,
         TopStart
       )
-      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopStart,
         BottomStart,
         TopEnd,
         BottomEnd
       )
-      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(LeftStart, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomStart,
         TopStart,
         BottomEnd,
@@ -142,21 +142,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("right-start") {
-      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopStart,
         BottomStart
       )
-      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(RightStart, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomStart,
         TopStart
       )
-      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopStart,
         BottomStart,
         TopEnd,
         BottomEnd
       )
-      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(RightStart, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomStart,
         TopStart,
         BottomEnd,
@@ -168,21 +168,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("end alignment") {
 
     it("top-end") {
-      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftEnd,
         RightEnd
       )
-      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(TopEnd, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightEnd,
         LeftEnd
       )
-      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftEnd,
         RightEnd,
         LeftStart,
         RightStart
       )
-      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(TopEnd, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightEnd,
         LeftEnd,
         RightStart,
@@ -191,21 +191,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("bottom-end") {
-      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftEnd,
         RightEnd
       )
-      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightEnd,
         LeftEnd
       )
-      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         LeftEnd,
         RightEnd,
         LeftStart,
         RightStart
       )
-      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(BottomEnd, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         RightEnd,
         LeftEnd,
         RightStart,
@@ -214,23 +214,23 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("left-end") {
-      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopEnd,
         BottomEnd
       )
-      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomEnd,
         TopEnd
       )
       // Note: The TypeScript test has a bug here - it tests LeftStart instead of LeftEnd
       // We'll test LeftEnd as the test name suggests
-      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopEnd,
         BottomEnd,
         TopStart,
         BottomStart
       )
-      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(LeftEnd, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomEnd,
         TopEnd,
         BottomStart,
@@ -239,21 +239,21 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
     }
 
     it("right-end") {
-      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopEnd,
         BottomEnd
       )
-      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(RightEnd, flipAlignment = false, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomEnd,
         TopEnd
       )
-      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = "start") shouldBe Seq(
+      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = FallbackAxisSideDirection.Start) shouldBe Seq(
         TopEnd,
         BottomEnd,
         TopStart,
         BottomStart
       )
-      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = "end") shouldBe Seq(
+      getOppositeAxisPlacements(RightEnd, flipAlignment = true, direction = FallbackAxisSideDirection.End) shouldBe Seq(
         BottomEnd,
         TopEnd,
         BottomStart,
@@ -265,44 +265,44 @@ class GetOppositeAxisPlacementsTest extends AnyFunSpec with Matchers {
   describe("rtl") {
 
     it("top") {
-      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = FallbackAxisSideDirection.Start, rtl = true) shouldBe Seq(
         Right,
         Left
       )
-      getOppositeAxisPlacements(Top, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Top, flipAlignment = true, direction = FallbackAxisSideDirection.End, rtl = true) shouldBe Seq(
         Left,
         Right
       )
     }
 
     it("bottom") {
-      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = FallbackAxisSideDirection.Start, rtl = true) shouldBe Seq(
         Right,
         Left
       )
-      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Bottom, flipAlignment = true, direction = FallbackAxisSideDirection.End, rtl = true) shouldBe Seq(
         Left,
         Right
       )
     }
 
     it("left") {
-      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = FallbackAxisSideDirection.Start, rtl = true) shouldBe Seq(
         Top,
         Bottom
       )
-      getOppositeAxisPlacements(Left, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Left, flipAlignment = true, direction = FallbackAxisSideDirection.End, rtl = true) shouldBe Seq(
         Bottom,
         Top
       )
     }
 
     it("right") {
-      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "start", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = FallbackAxisSideDirection.Start, rtl = true) shouldBe Seq(
         Top,
         Bottom
       )
-      getOppositeAxisPlacements(Right, flipAlignment = true, direction = "end", rtl = true) shouldBe Seq(
+      getOppositeAxisPlacements(Right, flipAlignment = true, direction = FallbackAxisSideDirection.End, rtl = true) shouldBe Seq(
         Bottom,
         Top
       )

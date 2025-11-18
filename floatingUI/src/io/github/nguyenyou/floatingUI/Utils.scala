@@ -167,14 +167,14 @@ object Utils {
   def getOppositeAxisPlacements(
     placement: Placement,
     flipAlignment: Boolean,
-    direction: String,
+    direction: FallbackAxisSideDirection,
     rtl: Boolean = false
   ): Seq[Placement] = {
     val alignment = getAlignment(placement)
     val side = getSide(placement)
 
     // Get the list of base placements on the perpendicular axis
-    val basePlacements = getSideList(side, direction == "start", rtl)
+    val basePlacements = getSideList(side, direction == FallbackAxisSideDirection.Start, rtl)
 
     // If there's an alignment, add it to each base placement
     val list = alignment match {
