@@ -1181,10 +1181,10 @@ object Types {
 
   /** Options for limitShift.
     *
-    * Note: Since the entire LimitShiftOptions can be derivable, individual fields are not Derivable.
+    * The offset field can be derivable (a function of middleware state), matching the TypeScript implementation.
     */
   case class LimitShiftOptions(
-    offset: Either[Double, LimitShiftOffsetOptions] = Left(0),
+    offset: Derivable[Either[Double, LimitShiftOffsetOptions]] = Left(Left(0)),
     mainAxis: Boolean = true,
     crossAxis: Boolean = true
   )

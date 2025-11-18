@@ -147,8 +147,9 @@ object ShiftMiddleware {
         val rects = state.rects
         val middlewareData = state.middlewareData
 
-        // Extract offset from evaluated options (already plain type, not Derivable)
-        val rawOffset = evaluatedOptions.offset
+        // Extract offset from evaluated options (still derivable, needs separate evaluation)
+        // This matches TypeScript: const rawOffset = evaluate(offset, state);
+        val rawOffset = evaluate(evaluatedOptions.offset, state)
 
         // Convert to offset values with defaults
         val computedOffset = rawOffset match {
