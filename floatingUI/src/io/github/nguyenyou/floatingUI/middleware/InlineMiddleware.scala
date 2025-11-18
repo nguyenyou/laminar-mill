@@ -54,16 +54,7 @@ object InlineMiddleware {
       prevRect = Some(rect)
     }
 
-    groups.map(group =>
-      rectToClientRect(
-        Rect(
-          getBoundingRect(group).x,
-          getBoundingRect(group).y,
-          getBoundingRect(group).width,
-          getBoundingRect(group).height
-        )
-      )
-    )
+    groups.map(group => getBoundingRect(group))
   }
 
   /** Create inline middleware. */
