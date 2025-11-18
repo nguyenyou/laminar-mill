@@ -29,7 +29,7 @@ object ComputePosition {
     val elements = Elements(reference, floating)
 
     var i = 0
-    while (i < validMiddleware.length && resetCount <= 50) {
+    while (i < validMiddleware.length) {
       val middleware = validMiddleware(i)
 
       val state = MiddlewareState(
@@ -185,31 +185,30 @@ object ComputePosition {
         }
       }
 
-      // Handle reset - support both boolean true and ResetValue object
-      result.reset.foreach { reset =>
-        // Check reset count limit BEFORE processing (matching TypeScript behavior)
-        if (resetCount <= 50) {
+      // Handle reset - support both boolean and ResetValue object
+      result.reset.foreach {
+        case Left(false) =>
+          // Boolean false: no reset (matches TypeScript behavior)
+          ()
+
+        case resetValue if resetCount <= 50 =>
+          // Only honor reset while under the reset limit
           resetCount += 1
 
-          reset match {
+          resetValue match {
             case Left(true) =>
-              // Boolean true case: simple restart without changing placement or rects
-              // Just recalculate coords with current placement and rects
-              coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
+              // Boolean true: restart middleware loop without changing rects,
+              // placement or coordinates
               i = -1
 
-            case Left(false) =>
-              // Boolean false case: no reset (shouldn't happen, but handle it)
-              ()
-
-            case Right(resetValue) =>
+            case Right(value) =>
               // Object case: handle placement and rects changes
-              resetValue.placement.foreach { newPlacement =>
+              value.placement.foreach { newPlacement =>
                 statefulPlacement = newPlacement
               }
 
               // Recalculate rects if requested
-              resetValue.rects.foreach {
+              value.rects.foreach {
                 case Left(true) =>
                   // Recalculate rects from platform
                   rects = config.platform.getElementRects(reference, floating, config.strategy)
@@ -227,7 +226,10 @@ object ComputePosition {
               // Restart middleware loop
               i = -1
           }
-        }
+
+        case _ =>
+          // Reset requested, but resetCount limit exceeded – ignore reset
+          ()
       }
 
       i += 1
