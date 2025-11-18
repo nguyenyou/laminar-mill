@@ -6,7 +6,10 @@ import org.scalajs.dom
 
 /** Main computePosition function for floating element positioning.
   *
-  * Ported from @floating-ui/core/src/computePosition.ts
+  * This is a synchronous Scala port of @floating-ui/core/src/computePosition.ts.
+  * It matches the core algorithm and reset semantics of the JavaScript
+  * implementation (including the 50-reset safeguard), specialized to the DOM
+  * platform.
   */
 object ComputePosition {
 
@@ -191,41 +194,39 @@ object ComputePosition {
           // Boolean false: no reset (matches TypeScript behavior)
           ()
 
-        case resetValue if resetCount <= 50 =>
-          // Only honor reset while under the reset limit
+        case Left(true) if resetCount <= 50 =>
+          // Boolean true: restart middleware loop without changing rects,
+          // placement or coordinates
+          resetCount += 1
+          i = -1
+
+        case Right(value) if resetCount <= 50 =>
+          // Object case: handle placement and rects changes while under the
+          // reset limit
           resetCount += 1
 
-          resetValue match {
-            case Left(true) =>
-              // Boolean true: restart middleware loop without changing rects,
-              // placement or coordinates
-              i = -1
-
-            case Right(value) =>
-              // Object case: handle placement and rects changes
-              value.placement.foreach { newPlacement =>
-                statefulPlacement = newPlacement
-              }
-
-              // Recalculate rects if requested
-              value.rects.foreach {
-                case Left(true) =>
-                  // Recalculate rects from platform
-                  rects = config.platform.getElementRects(reference, floating, config.strategy)
-                case Right(newRects) =>
-                  // Use provided rects
-                  rects = newRects
-                case Left(false) =>
-                  // Don't recalculate rects
-                  ()
-              }
-
-              // Recalculate coordinates with new placement and/or rects
-              coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
-
-              // Restart middleware loop
-              i = -1
+          value.placement.foreach { newPlacement =>
+            statefulPlacement = newPlacement
           }
+
+          // Recalculate rects if requested
+          value.rects.foreach {
+            case Left(true) =>
+              // Recalculate rects from platform
+              rects = config.platform.getElementRects(reference, floating, config.strategy)
+            case Right(newRects) =>
+              // Use provided rects
+              rects = newRects
+            case Left(false) =>
+              // Don't recalculate rects
+              ()
+          }
+
+          // Recalculate coordinates with new placement and/or rects
+          coords = computeCoordsFromPlacement(rects, statefulPlacement, rtl)
+
+          // Restart middleware loop
+          i = -1
 
         case _ =>
           // Reset requested, but resetCount limit exceeded – ignore reset
