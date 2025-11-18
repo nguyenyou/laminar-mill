@@ -519,7 +519,12 @@ object DOMUtils {
 
       if (offsetParentElement.isInstanceOf[dom.HTMLElement]) {
         val htmlOffsetParent = offsetParentElement.asInstanceOf[dom.HTMLElement]
-        val offsetRect = Utils.getBoundingClientRect(htmlOffsetParent)
+        val offsetRect = getBoundingClientRect(
+          htmlOffsetParent,
+          includeScale = true,
+          isFixedStrategy = isFixed,
+          offsetParent = Some(offsetParent)
+        )
         scale = getScale(htmlOffsetParent)
         offsets = Coords(
           offsetRect.x + htmlOffsetParent.clientLeft,

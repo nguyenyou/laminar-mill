@@ -335,21 +335,6 @@ object Utils {
   // AutoUpdate Utilities
   // ============================================================================
 
-  /** Get bounding client rect for an element (simplified version for autoUpdate). */
-  def getBoundingClientRect(element: dom.Element): ClientRectObject = {
-    val rect = element.getBoundingClientRect()
-    ClientRectObject(
-      x = rect.x,
-      y = rect.y,
-      width = rect.width,
-      height = rect.height,
-      top = rect.top,
-      right = rect.right,
-      bottom = rect.bottom,
-      left = rect.left
-    )
-  }
-
   /** Check if two client rects are equal. */
   def rectsAreEqual(a: ClientRectObject, b: ClientRectObject): Boolean = {
     a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height
