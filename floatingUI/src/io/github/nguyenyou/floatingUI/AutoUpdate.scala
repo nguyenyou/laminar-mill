@@ -272,10 +272,11 @@ object AutoUpdate {
       val insetLeft = math.floor(left).toInt
       val rootMargin = s"${-insetTop}px ${-insetRight}px ${-insetBottom}px ${-insetLeft}px"
 
-      // Clamp threshold and use || 1 to handle edge cases
+      // Clamp threshold and use || 1 to handle edge cases (matching TypeScript: max(0, min(1, threshold)) || 1)
       val clampedThreshold = {
         val clamped = math.max(0, math.min(1, threshold))
-        if (clamped == 0 && threshold != 0) 1.0 else clamped
+        // Match TypeScript's || 1 behavior: if clamped is falsy (0, NaN), use 1
+        if (clamped == 0 || clamped.isNaN) 1.0 else clamped
       }
 
       var isFirstUpdate = true
