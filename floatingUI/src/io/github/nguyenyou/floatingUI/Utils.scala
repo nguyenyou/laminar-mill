@@ -18,6 +18,8 @@ object Utils {
   val sides: Seq[Side] = Seq(Side.Top, Side.Right, Side.Bottom, Side.Left)
   val alignments: Seq[Alignment] = Seq(Alignment.Start, Alignment.End)
   val originSides: Set[Side] = Set(Side.Left, Side.Top)
+  private val invalidOverflowDisplayValues: Set[String] = Set("inline", "contents")
+  private val lastTraversableNodeNames: Set[String] = Set("html", "body", "#document")
 
   private val oppositeSideMap: Map[Side, Side] = Map(
     Side.Left -> Side.Right,
@@ -353,16 +355,35 @@ object Utils {
     a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height
   }
 
+  /** Determine if the global window object exists (SSR safety). */
+  private def hasWindow: Boolean = !js.isUndefined(js.Dynamic.global.selectDynamic("window"))
+
   /** Get the document element for a node. */
   def getDocumentElement(node: dom.Node): dom.Element = {
-    node.ownerDocument.documentElement
+    val doc =
+      if (node == null) {
+        dom.document
+      } else {
+        Option(node.ownerDocument).getOrElse(dom.document)
+      }
+    doc.documentElement
   }
 
   /** Get the window for a node. */
   def getWindow(node: dom.Node): dom.Window = {
-    if (node == null) return dom.window
-    // Use parentWindow for compatibility (defaultView is not available in scala-js-dom)
-    node.ownerDocument.asInstanceOf[js.Dynamic].defaultView.asInstanceOf[dom.Window]
+    if (!hasWindow) {
+      js.Dynamic.global.selectDynamic("window").asInstanceOf[dom.Window]
+    } else if (node == null) {
+      dom.window
+    } else {
+      val ownerDoc = Option(node.ownerDocument).getOrElse(dom.document)
+      val defaultView = ownerDoc.asInstanceOf[js.Dynamic].selectDynamic("defaultView")
+      if (defaultView != null && !js.isUndefined(defaultView)) {
+        defaultView.asInstanceOf[dom.Window]
+      } else {
+        dom.window
+      }
+    }
   }
 
   /** Get the frame element for a window (if the window is inside an iframe).
@@ -390,44 +411,51 @@ object Utils {
     node.isInstanceOf[dom.HTMLElement]
   }
 
-  /** Check if an element has overflow.
-    *
-    * Checks if an element can cause overflow by examining its overflow properties and display value. Elements with display: inline or
-    * display: contents are excluded as they cannot be overflow containers.
-    */
+  /** Check if an element has overflow using the same criteria as @floating-ui/utils/dom. */
   def isOverflowElement(element: dom.Element): Boolean = {
-    if (!element.isInstanceOf[dom.HTMLElement]) return false
-    val htmlElement = element.asInstanceOf[dom.HTMLElement]
-    val style = dom.window.getComputedStyle(htmlElement)
-    val overflow = style.overflow
-    val overflowX = style.overflowX
-    val overflowY = style.overflowY
-    val display = style.display
-
-    // Invalid display values that cannot be overflow containers
-    val invalidDisplayValues = Set("inline", "contents")
-
-    // Check if any overflow property has a value that creates an overflow container
-    val hasOverflow =
-      overflow == "auto" || overflow == "scroll" || overflow == "overlay" || overflow == "hidden" || overflow == "clip" ||
-        overflowX == "auto" || overflowX == "scroll" || overflowX == "overlay" || overflowX == "hidden" || overflowX == "clip" ||
-        overflowY == "auto" || overflowY == "scroll" || overflowY == "overlay" || overflowY == "hidden" || overflowY == "clip"
-
-    hasOverflow && !invalidDisplayValues.contains(display)
+    if (element == null || !element.isInstanceOf[dom.Element]) return false
+    val css = dom.window.getComputedStyle(element)
+    val overflowCombined = css.overflow + css.overflowX + css.overflowY
+    val overflowMatches = "(auto|scroll|overlay|hidden|clip)".r
+    overflowMatches.findFirstIn(overflowCombined).nonEmpty && !invalidOverflowDisplayValues.contains(css.display)
   }
 
-  /** Get parent node, handling shadow DOM. */
+  private def isShadowRoot(value: Any): Boolean = {
+    val shadowRootCtor = js.Dynamic.global.selectDynamic("ShadowRoot")
+    if (js.isUndefined(shadowRootCtor)) {
+      false
+    } else {
+      value match {
+        case sr: dom.Node => sr.isInstanceOf[dom.ShadowRoot]
+        case _            => false
+      }
+    }
+  }
+
+  /** Get parent node, handling shadow DOM and slots. */
   def getParentNode(node: dom.Node): dom.Node = {
+    if (node == null) return getDocumentElement(null)
     if (node.nodeName.toLowerCase == "html") return node
 
-    // Try parent node or fallback to document element
-    Option(node.parentNode).getOrElse(getDocumentElement(node))
+    val assignedSlot = node.asInstanceOf[js.Dynamic].selectDynamic("assignedSlot")
+    val parentNode = Option(node.parentNode)
+    val shadowHost =
+      if (isShadowRoot(node)) {
+        Option(node.asInstanceOf[js.Dynamic].selectDynamic("host").asInstanceOf[dom.Node])
+      } else {
+        None
+      }
+
+    Option(assignedSlot.asInstanceOf[dom.Node])
+      .orElse(parentNode)
+      .orElse(shadowHost)
+      .getOrElse(getDocumentElement(node))
   }
 
   /** Check if we've reached the last traversable node. */
   def isLastTraversableNode(node: dom.Node): Boolean = {
-    val nodeName = node.nodeName.toLowerCase
-    nodeName == "html" || nodeName == "body" || nodeName == "#document"
+    if (node == null) return true
+    lastTraversableNodeNames.contains(node.nodeName.toLowerCase)
   }
 
   /** Get the nearest overflow ancestor. */
@@ -435,77 +463,52 @@ object Utils {
     val parentNode = getParentNode(node)
 
     if (isLastTraversableNode(parentNode)) {
-      return dom.document.body
+      val ownerDoc = Option(node.ownerDocument).getOrElse(dom.document)
+      ownerDoc.asInstanceOf[js.Dynamic].selectDynamic("body").asInstanceOf[dom.HTMLElement]
+    } else if (isHTMLElement(parentNode) && isOverflowElement(parentNode.asInstanceOf[dom.Element])) {
+      parentNode.asInstanceOf[dom.HTMLElement]
+    } else {
+      getNearestOverflowAncestor(parentNode)
     }
-
-    if (isHTMLElement(parentNode) && isOverflowElement(parentNode.asInstanceOf[dom.Element])) {
-      return parentNode.asInstanceOf[dom.HTMLElement]
-    }
-
-    getNearestOverflowAncestor(parentNode)
   }
 
-  /** Get all overflow ancestors for a node.
-    *
-    * Returns all ancestor elements that can cause overflow (scrollable containers, windows, etc.). This includes traversing up through
-    * iframe boundaries when enabled.
-    *
-    * @param node
-    *   The node to get overflow ancestors for
-    * @param list
-    *   Initial list of ancestors (used for recursive calls)
-    * @param traverseIframes
-    *   Whether to traverse up through iframe boundaries (default: true)
-    * @return
-    *   Sequence of overflow ancestor elements including windows and visual viewports
-    */
+  /** Get all overflow ancestors for a node (matches @floating-ui/utils/dom). */
   def getOverflowAncestors(
     node: dom.Node,
     list: Seq[dom.EventTarget] = Seq.empty,
     traverseIframes: Boolean = true
   ): Seq[dom.EventTarget] = {
     val scrollableAncestor = getNearestOverflowAncestor(node)
-    // Access body through dynamic typing since it's not directly available in dom.Document
-    val ownerDoc = node.ownerDocument
-    val docBody = if (ownerDoc != null) {
-      ownerDoc.asInstanceOf[js.Dynamic].body.asInstanceOf[dom.HTMLElement]
-    } else {
-      dom.document.body
-    }
-    val isBody = scrollableAncestor == docBody
+    val ownerDoc = Option(node.ownerDocument).getOrElse(dom.document)
+    val body = ownerDoc.asInstanceOf[js.Dynamic].selectDynamic("body").asInstanceOf[dom.HTMLElement]
+    val isBody = scrollableAncestor == body
     val win = getWindow(scrollableAncestor)
 
     if (isBody) {
-      // When we reach the body, collect window, visualViewport, body (if overflow), and iframe ancestors
       val frameElement = getFrameElement(win)
-
-      // Try to get visualViewport if available
       val visualViewportSeq: Seq[dom.EventTarget] =
         try {
-          val vv = win.asInstanceOf[js.Dynamic].visualViewport
-          if (vv != null && !js.isUndefined(vv)) {
-            Seq(vv.asInstanceOf[dom.EventTarget])
-          } else {
-            Seq.empty
-          }
+          val vv = win.asInstanceOf[js.Dynamic].selectDynamic("visualViewport")
+          if (vv != null && !js.isUndefined(vv)) Seq(vv.asInstanceOf[dom.EventTarget]) else Seq.empty
         } catch {
           case _: Throwable => Seq.empty
         }
 
-      // Include body only if it has overflow
-      val bodySeq = if (isOverflowElement(scrollableAncestor)) Seq(scrollableAncestor) else Seq.empty
-
-      // Recursively get ancestors from parent iframe if present and traversal is enabled
-      val frameAncestors = if (frameElement != null && traverseIframes) {
-        getOverflowAncestors(frameElement, Seq.empty, traverseIframes)
-      } else {
-        Seq.empty
-      }
+      val bodySeq = if (isOverflowElement(scrollableAncestor)) Seq(scrollableAncestor.asInstanceOf[dom.EventTarget]) else Seq.empty
+      val frameAncestors =
+        if (frameElement != null && traverseIframes) {
+          getOverflowAncestors(frameElement, Seq.empty, traverseIframes)
+        } else {
+          Seq.empty
+        }
 
       list ++ Seq(win) ++ visualViewportSeq ++ bodySeq ++ frameAncestors
     } else {
-      // Continue traversing up the tree
-      list ++ Seq(scrollableAncestor) ++ getOverflowAncestors(scrollableAncestor, Seq.empty, traverseIframes)
+      list ++ Seq(scrollableAncestor.asInstanceOf[dom.EventTarget]) ++ getOverflowAncestors(
+        scrollableAncestor,
+        Seq.empty,
+        traverseIframes
+      )
     }
   }
 }

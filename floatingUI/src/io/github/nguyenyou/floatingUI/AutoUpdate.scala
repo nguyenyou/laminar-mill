@@ -3,6 +3,7 @@ package io.github.nguyenyou.floatingUI
 import org.scalajs.dom
 import scala.scalajs.js
 import Utils.*
+import DOMUtils.{getBoundingClientRect => domGetBoundingClientRect}
 import Types.{ClientRectObject, ReferenceElement}
 
 /*
@@ -175,17 +176,10 @@ object AutoUpdate {
     var prevRefRect: Option[ClientRectObject] = None
 
     if (animationFrame) {
-      // For virtual elements, use getBoundingClientRect directly
-      prevRefRect = Some(reference match {
-        case ve: Types.VirtualElement => ve.getBoundingClientRect()
-        case e: dom.Element           => getBoundingClientRect(e)
-      })
+      prevRefRect = Some(domGetBoundingClientRect(reference))
 
       def frameLoop(): Unit = {
-        val nextRefRect = reference match {
-          case ve: Types.VirtualElement => ve.getBoundingClientRect()
-          case e: dom.Element           => getBoundingClientRect(e)
-        }
+        val nextRefRect = domGetBoundingClientRect(reference)
 
         if (prevRefRect.exists(prev => !rectsAreEqual(prev, nextRefRect))) {
           update()
@@ -257,7 +251,7 @@ object AutoUpdate {
       cleanup()
 
       // Get bounding rect once (not twice!)
-      val elementRectForRootMargin = getBoundingClientRect(element)
+      val elementRectForRootMargin = domGetBoundingClientRect(element)
       val left = elementRectForRootMargin.left
       val top = elementRectForRootMargin.top
       val width = elementRectForRootMargin.width
@@ -307,7 +301,7 @@ object AutoUpdate {
           }
 
           // Check if element actually moved even though ratio is 1
-          if (ratio == 1 && !rectsAreEqual(elementRectForRootMargin, getBoundingClientRect(element))) {
+          if (ratio == 1 && !rectsAreEqual(elementRectForRootMargin, domGetBoundingClientRect(element))) {
             refresh()
           }
 

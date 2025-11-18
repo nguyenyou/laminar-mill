@@ -11,6 +11,11 @@ import Utils.*
   */
 object DOMUtils {
 
+  private val transformProperties = Seq("transform", "translate", "scale", "rotate", "perspective")
+  private val willChangeValues = Seq("transform", "translate", "scale", "rotate", "perspective", "filter")
+  private val containValues = Seq("paint", "layout", "strict", "content")
+  private val topLayerSelectors = Seq(":popover-open", ":modal")
+
   // ============================================================================
   // Bounding Client Rect (Full Implementation)
   // ============================================================================
@@ -193,27 +198,43 @@ object DOMUtils {
     nodeName == "table" || nodeName == "td" || nodeName == "th"
   }
 
-  /** Check if an element is a containing block. */
+  /** Check if an element is a containing block (matches @floating-ui/utils/dom). */
   def isContainingBlock(element: dom.Element): Boolean = {
-    val css = dom.window.getComputedStyle(element)
-    // Simplified check - full implementation would check for more properties
-    css.transform != "none" ||
-    css.perspective != "none" ||
-    css.getPropertyValue("will-change") == "transform" ||
-    css.getPropertyValue("will-change") == "perspective" ||
-    css.getPropertyValue("filter") != "none" ||
-    css.getPropertyValue("backdrop-filter") != "none"
+    val css =
+      if (element != null) dom.window.getComputedStyle(element)
+      else return false
+
+    val webkit = isWebKit()
+
+    def value(prop: String): Option[String] = {
+      val raw = css.asInstanceOf[js.Dynamic].selectDynamic(prop)
+      if (js.isUndefined(raw) || raw == null) None else Some(raw.toString)
+    }
+
+    val hasTransform = transformProperties.exists(prop => value(prop).exists(v => v.nonEmpty && v != "none"))
+    val containerType = value("containerType").getOrElse("")
+    val backdropFilter = value("backdropFilter").getOrElse("")
+    val filter = value("filter").getOrElse("")
+    val willChange = Option(css.getPropertyValue("will-change")).getOrElse("")
+    val contain = Option(css.getPropertyValue("contain")).getOrElse("")
+
+    hasTransform ||
+    (containerType.nonEmpty && containerType != "normal") ||
+    (!webkit && backdropFilter != "none") ||
+    (!webkit && filter != "none") ||
+    willChangeValues.exists(willChange.contains) ||
+    containValues.exists(contain.contains)
   }
 
-  /** Check if element is in top layer (dialog, fullscreen). */
+  /** Check if element is in top layer using selector-based detection. */
   def isTopLayer(element: dom.Element): Boolean = {
-    if (!element.isInstanceOf[dom.HTMLElement]) return false
-    val htmlElement = element.asInstanceOf[dom.HTMLElement]
-    val nodeName = htmlElement.nodeName.toLowerCase
-    // Simplified check
-    nodeName == "dialog" || {
-      val css = dom.window.getComputedStyle(htmlElement)
-      css.position == "fixed" && css.getPropertyValue("inset") == "0px"
+    if (element == null) return false
+    topLayerSelectors.exists { selector =>
+      try {
+        element.asInstanceOf[js.Dynamic].applyDynamic("matches")(selector).asInstanceOf[Boolean]
+      } catch {
+        case _: Throwable => false
+      }
     }
   }
 
@@ -396,10 +417,17 @@ object DOMUtils {
     Rect(x, y, width, height)
   }
 
-  /** Check if browser is WebKit-based. */
+  /** Check if browser is WebKit-based using CSS.supports detection. */
   def isWebKit(): Boolean = {
-    val userAgent = dom.window.navigator.userAgent
-    userAgent.contains("AppleWebKit") && !userAgent.contains("Chrome")
+    val css = js.Dynamic.global.selectDynamic("CSS")
+    if (js.isUndefined(css) || js.isUndefined(css.selectDynamic("supports"))) {
+      false
+    } else {
+      css
+        .selectDynamic("supports")
+        .asInstanceOf[js.Function2[String, String, Boolean]]
+        .apply("-webkit-backdrop-filter", "none")
+    }
   }
 
   /** Get visual offsets (for visual viewport). */
@@ -523,7 +551,7 @@ object DOMUtils {
     * This matches the TypeScript implementation from floating-ui/packages/dom/src/utils/getRectRelativeToOffsetParent.ts
     */
   def getRectRelativeToOffsetParent(
-    element: dom.Element,
+    element: ReferenceElement,
     offsetParent: dom.EventTarget,
     strategy: Strategy
   ): Rect = {

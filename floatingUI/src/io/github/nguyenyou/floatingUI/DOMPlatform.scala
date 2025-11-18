@@ -16,27 +16,19 @@ object DOMPlatform extends Platform {
     floating: dom.HTMLElement,
     strategy: Strategy
   ): ElementRects = {
-    val floatingRect = floating.getBoundingClientRect()
-    val offsetParent = DOMUtils.getOffsetParent(floating)
+    val floatingDimensions = getDimensions(floating)
+    val offsetParentTarget = getOffsetParent(floating).getOrElse(DOMUtils.getOffsetParent(floating))
+    val offsetParent = offsetParentTarget.asInstanceOf[dom.EventTarget]
 
-    // Get reference rect - handle both DOM elements and virtual elements
-    val referenceRect = reference match {
-      case ve: VirtualElement =>
-        // For virtual elements, use getBoundingClientRect directly
-        val rect = ve.getBoundingClientRect()
-        Rect(rect.x, rect.y, rect.width, rect.height)
-      case e: dom.Element =>
-        // For DOM elements, use the standard method
-        getRectRelativeToOffsetParent(e, offsetParent, strategy)
-    }
+    val referenceRect = getRectRelativeToOffsetParent(reference, offsetParent, strategy)
 
     ElementRects(
       reference = referenceRect,
       floating = Rect(
         x = 0,
         y = 0,
-        width = floatingRect.width,
-        height = floatingRect.height
+        width = floatingDimensions.width,
+        height = floatingDimensions.height
       )
     )
   }
