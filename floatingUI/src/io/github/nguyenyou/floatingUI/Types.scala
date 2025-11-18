@@ -916,6 +916,9 @@ object Types {
   /** Elements object containing reference and floating elements. */
   case class Elements(reference: ReferenceElement, floating: dom.HTMLElement)
 
+  /** Cache type for clipping element ancestors (per-call Map keyed by DOM element). */
+  type ClippingCache = scala.collection.mutable.Map[dom.Element, Seq[dom.Element]]
+
   // ============================================================================
   // Platform Interface
   // ============================================================================
@@ -933,7 +936,7 @@ object Types {
 
     // Cache for expensive operations (e.g., getClippingElementAncestors)
     // This is injected by computePosition and used by platform methods
-    var _c: Option[scala.collection.mutable.Map[ReferenceElement, Seq[dom.Element]]] = None
+    var _c: Option[ClippingCache] = None
 
     // Optional methods with default implementations
 

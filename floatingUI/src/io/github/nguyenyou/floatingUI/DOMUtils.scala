@@ -681,7 +681,7 @@ object DOMUtils {
     */
   def getClippingElementAncestors(
     element: dom.Element,
-    cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
+    cache: Option[ClippingCache] = None
   ): Seq[dom.Element] = {
     // Check cache first
     cache.flatMap(_.get(element)) match {
@@ -762,7 +762,7 @@ object DOMUtils {
     boundary: Boundary,
     rootBoundary: RootBoundary,
     strategy: Strategy,
-    cache: Option[scala.collection.mutable.Map[Types.ReferenceElement, Seq[dom.Element]]] = None
+    cache: Option[ClippingCache] = None
   ): Rect = {
     // Convert boundary to internal representation for type-safe pattern matching
     val boundaryInternal = BoundaryInternal.fromBoundary(boundary)
