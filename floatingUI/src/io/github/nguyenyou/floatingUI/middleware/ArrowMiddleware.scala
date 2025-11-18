@@ -81,11 +81,22 @@ object ArrowMiddleware {
       val isOffsetParentElement = arrowOffsetParent.flatMap(state.platform.isElement).getOrElse(false)
       if (clientSize == 0 || !isOffsetParentElement) {
         // state.elements.floating is always an HTMLElement
-        if (clientProp == "clientHeight") {
-          clientSize = state.elements.floating.clientHeight.toDouble
-        } else {
-          clientSize = state.elements.floating.clientWidth.toDouble
-        }
+        val floatingClientSize =
+          if (clientProp == "clientHeight") {
+            state.elements.floating.clientHeight.toDouble
+          } else {
+            state.elements.floating.clientWidth.toDouble
+          }
+
+        clientSize =
+          if (floatingClientSize != 0) {
+            floatingClientSize
+          } else {
+            length match {
+              case Length.Width  => state.rects.floating.width
+              case Length.Height => state.rects.floating.height
+            }
+          }
       }
 
       val centerToReference = endDiff / 2 - startDiff / 2
