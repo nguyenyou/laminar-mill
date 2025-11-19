@@ -17,8 +17,10 @@ object DOMPlatform extends Platform {
     strategy: Strategy
   ): ElementRects = {
     val floatingDimensions = getDimensions(floating)
-    val offsetParentTarget = getOffsetParent(floating).getOrElse(DOMUtils.getOffsetParent(floating))
-    val offsetParent = offsetParentTarget.asInstanceOf[dom.EventTarget]
+    // DOMUtils.getOffsetParent always returns an EventTarget for DOM elements
+    // (falling back to window when needed), so we can call it directly here
+    // rather than going through the optional Platform.getOffsetParent + fallback.
+    val offsetParent = DOMUtils.getOffsetParent(floating)
 
     val referenceRect = getRectRelativeToOffsetParent(reference, offsetParent, strategy)
 
