@@ -365,8 +365,8 @@ object DOMUtils {
 
   /** Get viewport rectangle. */
   def getViewportRect(element: dom.Element, strategy: Strategy): Rect = {
-    val win = dom.window
-    val html = getDocumentElement(element)
+    val win = Utils.getWindow(element)
+    val html = Utils.getDocumentElement(element)
 
     var width = html.clientWidth.toDouble
     var height = html.clientHeight.toDouble
@@ -374,15 +374,17 @@ object DOMUtils {
     var y = 0.0
 
     // Check for visual viewport support
-    val visualViewport = win.asInstanceOf[js.Dynamic].visualViewport
+    val visualViewport = win.asInstanceOf[js.Dynamic].selectDynamic("visualViewport")
     if (!js.isUndefined(visualViewport) && visualViewport != null) {
-      width = visualViewport.width.asInstanceOf[Double]
-      height = visualViewport.height.asInstanceOf[Double]
+      width = visualViewport.selectDynamic("width").asInstanceOf[Double]
+      height = visualViewport.selectDynamic("height").asInstanceOf[Double]
 
-      // For fixed positioning, include visual viewport offsets
-      if (strategy == Strategy.Fixed) {
-        x = visualViewport.offsetLeft.asInstanceOf[Double]
-        y = visualViewport.offsetTop.asInstanceOf[Double]
+      // Match Floating UI: apply offsets on WebKit only for fixed strategy,
+      // but on other browsers for both strategies.
+      val visualViewportBased = isWebKit()
+      if (!visualViewportBased || (visualViewportBased && strategy == Strategy.Fixed)) {
+        x = visualViewport.selectDynamic("offsetLeft").asInstanceOf[Double]
+        y = visualViewport.selectDynamic("offsetTop").asInstanceOf[Double]
       }
     }
 
@@ -434,16 +436,17 @@ object DOMUtils {
 
   /** Get visual offsets (for visual viewport). */
   def getVisualOffsets(element: Option[dom.Element]): Coords = {
-    val win = dom.window
-    val visualViewport = win.asInstanceOf[js.Dynamic].visualViewport
+    val node = element.orNull
+    val win = Utils.getWindow(node.asInstanceOf[dom.Node])
+    val visualViewport = win.asInstanceOf[js.Dynamic].selectDynamic("visualViewport")
 
     if (!isWebKit() || js.isUndefined(visualViewport) || visualViewport == null) {
       return Coords(0, 0)
     }
 
     Coords(
-      visualViewport.offsetLeft.asInstanceOf[Double],
-      visualViewport.offsetTop.asInstanceOf[Double]
+      visualViewport.selectDynamic("offsetLeft").asInstanceOf[Double],
+      visualViewport.selectDynamic("offsetTop").asInstanceOf[Double]
     )
   }
 
@@ -475,9 +478,16 @@ object DOMUtils {
   }
 
   /** Get HTML offset. */
-  def getHTMLOffset(documentElement: dom.HTMLElement, scroll: (Double, Double)): Coords = {
+  def getHTMLOffset(
+    documentElement: dom.HTMLElement,
+    scroll: (Double, Double),
+    ignoreScrollbarX: Boolean = false
+  ): Coords = {
     val htmlRect = documentElement.getBoundingClientRect()
-    val x = htmlRect.left + scroll._1 - getWindowScrollBarX(documentElement, Some(htmlRect))
+    val scrollbarX =
+      if (ignoreScrollbarX) 0.0
+      else getWindowScrollBarX(documentElement, Some(htmlRect))
+    val x = htmlRect.left + scroll._1 - scrollbarX
     val y = htmlRect.top + scroll._2
     Coords(x, y)
   }
@@ -488,59 +498,74 @@ object DOMUtils {
 
   /** Convert offset-parent-relative rect to viewport-relative rect. */
   def convertOffsetParentRelativeRectToViewportRelativeRect(
+    elements: Option[Elements],
     rect: Rect,
-    offsetParent: dom.EventTarget,
+    offsetParent: Any,
     strategy: Strategy
   ): Rect = {
     val isFixed = strategy == Strategy.Fixed
 
-    // If offsetParent is window or document element, no conversion needed
-    if (!offsetParent.isInstanceOf[dom.Element]) {
-      return rect
+    // Floating UI: if the floating element is in the top layer and using fixed
+    // strategy, no conversion is necessary.
+    val isTopLayerFloating = elements.exists(e => e.floating != null && isTopLayer(e.floating))
+
+    // Determine the document element and a node we can use for scroll calculations
+    val (documentElement, offsetParentNode, isOffsetParentAnElement) = offsetParent match {
+      case elem: dom.Element =>
+        (Utils.getDocumentElement(elem), elem.asInstanceOf[dom.Node], elem.isInstanceOf[dom.HTMLElement])
+      case win: dom.Window =>
+        (win.document.documentElement, win.document.asInstanceOf[dom.Node], false)
+      case doc: dom.Document =>
+        (doc.documentElement, doc.asInstanceOf[dom.Node], false)
+      case node: dom.Node =>
+        (Utils.getDocumentElement(node), node, node.isInstanceOf[dom.HTMLElement])
+      case _ =>
+        val doc = dom.document
+        (doc.documentElement, doc.asInstanceOf[dom.Node], false)
     }
 
-    val offsetParentElement = offsetParent.asInstanceOf[dom.Element]
-    val documentElement = getDocumentElement(offsetParentElement)
+    val isOffsetParentDocumentElement = offsetParent match {
+      case elem: dom.Element => elem == documentElement
+      case doc: dom.Document => doc.documentElement == documentElement
+      case win: dom.Window   => win.document.documentElement == documentElement
+      case _                 => false
+    }
 
-    if (offsetParent == documentElement || (isTopLayer(offsetParentElement) && isFixed)) {
+    if (isOffsetParentDocumentElement || (isTopLayerFloating && isFixed)) {
       return rect
     }
 
     var scroll = (0.0, 0.0)
     var scale = Coords(1, 1)
     var offsets = Coords(0, 0)
-    val isOffsetParentAnElement = offsetParentElement.isInstanceOf[dom.HTMLElement]
 
     if (isOffsetParentAnElement || (!isOffsetParentAnElement && !isFixed)) {
       if (
-        getNodeName(offsetParentElement) != "body" ||
+        getNodeName(offsetParentNode) != "body" ||
         isOverflowElement(documentElement)
       ) {
-        scroll = getNodeScroll(offsetParentElement)
+        scroll = getNodeScroll(offsetParentNode)
       }
 
-      if (offsetParentElement.isInstanceOf[dom.HTMLElement]) {
-        val htmlOffsetParent = offsetParentElement.asInstanceOf[dom.HTMLElement]
+      if (isOffsetParentAnElement) {
+        val offsetParentElement = offsetParentNode.asInstanceOf[dom.HTMLElement]
         val offsetRect = getBoundingClientRect(
-          htmlOffsetParent,
+          offsetParentElement,
           includeScale = true,
           isFixedStrategy = isFixed,
           offsetParent = Some(offsetParent)
         )
-        scale = getScale(htmlOffsetParent)
+        scale = getScale(offsetParentElement)
         offsets = Coords(
-          offsetRect.x + htmlOffsetParent.clientLeft,
-          offsetRect.y + htmlOffsetParent.clientTop
+          offsetRect.x + offsetParentElement.clientLeft,
+          offsetRect.y + offsetParentElement.clientTop
         )
       }
     }
 
     val htmlOffset =
-      if (
-        documentElement.isInstanceOf[dom.HTMLElement] &&
-        !isOffsetParentAnElement && !isFixed
-      ) {
-        getHTMLOffset(documentElement.asInstanceOf[dom.HTMLElement], scroll)
+      if (documentElement != null && !isOffsetParentAnElement && !isFixed) {
+        getHTMLOffset(documentElement.asInstanceOf[dom.HTMLElement], scroll, ignoreScrollbarX = true)
       } else {
         Coords(0, 0)
       }

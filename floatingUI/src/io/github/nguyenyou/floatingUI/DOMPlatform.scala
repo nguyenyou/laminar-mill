@@ -69,14 +69,14 @@ object DOMPlatform extends Platform {
     offsetParent: Any,
     strategy: Strategy
   ): Option[Rect] = {
-    // Only convert if offsetParent is a DOM element
-    offsetParent match {
-      case elem: dom.Element =>
-        Some(DOMUtils.convertOffsetParentRelativeRectToViewportRelativeRect(rect, elem, strategy))
-      case _ =>
-        // If offsetParent is window or not an element, no conversion needed
-        None
-    }
+    Some(
+      DOMUtils.convertOffsetParentRelativeRectToViewportRelativeRect(
+        elements,
+        rect,
+        offsetParent,
+        strategy
+      )
+    )
   }
 
   override def getOffsetParent(element: Any): Option[Any] = {
