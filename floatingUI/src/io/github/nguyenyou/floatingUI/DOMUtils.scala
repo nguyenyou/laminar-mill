@@ -139,19 +139,21 @@ object DOMUtils {
     * Returns width, height, and a flag indicating if fallback to offset dimensions was used.
     */
   def getCssDimensions(element: dom.Element): (Double, Double, Boolean) = {
-    if (!element.isInstanceOf[dom.HTMLElement]) {
-      val rect = element.getBoundingClientRect()
-      return (rect.width, rect.height, false)
-    }
+    val css = dom.window.getComputedStyle(element)
 
-    val htmlElement = element.asInstanceOf[dom.HTMLElement]
-    val css = dom.window.getComputedStyle(htmlElement)
-
+    // In testing environments, the `width` and `height` properties can be empty
+    // strings for SVG elements, resulting in NaN. Fallback to 0.0 in this case.
     var width = css.width.replace("px", "").toDoubleOption.getOrElse(0.0)
     var height = css.height.replace("px", "").toDoubleOption.getOrElse(0.0)
 
-    val offsetWidth = htmlElement.offsetWidth.toDouble
-    val offsetHeight = htmlElement.offsetHeight.toDouble
+    val hasOffset = element.isInstanceOf[dom.HTMLElement]
+    val (offsetWidth, offsetHeight) =
+      if (hasOffset) {
+        val htmlElement = element.asInstanceOf[dom.HTMLElement]
+        (htmlElement.offsetWidth.toDouble, htmlElement.offsetHeight.toDouble)
+      } else {
+        (width, height)
+      }
 
     val shouldFallback =
       math.round(width) != offsetWidth || math.round(height) != offsetHeight
