@@ -1,8 +1,10 @@
 package www.ui
 
+import scala.language.implicitConversions
 import io.github.nguyenyou.laminar.api.L
 import io.github.nguyenyou.laminar.api.eventPropToProcessor
 import org.scalajs.dom
+import io.github.nguyenyou.laminar.api.textToTextNode
 
 // The scope that provides access to the current parent element
 class View(val parent: L.HtmlElement)
@@ -61,4 +63,12 @@ object height {
     def :=(value: Int)(using scope: View) = apply(value)
   }
 
+}
+
+object ui {
+  def apply(value: String)(using scope: View) = {
+    scope.parent.amend(
+      value
+    )
+  }
 }
