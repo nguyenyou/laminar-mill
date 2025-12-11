@@ -9,24 +9,18 @@ import io.github.nguyenyou.laminar.api.textToTextNode
 // The scope that provides access to the current parent element
 class View(val parent: L.HtmlElement)
 
-// Entry point - creates a root and provides scope to children
-def view(content: View ?=> Unit): L.HtmlElement = {
-  val root = L.div(
-    L.dataAttr("name") := "view"
-  )
-  given View = View(root)
-  content // Children will receive root as parent
-  root
-}
-
 // div creates element, runs children (who amend to it), then amends itself to parent
-def div(content: View ?=> Unit)(using scope: View): L.HtmlElement = {
+// Uses Option[View] with default None so it can be used at top-level without a parent
+def div(content: View ?=> Unit)(using parentScope: Option[View] = None): L.HtmlElement = {
   val element = L.div(
     L.dataAttr("name") := "div"
   )
-  scope.parent.amend(element) // This element amends to its parent
+  // Only amend to parent if we have one
+  parentScope.foreach(_.parent.amend(element))
+  // Provide scope for content block and nested div calls
   given View = View(element)
-  content // Children amend to this element
+  given Option[View] = Some(View(element))
+  content
   element
 }
 
