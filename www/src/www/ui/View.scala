@@ -1,6 +1,8 @@
 package www.ui
 
 import io.github.nguyenyou.laminar.api.L
+import io.github.nguyenyou.laminar.api.eventPropToProcessor
+import org.scalajs.dom
 
 // The scope that provides access to the current parent element
 class View(val parent: L.HtmlElement)
@@ -24,4 +26,39 @@ def div(content: View ?=> Unit)(using scope: View): L.HtmlElement = {
   given View = View(element)
   content // Children amend to this element
   element
+}
+
+object onClick {
+  def apply(f: () => Unit)(using scope: View) = {
+    scope.parent.amend(
+      L.onClick --> L.Observer { _ => f() }
+    )
+  }
+
+  def -->(f: dom.MouseEvent => Unit)(using scope: View) = {
+    scope.parent.amend(
+      L.onClick --> L.Observer[dom.MouseEvent](f)
+    )
+  }
+}
+
+object height {
+  def apply(value: String)(using scope: View) = {
+    scope.parent.amend(
+      L.height := value
+    )
+  }
+
+  def :=(value: String)(using scope: View) = apply(value)
+
+  object px {
+    def apply(value: Int)(using scope: View) = {
+      scope.parent.amend(
+        L.height.px := value
+      )
+    }
+
+    def :=(value: Int)(using scope: View) = apply(value)
+  }
+
 }

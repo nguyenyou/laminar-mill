@@ -4,34 +4,29 @@ import io.github.nguyenyou.laminar.api.L
 import www.components.popover.*
 import www.components.tooltip.*
 import www.floating.Flip
-import www.ui.{view, div}
+import www.ui.{view, div, onClick, height}
+import io.github.nguyenyou.laminar.api.eventPropToProcessor
 
-case class App() {
-  // val v = view {
-  //   div {
-  //     div {
-
-  //     }
-  //   }
-  //   div {
-  //     div {}
-  //     div {}
-  //   }
-  // }
-  def apply() = {
-    view {
-      div {}
+def App() =
+  view {
+    div {
+      "Hello, World!"
+    }
+    div {
       div {
-        div {}
-        div {}
+        height.px := 100
+        onClick --> { event => println(event) }
       }
       div {}
     }
-    // L.div(
-    //   L.mainTag(
-    //     Flip()
-    //   ),
-    //   L.navTag()
-    // )
+    div {}
   }
-}
+
+// def apply() = {
+// L.div(
+//   L.mainTag(
+//     Flip()
+//   ),
+//   L.navTag()
+// )
+// }

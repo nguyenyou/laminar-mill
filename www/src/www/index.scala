@@ -9,6 +9,6 @@ import www.ui.View
   L.render(
     dom.document.getElementById("app"),
     // BasicTooltipExample.simpleTooltip()
-    App()()
+    App()
   )
 }
