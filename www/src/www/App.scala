@@ -21,12 +21,3 @@ def App() =
     }
     div {}
   }
-
-// def apply() = {
-// L.div(
-//   L.mainTag(
-//     Flip()
-//   ),
-//   L.navTag()
-// )
-// }
