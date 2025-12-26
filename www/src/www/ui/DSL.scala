@@ -62,7 +62,7 @@ object height {
 
 }
 
-object ui {
+object str {
   def apply(value: String)(using scope: Parent) = {
     scope.parent.amend(
       value
