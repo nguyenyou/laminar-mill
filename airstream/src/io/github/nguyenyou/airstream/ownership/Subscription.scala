@@ -32,7 +32,7 @@ class Subscription(
     safeCleanup()
 
   private def safeCleanup(): Unit =
-    if (!_isKilled) then
+    if _isKilled then throw new Exception("Can not kill Subscription: it was already killed.")
+    else
       cleanup()
       _isKilled = true
-    else throw new Exception("Can not kill Subscription: it was already killed.")
